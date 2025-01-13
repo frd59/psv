@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alt Alta Açılan Menü - Fotoğraf Kolajlı</title>
+    <style>
+        /* Genel gövde ayarları */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Menü stilini ayarlama */
+        ul.menu {
+            list-style-type: none; /* Noktalı listeyi kaldır */
+            padding: 0;
+            margin: 0;
+            width: 350px; /* Menü genişliği 350px olarak sabitlendi */
+            background-color: #333;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Menü öğeleri */
+        ul.menu li {
+            background-color: #444;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+
+        /* Menü öğelerine hover efekti */
+        ul.menu li:hover {
+            background-color: #555;
+            transform: scale(1.05); /* Buton büyümesi */
+        }
+
+        /* Alt menü (drop-down) gizli */
+        ul.menu li ul {
+            display: none;
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            background-color: #666;
+            max-height: none; /* Alt menülerin yüksekliğini serbest bırakıyoruz */
+            overflow: visible; /* Alt menü öğelerinin taşmasına izin ver */
+            transition: max-height 0.5s ease-in-out;
+            border-radius: 5px;
+        }
+
+        /* Alt menü öğeleri */
+        ul.menu li ul li {
+            padding: 12px;
+            text-align: left;
+            border-top: 1px solid #ddd;
+            transition: background-color 0.3s;
+        }
+
+        /* Alt menü öğeleri üzerine gelince */
+        ul.menu li ul li:hover {
+            background-color: #777;
+        }
+
+        /* Menü öğesinin üzerine tıklandığında alt menüyü göster */
+        ul.menu li.active > ul {
+            display: block;
+        }
+
+        /* DIŞ ÇEKİM için görsel kolaj stili */
+        ul.menu li ul li .photo-box {
+            width: 200px;
+            height: 200px;
+            background-color: #ccc;
+            margin: 10px;
+            overflow: hidden;
+            border: 2px solid #ddd;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            transition: transform 0.3s ease;
+        }
+
+        /* Fotoğrafın stilini ayarlama */
+        ul.menu li ul li .photo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        /* Fotoğraf kutusuna hover efekti */
+        ul.menu li ul li .photo-box:hover {
+            transform: scale(1.05);
+        }
+
+        /* Yazının stilini ayarlama */
+        ul.menu li ul li .photo-box .photo-text {
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            width: 100%;
+            border-radius: 0 0 5px 5px;
+        }
+
+        /* iframe için stil */
+        iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        /* Fotoğraf kutularını düzgün hizalamak için flex düzeni */
+        ul.menu li ul li {
+            display: flex;
+            justify-content: start;
+            flex-wrap: wrap;
+        }
+
+        /* Mobile uyumlu stil */
+        @media (max-width: 768px) {
+            /* Mobilde genişliği değiştirmiyoruz, sadece padding'leri optimize ediyoruz */
+            ul.menu {
+                width: 350px; /* Menü genişliği sabit kalacak */
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <ul class="menu">
+        <li onclick="toggleMenu(event)">VESİKALIK / BİYOMETRİK
+            <ul>
+                <li>4 ADET = 250₺</li>
+                <li>6 ADET = 300₺</li>
+                <li>8 ADET = 350₺</li>
+                <li>12 ADET = 400₺</li>
+            </ul>
+        </li>
+        <li onclick="toggleMenu(event)">KAMERA & FOTOĞRAF
+            <ul>
+                <li>PAKE</li>
+                <li>Alt Menü 2.2</li>
+            </ul>
+        </li>
+        <li onclick="toggleMenu(event)">DIŞ ÇEKİM
+            <ul>
+                <li>
+                    <!-- Link eklenmiş kutular -->
+                    <a href="https://drive.google.com/drive/folders/1qPjqZwaUGGYJq2yp1jbP-SuQAD1nmvnN?usp=drive_link">
+                        <div class="photo-box">
+                            <img src="https://i.hizliresim.com/fdyht3e.jpg" alt="Çekim 1">
+                            <div class="photo-text">KIYIKÖY</div>
+                        </div>
+                    </a>
+                    <a href="https://www.example.com/corlu">
+                        <div class="photo-box">
+                            <img src="https://i.hizliresim.com/ri9m24n.jpg" alt="Çekim 2">
+                            <div class="photo-text">ÇORLU</div>
+                        </div>
+                    </a>
+                    <a href="https://www.example.com/istanbul-plato">
+                        <div class="photo-box">
+                            <img src="https://i.hizliresim.com/kp108ri.jpg" alt="Çekim 3">
+                            <div class="photo-text">İSTANBUL PLATO</div>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li onclick="toggleMenu(event)">KLİP</li>
+        <li onclick="toggleMenu(event)">ORGANİZASYON
+            <ul>
+                <!-- iframe ile sayfa gömme -->
+                <li>
+                    <iframe src="https://www.shopier.com/ShowProductNew/storefront.php?shop=Organizasyon59&sid=aFAxRGcyaFhqUjlXRDFZTDBfLTFfT1JHQU5JWkFTWU9OXyA=#ORGANIZASYON" title="Organizasyon Sayfası"></iframe>
+                </li>
+            </ul>
+        </li>
+        <li onclick="toggleMenu(event)">ÜRÜNLER
+            <ul>
+                <li>Alt Menü 4.1</li>
+                <li>Alt Menü 4.2</li>
+            </ul>
+        </li>
+    </ul>
+
+    <script>
+        // Tıklama ile alt menüyü göster/gizle
+        function toggleMenu(event) {
+            var li = event.target.closest('li');
+            li.classList.toggle('active');
+        }
+    </script>
+
+</body>
+</html>
