@@ -13,6 +13,16 @@
             padding: 0;
         }
 
+        /* Şirket logosu için stil */
+        .logo-container {
+            text-align: center; /* Logoyu ortala */
+            padding-top: 20px;  /* Menülerden önce biraz boşluk bırak */
+        }
+
+        .logo {
+            width: 150px; /* Logonun genişliği */
+        }
+
         /* Menü stilini ayarlama */
         ul.menu {
             list-style-type: none; /* Noktalı listeyi kaldır */
@@ -22,6 +32,7 @@
             background-color: #333;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-top: 20px; /* Menü ile logo arasında biraz boşluk bırak */
         }
 
         /* Menü öğeleri */
@@ -145,6 +156,11 @@
     </style>
 </head>
 <body>
+
+    <!-- Şirket logosu -->
+    <div class="logo-container">
+        <img src="https://i.hizliresim.com/jjdp9b3.png" alt="Şirket Logosu" class="logo">
+    </div>
 
     <ul class="menu">
         <li onclick="toggleMenu(event)">VESİKALIK / BİYOMETRİK
