@@ -223,6 +223,16 @@
         // Tıklama ile alt menüyü göster/gizle
         function toggleMenu(event) {
             var li = event.target.closest('li');
+            
+            // Aktif olan menüleri kapat
+            var allActiveMenus = document.querySelectorAll('.menu li.active');
+            allActiveMenus.forEach(function (menu) {
+                if (menu !== li) {
+                    menu.classList.remove('active');
+                }
+            });
+            
+            // Tıklanan menüyü aç/kapat
             li.classList.toggle('active');
         }
     </script>
