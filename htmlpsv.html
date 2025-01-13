@@ -45,14 +45,14 @@
 
         /* Alt menü (drop-down) gizli */
         ul.menu li ul {
-            display: none;
+            display: none; /* Başlangıçta gizli */
             list-style-type: none;
             padding: 0;
             margin: 0;
             background-color: #666;
-            max-height: none; /* Alt menülerin yüksekliğini serbest bırakıyoruz */
-            overflow: visible; /* Alt menü öğelerinin taşmasına izin ver */
-            transition: max-height 0.5s ease-in-out;
+            opacity: 0; /* Saydam yap */
+            transform: translateY(-20px); /* Başlangıçta yukarıda */
+            transition: opacity 0.3s ease, transform 0.3s ease; /* Opaklık ve transform animasyonu */
             border-radius: 5px;
         }
 
@@ -72,6 +72,8 @@
         /* Menü öğesinin üzerine tıklandığında alt menüyü göster */
         ul.menu li.active > ul {
             display: block;
+            opacity: 1; /* Opaklık tamamen görünür */
+            transform: translateY(0); /* Alt menüyü normal konumuna getir */
         }
 
         /* DIŞ ÇEKİM için görsel kolaj stili */
@@ -125,6 +127,11 @@
             display: flex;
             justify-content: start;
             flex-wrap: wrap;
+        }
+
+        /* Diğer menülerdeki bağlantılarda alt çizgiyi kaldırmak için */
+        ul.menu li ul li a {
+            text-decoration: none; /* Alt çizgiyi kaldır */
         }
 
         /* Mobile uyumlu stil */
