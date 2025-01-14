@@ -330,29 +330,46 @@
                 <li>Alt Menü 4.2</li>
             </ul>
         </li>
-        <!-- Teklif Al menüsü -->
+<!-- TEKLİF AL Menüsüne eklenen Bize Ulaşın butonu -->
 <li onclick="toggleMenu(event)">TEKLİF AL
     <ul>
         <li>
             <label class="checkbox-container">
-                <input type="checkbox">
+                <input type="checkbox" id="serviceA">
                 <span class="checkbox-custom"></span>
                 <span class="checkbox-text">FOTOĞRAF</span>
             </label>
         </li>
         <li>
             <label class="checkbox-container">
-                <input type="checkbox">
+                <input type="checkbox" id="serviceB">
                 <span class="checkbox-custom"></span>
                 <span class="checkbox-text">KAMERA</span>
             </label>
         </li>
         <li>
             <label class="checkbox-container">
-                <input type="checkbox">
+                <input type="checkbox" id="serviceC">
                 <span class="checkbox-custom"></span>
                 <span class="checkbox-text">DRONE</span>
             </label>
+        </li>
+        
+                <li>
+            <label class="checkbox-container">
+                <input type="checkbox" id="serviceD">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-text">MASAJ</span>
+            </label>
+        </li>
+        
+        
+        <!-- Bize Ulaşın butonu ekleniyor -->
+        <li>
+            <a href="#" id="whatsappLink" class="contact-item">
+                <img src="https://i.hizliresim.com/4u2m8c3.png" alt="WhatsApp" class="contact-icon">
+                <span>Teklif Al</span>
+            </a>
         </li>
     </ul>
 </li>
@@ -377,6 +394,8 @@
         <img src="https://i.hizliresim.com/4u2m8c3.png" alt="WhatsApp" class="contact-icon">
         <span>Bize Ulaşın</span>
     </a>
+    
+    
   
 
 
@@ -409,17 +428,24 @@ function toggleMenu(event) {
 // WhatsApp mesajını oluşturma ve iletme
 function sendWhatsAppMessage() {
     var selectedServices = [];
+    // Checkbox'lar kontrol edilerek seçilen hizmetler ekleniyor
+    if (document.getElementById('serviceD').checked) {
+        selectedServices.push('MASAJ');
+    }
+    
     if (document.getElementById('serviceA').checked) {
-        selectedServices.push('Hizmet A');
+        selectedServices.push('FOTOĞRAF');
     }
     if (document.getElementById('serviceB').checked) {
-        selectedServices.push('Hizmet B');
+        selectedServices.push('KAMERA');
     }
     if (document.getElementById('serviceC').checked) {
-        selectedServices.push('Hizmet C');
+        selectedServices.push('DRONE');
     }
+    
 
     if (selectedServices.length > 0) {
+        // Seçilen hizmetlerle mesaj oluşturuluyor
         var message = 'Merhaba, aşağıdaki hizmetleri talep ediyorum: ' + selectedServices.join(', ') + '.';
         var whatsappUrl = 'https://wa.me/905550950059?text=' + encodeURIComponent(message);
         window.open(whatsappUrl, '_blank'); // WhatsApp linkini yeni sekmede aç
@@ -428,11 +454,13 @@ function sendWhatsAppMessage() {
     }
 }
 
-// WhatsApp linkine tıklanınca mesaj gönder
+// Bize Ulaşın butonuna tıklanınca mesaj gönder
 document.getElementById('whatsappLink').addEventListener('click', function(e) {
     e.preventDefault(); // Normal link davranışını engelle
     sendWhatsAppMessage(); // Mesaj gönderme fonksiyonunu çalıştır
 });
+
+
 </script>
 
 </body>
