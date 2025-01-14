@@ -187,6 +187,54 @@
             width: 20px;
             height: 20px;
         }
+        
+        /* Teklif Al menüsü için checkbox düzenlemeleri */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* Normalde kutucuk boş olacak */
+.checkbox-container input {
+    display: none; /* Gerçek checkbox'ı gizle */
+}
+
+/* Kutucuk tasarımı */
+.checkbox-custom {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #444;
+    border-radius: 3px;
+    position: relative;
+    background-color: #fff;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* Tıklandığında kutucuk işaretlenmiş olacak */
+.checkbox-container input:checked + .checkbox-custom {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+}
+
+/* Tik işareti */
+.checkbox-container input:checked + .checkbox-custom::after {
+    content: '✓';
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    color: white;
+    font-size: 12px;
+}
+
+/* Yazı kısmı */
+.checkbox-text {
+    font-size: 14px;
+    color: #444;
+}
+
 
     </style>
 </head>
@@ -265,7 +313,10 @@
                 </li>
             </ul>
         </li>
-        <li onclick="toggleMenu(event)">KLİP</li>
+        <li onclick="toggleMenu(event)">ETKİNLİK</li>
+        <li onclick="toggleMenu(event)">OKUL</li>
+        <li onclick="toggleMenu(event)">KURUMSAL</li>
+        <li onclick="toggleMenu(event)">STUDYO</li>
         <li onclick="toggleMenu(event)">ORGANİZASYON
             <ul>
                 <li>
@@ -273,12 +324,42 @@
                 </li>
             </ul>
         </li>
-        <li onclick="toggleMenu(event)">ÜRÜNLER
+        <li onclick="toggleMenu(event)">HAKKIMIZDA
             <ul>
                 <li>Alt Menü 4.1</li>
                 <li>Alt Menü 4.2</li>
             </ul>
         </li>
+        <!-- Teklif Al menüsü -->
+<li onclick="toggleMenu(event)">TEKLİF AL
+    <ul>
+        <li>
+            <label class="checkbox-container">
+                <input type="checkbox">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-text">Hizmet A</span>
+            </label>
+        </li>
+        <li>
+            <label class="checkbox-container">
+                <input type="checkbox">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-text">Hizmet B</span>
+            </label>
+        </li>
+        <li>
+            <label class="checkbox-container">
+                <input type="checkbox">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-text">Hizmet C</span>
+            </label>
+        </li>
+    </ul>
+</li>
+
+
+        <li onclick="toggleMenu(event)">RANDEVU AL</li>
+        
     </ul>
 
    <!-- İletişim bölümü -->
