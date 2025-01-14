@@ -1,193 +1,192 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alt Alta Açılan Menü - Fotoğraf Kolajlı</title>
-    <style>
-        /* Genel gövde ayarları */
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
+<style>
+    /* Genel gövde ayarları */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
 
-        /* Şirket logosu için stil */
-        .logo-container {
-            text-align: center; /* Logoyu ortala */
-            padding-top: 20px;  /* Menülerden önce biraz boşluk bırak */
-        }
+    /* Şirket logosu için stil */
+    .logo-container {
+        text-align: center; /* Logoyu ortala */
+        padding-top: 20px;  /* Menülerden önce biraz boşluk bırak */
+    }
 
-        .logo {
-            width: 150px; /* Logonun genişliği */
-        }
+    .logo {
+        width: 150px; /* Logonun genişliği */
+    }
 
-        /* Menü stilini ayarlama */
+    /* Menü stilini ayarlama */
+    ul.menu {
+        list-style-type: none; /* Noktalı listeyi kaldır */
+        padding: 0;
+        margin: 0;
+        width: 1250px; /* Menü genişliği 350px olarak sabitlendi */
+        background-color: #333;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        margin-top: 20px; /* Menü ile logo arasında biraz boşluk bırak */
+    }
+
+    /* Menü öğeleri */
+    ul.menu li {
+        background-color: #444;
+        color: white;
+        padding: 15px;
+        text-align: center;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.3s;
+        border-radius: 5px;
+        margin: 5px 0;
+    }
+
+    /* Menü öğelerine hover efekti */
+    ul.menu li:hover {
+        background-color: #555;
+        transform: scale(1.05); /* Buton büyümesi */
+    }
+
+    /* Alt menü (drop-down) gizli */
+    ul.menu li ul {
+        display: none; /* Başlangıçta gizli */
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        background-color: #666;
+        opacity: 0; /* Saydam yap */
+        transform: translateY(-20px); /* Başlangıçta yukarıda */
+        transition: opacity 0.3s ease, transform 0.3s ease; /* Opaklık ve transform animasyonu */
+        border-radius: 5px;
+    }
+
+    /* Alt menü öğeleri */
+    ul.menu li ul li {
+        padding: 12px;
+        text-align: left;
+        border-top: 1px solid #ddd;
+        transition: background-color 0.3s;
+    }
+
+    /* Alt menü öğeleri üzerine gelince */
+    ul.menu li ul li:hover {
+        background-color: #777;
+    }
+
+    /* Menü öğesinin üzerine tıklandığında alt menüyü göster */
+    ul.menu li.active > ul {
+        display: block;
+        opacity: 1; /* Opaklık tamamen görünür */
+        transform: translateY(0); /* Alt menüyü normal konumuna getir */
+    }
+
+    /* DIŞ ÇEKİM için görsel kolaj stili */
+    ul.menu li ul li .photo-box {
+        width: 200px;
+        height: 200px;
+        background-color: #ccc;
+        margin: 10px;
+        overflow: hidden;
+        border: 2px solid #ddd;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        transition: transform 0.3s ease;
+    }
+
+    /* Fotoğrafın stilini ayarlama */
+    ul.menu li ul li .photo-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    /* Fotoğraf kutusuna hover efekti */
+    ul.menu li ul li .photo-box:hover {
+        transform: scale(1.05);
+    }
+
+    /* Yazının stilini ayarlama */
+    ul.menu li ul li .photo-box .photo-text {
+        background-color: rgba(0, 0, 0, 0.6);
+        color: white;
+        padding: 10px;
+        text-align: center;
+        width: 100%;
+        border-radius: 0 0 5px 5px;
+    }
+
+    /* iframe için stil */
+    iframe {
+        width: 100%;
+        height: 500px;
+        border: none;
+        border-radius: 5px;
+    }
+
+    /* Fotoğraf kutularını düzgün hizalamak için flex düzeni */
+    ul.menu li ul li {
+        display: flex;
+        justify-content: start;
+        flex-wrap: wrap;
+    }
+
+    /* Diğer menülerdeki bağlantılarda alt çizgiyi kaldırmak için */
+    ul.menu li ul li a {
+        text-decoration: none; /* Alt çizgiyi kaldır */
+    }
+
+    /* Mobile uyumlu stil */
+    @media (max-width: 768px) {
         ul.menu {
-            list-style-type: none; /* Noktalı listeyi kaldır */
-            padding: 0;
-            margin: 0;
-            width: 1250px; /* Menü genişliği 350px olarak sabitlendi */
-            background-color: #333;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            margin-top: 20px; /* Menü ile logo arasında biraz boşluk bırak */
+            width: 350px; /* Menü genişliği sabit kalacak */
         }
+    }
 
-        /* Menü öğeleri */
-        ul.menu li {
-            background-color: #444;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.3s;
-            border-radius: 5px;
-            margin: 5px 0;
-        }
+    /* İletişim kutusu için stil */
+    .contact-container {
+        display: flex;
+        justify-content: center;
+        gap: -5px;
+        margin: 30px 0;
+        padding: 10px 0;
+        background-color: #333;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
 
-        /* Menü öğelerine hover efekti */
-        ul.menu li:hover {
-            background-color: #555;
-            transform: scale(1.05); /* Buton büyümesi */
-        }
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: white;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: bold;
+        transition: transform 0.3s, background-color 0.3s;
+        padding: 10px;
+        border-radius: 5px;
+    }
 
-        /* Alt menü (drop-down) gizli */
-        ul.menu li ul {
-            display: none; /* Başlangıçta gizli */
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            background-color: #666;
-            opacity: 0; /* Saydam yap */
-            transform: translateY(-20px); /* Başlangıçta yukarıda */
-            transition: opacity 0.3s ease, transform 0.3s ease; /* Opaklık ve transform animasyonu */
-            border-radius: 5px;
-        }
+    .contact-item:hover {
+        transform: scale(1.05);
+        background-color: #555;
+    }
 
-        /* Alt menü öğeleri */
-        ul.menu li ul li {
-            padding: 12px;
-            text-align: left;
-            border-top: 1px solid #ddd;
-            transition: background-color 0.3s;
-        }
+    .contact-icon {
+        width: 20px;
+        height: 20px;
+    }
 
-        /* Alt menü öğeleri üzerine gelince */
-        ul.menu li ul li:hover {
-            background-color: #777;
-        }
+    /* NİKAH altındaki menü öğelerinin yazı boyutunu küçült */
+    ul.menu li ul li ul li {
+        font-size: 10px; /* Yazı boyutunu 8px yap */
+    }
+</style>
 
-        /* Menü öğesinin üzerine tıklandığında alt menüyü göster */
-        ul.menu li.active > ul {
-            display: block;
-            opacity: 1; /* Opaklık tamamen görünür */
-            transform: translateY(0); /* Alt menüyü normal konumuna getir */
-        }
-
-        /* DIŞ ÇEKİM için görsel kolaj stili */
-        ul.menu li ul li .photo-box {
-            width: 200px;
-            height: 200px;
-            background-color: #ccc;
-            margin: 10px;
-            overflow: hidden;
-            border: 2px solid #ddd;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            transition: transform 0.3s ease;
-        }
-
-        /* Fotoğrafın stilini ayarlama */
-        ul.menu li ul li .photo-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-
-        /* Fotoğraf kutusuna hover efekti */
-        ul.menu li ul li .photo-box:hover {
-            transform: scale(1.05);
-        }
-
-        /* Yazının stilini ayarlama */
-        ul.menu li ul li .photo-box .photo-text {
-            background-color: rgba(0, 0, 0, 0.6);
-            color: white;
-            padding: 10px;
-            text-align: center;
-            width: 100%;
-            border-radius: 0 0 5px 5px;
-        }
-
-        /* iframe için stil */
-        iframe {
-            width: 100%;
-            height: 500px;
-            border: none;
-            border-radius: 5px;
-        }
-
-        /* Fotoğraf kutularını düzgün hizalamak için flex düzeni */
-        ul.menu li ul li {
-            display: flex;
-            justify-content: start;
-            flex-wrap: wrap;
-        }
-
-        /* Diğer menülerdeki bağlantılarda alt çizgiyi kaldırmak için */
-        ul.menu li ul li a {
-            text-decoration: none; /* Alt çizgiyi kaldır */
-        }
-
-        /* Mobile uyumlu stil */
-        @media (max-width: 768px) {
-            ul.menu {
-                width: 350px; /* Menü genişliği sabit kalacak */
-            }
-        }
-
-        /* İletişim kutusu için stil */
-        .contact-container {
-            display: flex;
-            justify-content: center;
-            gap: -5px;
-            margin: 30px 0;
-            padding: 10px 0;
-            background-color: #333;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .contact-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: white;
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: bold;
-            transition: transform 0.3s, background-color 0.3s;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .contact-item:hover {
-            transform: scale(1.05);
-            background-color: #555;
-        }
-
-        .contact-icon {
-            width: 20px;
-            height: 20px;
-        }
-
-    </style>
 </head>
 <body>
 
@@ -212,30 +211,30 @@
     <ul>
         <li>SÖZ & NİŞAN
             <ul>
-                <li>Kız İsteme Töreni</li>
-                <li>Söz Kesme ve Yüzük Takma</li>
-                <li>Nişan Hazırlıkları ve Mekan Seçimi</li>
+                <li>VİDEO</li>
+                <li>FOTOĞRAF</li>
+                <li>KLİP</li>
             </ul>
         </li>
         <li>NİKAH
             <ul>
-                <li>Resmi Nikah İşlemleri</li>
-                <li>Nikah Mekanı ve Konsepti</li>
-                <li>Nikah Sonrası Kutlama</li>
+                <li>VİDEO</li>
+                <li>FOTOĞRAF</li>
+                <li>KLİP</li>
             </ul>
         </li>
         <li>KINA
             <ul>
-                <li>Kına Gecesi Organizasyonu</li>
-                <li>Kına Kıyafetleri ve Aksesuarları</li>
-                <li>Kına Türküleri ve Eğlenceler</li>
+                <li>VİDEO</li>
+                <li>FOTOĞRAF</li>
+                <li>KLİP</li>
             </ul>
         </li>
         <li>DÜĞÜN
             <ul>
-                <li>Düğün Mekanı ve Dekorasyonu</li>
-                <li>Düğün Menüsü ve İkramlar</li>
-                <li>Düğün Fotoğrafçısı ve Müzik</li>
+                <li>VİDEO</li>
+                <li>FOTOĞRAF</li>
+                <li>KLİP</li>
             </ul>
         </li>
     </ul>
