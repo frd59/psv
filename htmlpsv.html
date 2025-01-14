@@ -232,7 +232,7 @@
 /* Yazı kısmı */
 .checkbox-text {
     font-size: 14px;
-    color: #444;
+    color: #0;
 }
 
 
@@ -337,21 +337,21 @@
             <label class="checkbox-container">
                 <input type="checkbox">
                 <span class="checkbox-custom"></span>
-                <span class="checkbox-text">Hizmet A</span>
+                <span class="checkbox-text">FOTOĞRAF</span>
             </label>
         </li>
         <li>
             <label class="checkbox-container">
                 <input type="checkbox">
                 <span class="checkbox-custom"></span>
-                <span class="checkbox-text">Hizmet B</span>
+                <span class="checkbox-text">KAMERA</span>
             </label>
         </li>
         <li>
             <label class="checkbox-container">
                 <input type="checkbox">
                 <span class="checkbox-custom"></span>
-                <span class="checkbox-text">Hizmet C</span>
+                <span class="checkbox-text">DRONE</span>
             </label>
         </li>
     </ul>
@@ -405,6 +405,34 @@ function toggleMenu(event) {
         }
     });
 }
+
+// WhatsApp mesajını oluşturma ve iletme
+function sendWhatsAppMessage() {
+    var selectedServices = [];
+    if (document.getElementById('serviceA').checked) {
+        selectedServices.push('Hizmet A');
+    }
+    if (document.getElementById('serviceB').checked) {
+        selectedServices.push('Hizmet B');
+    }
+    if (document.getElementById('serviceC').checked) {
+        selectedServices.push('Hizmet C');
+    }
+
+    if (selectedServices.length > 0) {
+        var message = 'Merhaba, aşağıdaki hizmetleri talep ediyorum: ' + selectedServices.join(', ') + '.';
+        var whatsappUrl = 'https://wa.me/905550950059?text=' + encodeURIComponent(message);
+        window.open(whatsappUrl, '_blank'); // WhatsApp linkini yeni sekmede aç
+    } else {
+        alert('Lütfen en az bir hizmet seçin.');
+    }
+}
+
+// WhatsApp linkine tıklanınca mesaj gönder
+document.getElementById('whatsappLink').addEventListener('click', function(e) {
+    e.preventDefault(); // Normal link davranışını engelle
+    sendWhatsAppMessage(); // Mesaj gönderme fonksiyonunu çalıştır
+});
 </script>
 
 </body>
