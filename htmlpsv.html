@@ -235,6 +235,48 @@
     color: #0;
 }
 
+/* Randevu saatleri için checkbox'ları yan yana iki adet olacak şekilde düzenle */
+ul.menu li ul li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Her checkbox öğesinin hizalanması için */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    flex: 1 1 45%; /* Yüzde 45 genişlik ile iki eleman yan yana */
+}
+
+/* Mobile uyumlu stil */
+@media (max-width: 768px) {
+    /* Küçük ekranlarda checkbox'lar alt alta gelecek */
+    .checkbox-container {
+        flex: 1 1 100%;
+    }
+}
+
+/* İsim Soyad kutucuğu stil */
+.contact-form input, .contact-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Açıklama kutusu, textarea için stil */
+.contact-form textarea {
+    height: 150px;
+    resize: vertical;
+}
+
+
 
     </style>
 </head>
@@ -375,7 +417,93 @@
 </li>
 
 
-        <li onclick="toggleMenu(event)">RANDEVU AL</li>
+<li onclick="toggleMenu(event)">RANDEVU AL
+    <ul>
+        <!-- Saat Seçenekleri -->
+        <li>
+            <label class="checkbox-container">
+                <input type="checkbox" id="hour9">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-text">09:00</span>
+            </label>
+            <label class="checkbox-container">
+                <input type="checkbox" id="hour10">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-text">10:00</span>
+            </label>
+        </li>
+        <li>
+            <label class="checkbox-container">
+                <input type="checkbox" id="hour11">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-text">11:00</span>
+            </label>
+            <label class="checkbox-container">
+                <input type="checkbox" id="hour12">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-text">12:00</span>
+            </label>
+        </li>
+        <li>
+            <label class="checkbox-container">
+                <input type="checkbox" id="hour13">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-text">13:00</span>
+            </label>
+            <label class="checkbox-container">
+                <input type="checkbox" id="hour14">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-text">14:00</span>
+            </label>
+        </li>
+        <li>
+            <label class="checkbox-container">
+                <input type="checkbox" id="hour15">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-text">15:00</span>
+            </label>
+            <label class="checkbox-container">
+                <input type="checkbox" id="hour16">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-text">16:00</span>
+            </label>
+        </li>
+        <li>
+            <label class="checkbox-container">
+                <input type="checkbox" id="hour17">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-text">17:00</span>
+            </label>
+            <label class="checkbox-container">
+                <input type="checkbox" id="hour18">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-text">18:00</span>
+            </label>
+        </li>
+        <li>
+            <label class="checkbox-container">
+                <input type="checkbox" id="hour19">
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-text">19:00</span>
+            </label>
+        </li>
+
+        <!-- İsim Soyad ve Açıklama Kutuları -->
+        <div class="contact-form">
+            <label for="fullName">Ad Soyad:</label>
+            <input type="text" id="fullName" placeholder="Ad ve Soyadınızı girin" required>
+
+            <label for="description">Açıklama:</label>
+            <textarea id="description" placeholder="Açıklamanızı buraya yazın" required></textarea>
+
+            <button id="sendMessageButton" onclick="sendWhatsAppMessage(event)">Gönder</button>
+        </div>
+    </ul>
+</li>
+
+
+
+
         
     </ul>
 
@@ -402,27 +530,86 @@
     </div>
 
 <script>
-// Tıklama ile alt menüyü göster/gizle
+
+function sendWhatsAppMessage(event) {
+    // Kullanıcıdan alınan bilgiler
+    const fullName = document.getElementById('fullName').value.trim();
+    const description = document.getElementById('description').value.trim();
+
+    // Saat bilgileri
+    const selectedHours = [];
+    for (let i = 9; i <= 19; i++) {
+        const hour = document.getElementById(`hour${i}`);
+        if (hour && hour.checked) selectedHours.push(`${i}:00`);
+    }
+
+    // Boş alan kontrolü
+    if (!fullName || !description) {
+        alert('Ad Soyad ve Açıklama alanlarını doldurduğunuzdan emin olun.');
+        event.preventDefault(); // Form gönderimini engelle
+        return;
+    }
+
+    // En az bir saat seçildi mi kontrolü
+    if (selectedHours.length === 0) {
+        alert('En az bir hizmet saati seçmeniz gerekiyor.');
+        event.preventDefault(); // Form gönderimini engelle
+        return;
+    }
+
+    // Saatleri string olarak birleştir
+    const hoursMessage = `Seçilen saatler: ${selectedHours.join(', ')}`;
+
+    // WhatsApp mesaj bağlantısını oluştur
+    const message = `Ad Soyad: ${fullName}\nAçıklama: ${description}\n${hoursMessage}`;
+    const phoneNumber = `https://wa.me/905550950059?text=${encodeURIComponent(message)}`;
+
+    // WhatsApp'a yönlendirme
+    window.location.href = phoneNumber;
+}
+
+
+// Menü dışındaki bir alana tıklanması durumunda menüyü kapatmak için
+document.addEventListener('click', function(event) {
+    var menu = document.querySelector('.menu'); // Menü elemanını seç
+    var inputElements = menu.querySelectorAll('input, textarea'); // Menüdeki input ve textarea elemanlarını seç
+    
+    // Eğer tıklanan eleman bir input ya da textarea ise, menü kapanmasın
+    if ([...inputElements].includes(event.target)) {
+        return;
+    }
+
+    // Eğer menü dışında bir alana tıklanmışsa, menüyü kapat
+    if (!menu.contains(event.target)) {
+        var activeMenus = document.querySelectorAll('.menu li.active');
+        activeMenus.forEach(function(menuItem) {
+            menuItem.classList.remove('active'); // Tüm aktif menüler kapanır
+        });
+    }
+});
+
+// Menüye tıklanarak alt menülerin açılmasını sağlayan fonksiyon
 function toggleMenu(event) {
     var li = event.target.closest('li');
     
-    // Alt menü olan bir öğeye tıklanıp tıklanmadığını kontrol et
-    if (!li.querySelector('ul')) {
-        return; // Eğer li öğesinde alt menü yoksa, işlemi sonlandır
+    // Eğer tıklanan eleman bir input ya da textarea ise, menü kapanmasın
+    if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') {
+        return;
     }
 
-    // Alt menü öğesinin üzerine tıklanıyorsa, sadece onun alt menüsünü göster
-    if (event.target.tagName.toLowerCase() !== 'a') {
+    // Alt menü öğesinin olup olmadığını kontrol et
+    if (li && li.querySelector('ul')) {
         li.classList.toggle('active');  // Alt menüyü aç/kapat
     }
 
     // Alt menülerin kapanması için tüm aktif menüleri kontrol et
     var allActiveMenus = document.querySelectorAll('.menu li.active');
-    allActiveMenus.forEach(function (menu) {
+    allActiveMenus.forEach(function(menu) {
         if (menu !== li && !menu.contains(event.target)) {
             menu.classList.remove('active');  // Tıklanmayan diğer menüler kapanır
         }
     });
+
 }
 
 // WhatsApp mesajını oluşturma ve iletme
