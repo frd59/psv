@@ -496,7 +496,7 @@ ul.menu li ul li {
             <label for="description">Açıklama:</label>
             <textarea id="description" placeholder="Açıklamanızı buraya yazın" required></textarea>
 
-            <button id="sendMessageButton" onclick="sendWhatsAppMessage(event)">Gönder</button>
+            <button id="sendMessageButton" onclick="sendWhatsAppMessagee(event)">Gönder</button>
         </div>
     </ul>
 </li>
@@ -531,7 +531,7 @@ ul.menu li ul li {
 
 <script>
 
-function sendWhatsAppMessage(event) {
+function sendWhatsAppMessagee(event) {
     // Kullanıcıdan alınan bilgiler
     const fullName = document.getElementById('fullName').value.trim();
     const description = document.getElementById('description').value.trim();
@@ -552,6 +552,7 @@ function sendWhatsAppMessage(event) {
 
     // En az bir saat seçildi mi kontrolü
     if (selectedHours.length === 0) {
+        console.log('Saat seçilmedi: ', selectedHours); // Konsolda saati kontrol et
         alert('En az bir hizmet saati seçmeniz gerekiyor.');
         event.preventDefault(); // Form gönderimini engelle
         return;
@@ -567,6 +568,7 @@ function sendWhatsAppMessage(event) {
     // WhatsApp'a yönlendirme
     window.location.href = phoneNumber;
 }
+
 
 
 // Menü dışındaki bir alana tıklanması durumunda menüyü kapatmak için
