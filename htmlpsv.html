@@ -559,10 +559,10 @@ function sendWhatsAppMessagee(event) {
     }
 
     // Saatleri string olarak birleştir
-    const hoursMessage = `RANDEVU SAATİ: ${selectedHours.join(', ')}`;
+    const hoursMessage = `**RANDEVU SAATİ**: ${selectedHours.join(', ')}`;
 
     // WhatsApp mesaj bağlantısını oluştur
-    const message = `Ad Soyad: ${fullName}\nAçıklama: ${description}\n${hoursMessage}`;
+    const message = `**Ad Soyad**: ${fullName}\n**Açıklama**: ${description}\n${hoursMessage}`;
     const phoneNumber = `https://wa.me/905550950059?text=${encodeURIComponent(message)}`;
 
     // WhatsApp'a yönlendirme
