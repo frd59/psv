@@ -208,12 +208,38 @@
             </li>
         </ul>
     </li>
-        <li onclick="toggleMenu(event)">EVLİLİK
+<li onclick="toggleMenu(event)">EVLİLİK
+    <ul>
+        <li>SÖZ & NİŞAN
             <ul>
-                <li>PAKE</li>
-                <li>Alt Menü 2.2</li>
+                <li>Kız İsteme Töreni</li>
+                <li>Söz Kesme ve Yüzük Takma</li>
+                <li>Nişan Hazırlıkları ve Mekan Seçimi</li>
             </ul>
         </li>
+        <li>NİKAH
+            <ul>
+                <li>Resmi Nikah İşlemleri</li>
+                <li>Nikah Mekanı ve Konsepti</li>
+                <li>Nikah Sonrası Kutlama</li>
+            </ul>
+        </li>
+        <li>KINA
+            <ul>
+                <li>Kına Gecesi Organizasyonu</li>
+                <li>Kına Kıyafetleri ve Aksesuarları</li>
+                <li>Kına Türküleri ve Eğlenceler</li>
+            </ul>
+        </li>
+        <li>DÜĞÜN
+            <ul>
+                <li>Düğün Mekanı ve Dekorasyonu</li>
+                <li>Düğün Menüsü ve İkramlar</li>
+                <li>Düğün Fotoğrafçısı ve Müzik</li>
+            </ul>
+        </li>
+    </ul>
+</li>
         <li onclick="toggleMenu(event)">DIŞ ÇEKİM
             <ul>
                 <li>
@@ -274,23 +300,30 @@
 
     </div>
 
-    <script>
-        // Tıklama ile alt menüyü göster/gizle
-        function toggleMenu(event) {
-            var li = event.target.closest('li');
-            
-            // Aktif olan menüleri kapat
-            var allActiveMenus = document.querySelectorAll('.menu li.active');
-            allActiveMenus.forEach(function (menu) {
-                if (menu !== li) {
-                    menu.classList.remove('active');
-                }
-            });
-            
-            // Tıklanan menüyü aç/kapat
-            li.classList.toggle('active');
+<script>
+// Tıklama ile alt menüyü göster/gizle
+function toggleMenu(event) {
+    var li = event.target.closest('li');
+    
+    // Alt menü olan bir öğeye tıklanıp tıklanmadığını kontrol et
+    if (!li.querySelector('ul')) {
+        return; // Eğer li öğesinde alt menü yoksa, işlemi sonlandır
+    }
+
+    // Alt menü öğesinin üzerine tıklanıyorsa, sadece onun alt menüsünü göster
+    if (event.target.tagName.toLowerCase() !== 'a') {
+        li.classList.toggle('active');  // Alt menüyü aç/kapat
+    }
+
+    // Alt menülerin kapanması için tüm aktif menüleri kontrol et
+    var allActiveMenus = document.querySelectorAll('.menu li.active');
+    allActiveMenus.forEach(function (menu) {
+        if (menu !== li && !menu.contains(event.target)) {
+            menu.classList.remove('active');  // Tıklanmayan diğer menüler kapanır
         }
-    </script>
+    });
+}
+</script>
 
 </body>
 </html>
