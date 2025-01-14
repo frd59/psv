@@ -559,7 +559,7 @@ function sendWhatsAppMessagee(event) {
     }
 
     // Saatleri string olarak birleştir
-    const hoursMessage = `Seçilen saatler: ${selectedHours.join(', ')}`;
+    const hoursMessage = `RANDEVU SAATİ: ${selectedHours.join(', ')}`;
 
     // WhatsApp mesaj bağlantısını oluştur
     const message = `Ad Soyad: ${fullName}\nAçıklama: ${description}\n${hoursMessage}`;
