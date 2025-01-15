@@ -480,18 +480,23 @@ ul.menu li ul li {
             </label>
         </li>
         
-                <li>
+        <li>
             <label class="checkbox-container">
                 <input type="checkbox" id="serviceD">
                 <span class="checkbox-custom"></span>
                 <span class="checkbox-text">MASAJ</span>
             </label>
         </li>
-        
+
+        <!-- Tarih Seçimi (gün-ay-yıl formatı) -->
+        <li>
+            <label for="selectDate">Tarih Seçiniz:</label>
+            <input type="date" id="selectDate" name="selectDate">
+        </li>
         
         <!-- Bize Ulaşın butonu ekleniyor -->
         <li>
-            <a href="#" id="whatsappLink" class="contact-item">
+            <a href="#" class="contact-item" onclick="sendWhatsAppMessage()">
                 <img src="https://i.hizliresim.com/4u2m8c3.png" alt="WhatsApp" class="contact-icon">
                 <span>Teklif Al</span>
             </a>
@@ -829,7 +834,6 @@ function toggleMenu(event) {
 
 }
 
-// WhatsApp mesajını oluşturma ve iletme
 function sendWhatsAppMessage() {
     var selectedServices = [];
     // Checkbox'lar kontrol edilerek seçilen hizmetler ekleniyor
@@ -846,16 +850,32 @@ function sendWhatsAppMessage() {
     if (document.getElementById('serviceC').checked) {
         selectedServices.push('DRONE');
     }
-    
 
-    if (selectedServices.length > 0) {
-        // Seçilen hizmetlerle mesaj oluşturuluyor
-        var message = 'Merhaba, aşağıdaki hizmetleri talep ediyorum: ' + selectedServices.join(', ') + '.';
-        var whatsappUrl = 'https://wa.me/905550950059?text=' + encodeURIComponent(message);
-        window.open(whatsappUrl, '_blank'); // WhatsApp linkini yeni sekmede aç
-    } else {
+    // Tarih seçimi alınması (isteğe bağlı)
+    var selectedDate = document.getElementById('selectDate').value;
+
+    // Seçilen hizmetlerin boş olup olmadığının kontrolü
+    if (selectedServices.length === 0) {
         alert('Lütfen en az bir hizmet seçin.');
+        return;
     }
+
+    // Tarih formatını gün-ay-yıl şeklinde düzenle
+    if (selectedDate) {
+        var dateParts = selectedDate.split('-');
+        var formattedDate = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];  // Gün-Ay-Yıl formatı
+    } else {
+        var formattedDate = 'Tarih seçilmedi';
+    }
+
+    // Seçilen hizmetleri ve tarihi mesajda birleştir
+    var message = 'Merhaba, aşağıdaki hizmetleri talep ediyorum:\n' + selectedServices.join(', ') + '.\n*Tarih*: ' + formattedDate;
+    
+    // WhatsApp URL'sini oluştur
+    var whatsappUrl = 'https://wa.me/905550950059?text=' + encodeURIComponent(message);
+    
+    // WhatsApp linkini yeni sekmede aç
+    window.open(whatsappUrl, '_blank');
 }
 
 // Bize Ulaşın butonuna tıklanınca mesaj gönder
