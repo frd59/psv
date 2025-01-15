@@ -725,16 +725,21 @@ function sendWhatsAppMessagee(event) {
     const fullName = document.getElementById('fullName').value.trim();
     const description = document.getElementById('description').value.trim();
 
-    // Saat bilgileri
+    // Saat bilgileri (tam ve yarım saatleri kontrol et)
     const selectedHours = [];
     for (let i = 9; i <= 19; i++) {
+        // Tam saat
         const hour = document.getElementById(`hour${i}`);
         if (hour && hour.checked) selectedHours.push(`${i}:00`);
+
+        // Yarım saat
+        const halfHour = document.getElementById(`hour${i}30`);
+        if (halfHour && halfHour.checked) selectedHours.push(`${i}:30`);
     }
 
     // Tarih bilgisi
-    const todayOption = document.getElementById("todayOption").checked;
-    const selectedDate = document.getElementById("datePicker").value;
+    const todayOption = document.getElementById("todayOption")?.checked;
+    const selectedDate = document.getElementById("datePicker")?.value;
 
     // Tarih bilgisi metni
     let dateMessage = "";
@@ -761,6 +766,7 @@ function sendWhatsAppMessagee(event) {
 
     // En az bir saat seçildi mi kontrolü
     if (selectedHours.length === 0) {
+        console.log('Saat seçilmedi: ', selectedHours); // Konsolda saati kontrol et
         alert('En az bir hizmet saati seçmeniz gerekiyor.');
         event.preventDefault(); // Form gönderimini engelle
         return;
@@ -776,6 +782,7 @@ function sendWhatsAppMessagee(event) {
     // WhatsApp'a yönlendirme
     window.location.href = phoneNumber;
 }
+
 
 
 
