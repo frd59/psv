@@ -719,7 +719,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-
 function sendWhatsAppMessagee(event) {
     // Kullanıcıdan alınan bilgiler
     const fullName = document.getElementById('fullName').value.trim();
@@ -745,12 +744,14 @@ function sendWhatsAppMessagee(event) {
     let dateMessage = "";
     if (todayOption) {
         const today = new Date();
-        const formattedToday = `${today.getFullYear()}-${(today.getMonth() + 1)
+        const formattedToday = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1)
             .toString()
-            .padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+            .padStart(2, '0')}/${today.getFullYear()}`;
         dateMessage = `*TARİH*: Bugün (${formattedToday})`;
     } else if (selectedDate) {
-        dateMessage = `*TARİH*: ${selectedDate}`;
+        const dateParts = selectedDate.split("-"); // "YYYY-MM-DD" formatını parçala
+        const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`; // "GG/AA/YYYY" olarak yeniden düzenle
+        dateMessage = `*TARİH*: ${formattedDate}`;
     } else {
         alert('Lütfen bir tarih seçin.');
         event.preventDefault(); // Form gönderimini engelle
@@ -766,7 +767,6 @@ function sendWhatsAppMessagee(event) {
 
     // En az bir saat seçildi mi kontrolü
     if (selectedHours.length === 0) {
-        console.log('Saat seçilmedi: ', selectedHours); // Konsolda saati kontrol et
         alert('En az bir hizmet saati seçmeniz gerekiyor.');
         event.preventDefault(); // Form gönderimini engelle
         return;
