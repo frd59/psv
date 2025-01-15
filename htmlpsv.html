@@ -344,6 +344,22 @@ ul.menu li ul li {
         text-align: center; /* Yazıyı merkeze hizalamak için */
         margin-top: 10px; /* Yukarıdan boşluk */
     }
+    
+    
+    #datePicker {
+    margin-left: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+}
+
 
     </style>
 </head>
@@ -624,6 +640,19 @@ ul.menu li ul li {
                     <span class="checkbox-custom"></span>
                     <span class="checkbox-text">19:00</span>
                 </label>
+                
+                      <label>
+                        <input type="radio" name="dayOption" id="todayOption" value="today" checked>
+                        Bugün
+                    </label>
+                    <label>
+                        <input type="radio" name="dayOption" id="otherDateOption" value="other">
+                        Tarih Seç
+                        <input type="date" id="datePicker" style="display: none;" />
+                    </label>
+                </span>
+            </div>
+        </li>
 
 </li>
 
@@ -671,6 +700,26 @@ ul.menu li ul li {
     </div>
 
 <script>
+
+document.addEventListener("DOMContentLoaded", () => {
+    const todayOption = document.getElementById("todayOption");
+    const otherDateOption = document.getElementById("otherDateOption");
+    const datePicker = document.getElementById("datePicker");
+
+    otherDateOption.addEventListener("change", () => {
+        if (otherDateOption.checked) {
+            datePicker.style.display = "inline-block"; // Takvimi göster
+        }
+    });
+
+    todayOption.addEventListener("change", () => {
+        if (todayOption.checked) {
+            datePicker.style.display = "none"; // Takvimi gizle
+        }
+    });
+});
+
+
 
 function sendWhatsAppMessagee(event) {
     // Kullanıcıdan alınan bilgiler
