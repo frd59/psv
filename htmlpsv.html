@@ -720,7 +720,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-
 function sendWhatsAppMessagee(event) {
     // Kullanıcıdan alınan bilgiler
     const fullName = document.getElementById('fullName').value.trim();
@@ -733,6 +732,26 @@ function sendWhatsAppMessagee(event) {
         if (hour && hour.checked) selectedHours.push(`${i}:00`);
     }
 
+    // Tarih bilgisi
+    const todayOption = document.getElementById("todayOption").checked;
+    const selectedDate = document.getElementById("datePicker").value;
+
+    // Tarih bilgisi metni
+    let dateMessage = "";
+    if (todayOption) {
+        const today = new Date();
+        const formattedToday = `${today.getFullYear()}-${(today.getMonth() + 1)
+            .toString()
+            .padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+        dateMessage = `*TARİH*: Bugün (${formattedToday})`;
+    } else if (selectedDate) {
+        dateMessage = `*TARİH*: ${selectedDate}`;
+    } else {
+        alert('Lütfen bir tarih seçin.');
+        event.preventDefault(); // Form gönderimini engelle
+        return;
+    }
+
     // Boş alan kontrolü
     if (!fullName || !description) {
         alert('Ad Soyad ve Açıklama alanlarını doldurduğunuzdan emin olun.');
@@ -742,7 +761,6 @@ function sendWhatsAppMessagee(event) {
 
     // En az bir saat seçildi mi kontrolü
     if (selectedHours.length === 0) {
-        console.log('Saat seçilmedi: ', selectedHours); // Konsolda saati kontrol et
         alert('En az bir hizmet saati seçmeniz gerekiyor.');
         event.preventDefault(); // Form gönderimini engelle
         return;
@@ -752,7 +770,7 @@ function sendWhatsAppMessagee(event) {
     const hoursMessage = `*RANDEVU SAATİ*: ${selectedHours.join(', ')}`;
 
     // WhatsApp mesaj bağlantısını oluştur
-    const message = `*Ad Soyad*: ${fullName}\n*Açıklama*: ${description}\n${hoursMessage}`;
+    const message = `*Ad Soyad*: ${fullName}\n*Açıklama*: ${description}\n${dateMessage}\n${hoursMessage}`;
     const phoneNumber = `https://wa.me/905550950059?text=${encodeURIComponent(message)}`;
 
     // WhatsApp'a yönlendirme
