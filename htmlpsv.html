@@ -88,121 +88,129 @@
             transform: translateY(0); /* Alt menüyü normal konumuna getir */
         }
 
-      /* DIŞ ÇEKİM için görsel kolaj stili */
+    /* DIŞ ÇEKİM için görsel kolaj stili */
 ul.menu li ul li .photo-box {
-    width: 150px;
-    height: 150px;
-    background: linear-gradient(135deg, #f3f3f3, #e3e3e3);
-    margin: 10px;
-    overflow: hidden;
-    border-radius: 15px;
+    width: 160px; /* Genişliği biraz artırdım */
+    height: 160px; /* Yüksekliği de artırdım */
+    background: linear-gradient(135deg, #f5f5f5, #dcdcdc); /* Daha yumuşak geçişler */
+    margin: 12px;
+    overflow: hidden; /* Görsellerin kutudan taşmasını engelle */
+    border-radius: 20px; /* Yuvarlak köşeler için artırdım */
     position: relative;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     align-items: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Daha belirgin gölge */
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: #fff; /* Kutunun arka planı */
+    padding: 10px; /* İçerideki boşluk */
 }
 
+/* Görselin stilini güncelledim */
 ul.menu li ul li .photo-box img {
     width: 100%;
-    height: 120%; /* Görseli biraz daha büyüt */
-    object-fit: cover;
-    border-radius: 15px;
-    transform: translateY(10%); /* Görseli aşağı kaydır */
-    transition: transform 0.3s ease;
+    height: 100%;
+    object-fit: cover; /* Görselin kutuya düzgün oturmasını sağlar */
+    border-radius: 15px; /* Görsele yuvarlak köşeler */
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    position: absolute; /* Görseli kutunun altına yerleştir */
+    top: 0; /* Üstten sıfır mesafe */
+    left: 0; /* Soldan sıfır mesafe */
+    z-index: 0; /* Görselin alt katmanda olmasını sağla */
 }
 
+/* Hover efektinde görselin daha belirgin büyümesi */
 ul.menu li ul li .photo-box:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+    transform: scale(1.1); /* Görseli biraz büyüt */
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3); /* Hover sırasında daha belirgin gölge */
 }
 
+/* Hover durumunda görselin kaymasını sağla */
 ul.menu li ul li .photo-box:hover img {
-    transform: translateY(5%) scale(1.1); /* Hover sırasında daha az aşağıya kaydır ve büyüt */
+    transform: scale(1.1) translateY(-10%); /* Görseli hafif yukarı kaydır */
+    opacity: 0.8; /* Görselin opaklığını azaltarak daha etkileyici hale getirme */
 }
 
+/* Overlay kısmını güncelledim */
 ul.menu li ul li .photo-box .overlay {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
     height: 50%;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.5)); /* Daha yumuşak geçiş */
     color: #fff;
-    padding: 10px;
+    padding: 12px;
     box-sizing: border-box;
     text-align: center;
     opacity: 0;
     transition: opacity 0.3s ease;
 }
 
+/* Hover durumunda overlay'in görünür olması */
 ul.menu li ul li .photo-box:hover .overlay {
     opacity: 1;
 }
 
+/* Overlay başlık ve açıklama stilini düzenleme */
 ul.menu li ul li .photo-box .overlay h3 {
     margin: 0;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Daha belirgin metin */
 }
 
 ul.menu li ul li .photo-box .overlay p {
     margin: 5px 0 0;
-    font-size: 12px;
+    font-size: 14px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
+/* Fotoğraf kutularını düzgün hizalamak için flex düzeni */
+ul.menu li ul li {
+    display: flex;
+    justify-content: start;
+    flex-wrap: wrap;
+}
 
-        /* Fotoğrafın stilini ayarlama */
-        ul.menu li ul li .photo-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
+/* Fotoğraf kutusuna hover efekti */
+ul.menu li ul li .photo-box:hover {
+    transform: scale(1.05);
+}
 
-        /* Fotoğraf kutusuna hover efekti */
-        ul.menu li ul li .photo-box:hover {
-            transform: scale(1.05);
-        }
+/* Yazının stilini ayarlama */
+ul.menu li ul li .photo-box .photo-text {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 12px;
+    text-align: center;
+    width: 100%;
+    border-radius: 0 0 10px 10px; /* Köşeleri yuvarlat */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Yazının etrafında hafif gölge */
+    z-index: 1; /* Yazı her zaman görselin üstünde kalacak */
+}
 
-        /* Yazının stilini ayarlama */
-        ul.menu li ul li .photo-box .photo-text {
-            background-color: rgba(0, 0, 0, 0.6);
-            color: white;
-            padding: 10px;
-            text-align: center;
-            width: 100%;
-            border-radius: 0 0 5px 5px;
-        }
+/* iframe için stil */
+iframe {
+    width: 100%;
+    height: 500px;
+    border: none;
+    border-radius: 5px;
+}
 
-        /* iframe için stil */
-        iframe {
-            width: 100%;
-            height: 500px;
-            border: none;
-            border-radius: 5px;
-        }
+/* Diğer menülerdeki bağlantılarda alt çizgiyi kaldırmak için */
+ul.menu li ul li a {
+    text-decoration: none; /* Alt çizgiyi kaldır */
+}
 
-        /* Fotoğraf kutularını düzgün hizalamak için flex düzeni */
-        ul.menu li ul li {
-            display: flex;
-            justify-content: start;
-            flex-wrap: wrap;
-        }
+/* Mobile uyumlu stil */
+@media (max-width: 768px) {
+    ul.menu {
+        width: 350px; /* Menü genişliği sabit kalacak */
+    }
+}
 
-        /* Diğer menülerdeki bağlantılarda alt çizgiyi kaldırmak için */
-        ul.menu li ul li a {
-            text-decoration: none; /* Alt çizgiyi kaldır */
-        }
-
-        /* Mobile uyumlu stil */
-        @media (max-width: 768px) {
-            ul.menu {
-                width: 350px; /* Menü genişliği sabit kalacak */
-            }
-        }
 
         /* İletişim kutusu için stil */
         .contact-container {
@@ -417,29 +425,48 @@ ul.menu li ul li {
         <li onclick="toggleMenu(event)">DIŞ ÇEKİM
             <ul>
                 <li>
-                    <a href="https://novasta.com.tr/nvstkatalog/catalog/musteri/psv/20956PSV03960-1-++.html">
-                        <div class="photo-box">
-                            <img src="https://i.hizliresim.com/fdyht3e.jpg" alt="Çekim 1">
-                            <div class="photo-text">KIYIKÖY</div>
-                        </div>
-                    </a>
-                    <a href="https://www.example.com/corlu">
-                        <div class="photo-box">
-                            <img src="https://i.hizliresim.com/ri9m24n.jpg" alt="Çekim 2">
-                            <div class="photo-text">ÇORLU</div>
-                        </div>
-                    </a>
-                    <a href="https://www.example.com/istanbul-plato">
-                        <div class="photo-box">
-                            <img src="https://i.hizliresim.com/kp108ri.jpg" alt="Çekim 3">
-                            <div class="photo-text">İSTANBUL PLATO</div>
-                        </div>
+<a href="https://novasta.com.tr/nvstkatalog/catalog/musteri/psv/20956PSV03960-1-++.html">
+    <div class="photo-box">
+        <img src="https://i.hizliresim.com/fdyht3e.jpg" alt="Çekim 1" 
+             style="width: 105%; height: auto; 
+                    transform: scale(1.1) translateX(0%) translateY(20%); 
+                    position: relative; 
+                    left: 0;">
+        <div class="photo-text">KIYIKÖY</div>
+    </div>
+</a>
+
+<a href="https://www.example.com/corlu">
+    <div class="photo-box">
+        <img src="https://i.hizliresim.com/ri9m24n.jpg" alt="Çekim 2" 
+             style="width: 105%; height: auto; 
+                    transform: scale(1.1) translateX(0%) translateY(20%); 
+                    position: relative; 
+                    left: 0;">
+        <div class="photo-text">ÇORLU</div>
+    </div>
+</a>
+
+<a href="https://www.example.com/istanbul-plato">
+    <div class="photo-box">
+        <img src="https://i.hizliresim.com/kp108ri.jpg" alt="Çekim 3" 
+             style="width: 105%; height: auto; 
+                    transform: scale(1.1) translateX(0%) translateY(20%); 
+                    position: relative; 
+                    left: 0;">
+        <div class="photo-text">İSTANBUL PLATO</div>
+    </div>
+</a>
+
+
                         
 <a href="https://novasta.com.tr/nvstkatalog/catalog/musteri/psv/20956PSV03960-1-++.html">
     <div class="photo-box">
         <img src="https://i.pinimg.com/originals/59/eb/68/59eb6840611bbe0e1a985479365d8fa6.gif" 
-             alt="Hareketli Klip" 
-             style="width: 180%; height: auto;">
+             style="width: 201%; height: auto; 
+                    transform: scale(1.1) translateX(-5%) translateY(20%); 
+                    position: relative; 
+                    left: 0;">
         <div class="photo-text">KLİP</div>
     </div>
 </a>
