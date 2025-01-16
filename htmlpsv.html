@@ -5,266 +5,287 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alt Alta Açılan Menü - Fotoğraf Kolajlı</title>
     <style>
-        /* Genel gövde ayarları */
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
+/* Genel gövde ayarları */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
 
-        /* Şirket logosu için stil */
-        .logo-container {
-            text-align: center; /* Logoyu ortala */
-            padding-top: 20px;  /* Menülerden önce biraz boşluk bırak */
-        }
+/* Şirket logosu için stil */
+.logo-container {
+    text-align: center;
+    padding-top: 20px;
+}
 
-        .logo {
-            width: 150px; /* Logonun genişliği */
-        }
+.logo {
+    width: 150px;
+}
 
-        /* Menü stilini ayarlama */
-        ul.menu {
-            list-style-type: none; /* Noktalı listeyi kaldır */
-            padding: 0;
-            margin: 0;
-            width: 1250px; /* Menü genişliği 350px olarak sabitlendi */
-            background-color: #333;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            margin-top: 20px; /* Menü ile logo arasında biraz boşluk bırak */
-        }
+/* Menü stilini ayarlama */
+ul.menu {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    width: 100%; /* Menü genişliği %100 olarak ayarlandı */
+    max-width: 1250px; /* Menü genişliği 1250px'yi aşmaz */
+    background-color: #333;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+}
 
-        /* Menü öğeleri */
-        ul.menu li {
-            background-color: #444;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.3s;
-            border-radius: 5px;
-            margin: 5px 0;
-        }
+/* Menü öğeleri */
+ul.menu li {
+    background-color: #444;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    border-radius: 5px;
+    margin: 5px 0;
+}
 
-        /* Menü öğelerine hover efekti */
-        ul.menu li:hover {
-            background-color: #555;
-            transform: scale(1.05); /* Buton büyümesi */
-        }
+/* Menü öğelerine hover efekti */
+ul.menu li:hover {
+    background-color: #555;
+    transform: scale(1.05);
+}
 
-        /* Alt menü (drop-down) gizli */
-        ul.menu li ul {
-            display: none; /* Başlangıçta gizli */
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            background-color: #666;
-            opacity: 0; /* Saydam yap */
-            transform: translateY(-20px); /* Başlangıçta yukarıda */
-            transition: opacity 0.3s ease, transform 0.3s ease; /* Opaklık ve transform animasyonu */
-            border-radius: 5px;
-        }
+/* Alt menü (drop-down) gizli */
+ul.menu li ul {
+    display: none;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    background-color: #666;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    border-radius: 5px;
+}
 
-        /* Alt menü öğeleri */
-        ul.menu li ul li {
-            padding: 12px;
-            text-align: left;
-            border-top: 1px solid #ddd;
-            transition: background-color 0.3s;
-        }
+/* Alt menü öğeleri */
+ul.menu li ul li {
+    padding: 12px;
+    text-align: left;
+    border-top: 1px solid #ddd;
+    transition: background-color 0.3s;
+}
 
-        /* Alt menü öğeleri üzerine gelince */
-        ul.menu li ul li:hover {
-            background-color: #777;
-        }
+/* Alt menü öğeleri üzerine gelince */
+ul.menu li ul li:hover {
+    background-color: #777;
+}
 
-        /* Menü öğesinin üzerine tıklandığında alt menüyü göster */
-        ul.menu li.active > ul {
-            display: block;
-            opacity: 1; /* Opaklık tamamen görünür */
-            transform: translateY(0); /* Alt menüyü normal konumuna getir */
-        }
+/* Menü öğesinin üzerine tıklandığında alt menüyü göster */
+ul.menu li.active > ul {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
 
-        /* DIŞ ÇEKİM için görsel kolaj stili */
-        ul.menu li ul li .photo-box {
-            width: 160px; /* Genişliği biraz artırdım */
-            height: 160px; /* Yüksekliği de artırdım */
-            background: linear-gradient(135deg, #f5f5f5, #dcdcdc); /* Daha yumuşak geçişler */
-            margin: 12px;
-            overflow: hidden; /* Görsellerin kutudan taşmasını engelle */
-            border-radius: 20px; /* Yuvarlak köşeler için artırdım */
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            align-items: center;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Daha belirgin gölge */
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            background-color: #fff; /* Kutunun arka planı */
-            padding: 10px; /* İçerideki boşluk */
-        }
+/* DIŞ ÇEKİM için görsel kolaj stili */
+ul.menu li ul li .photo-box {
+    width: 160px;
+    height: 160px;
+    background: linear-gradient(135deg, #f5f5f5, #dcdcdc);
+    margin: 12px;
+    overflow: hidden;
+    border-radius: 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: #fff;
+    padding: 10px;
+}
 
-        /* Görselin stilini güncelledim */
-        ul.menu li ul li .photo-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* Görselin kutuya düzgün oturmasını sağlar */
-            border-radius: 15px; /* Görsele yuvarlak köşeler */
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            position: absolute; /* Görseli kutunun altına yerleştir */
-            top: 0; /* Üstten sıfır mesafe */
-            left: 0; /* Soldan sıfır mesafe */
-            z-index: 0; /* Görselin alt katmanda olmasını sağla */
-        }
+ul.menu li ul li .photo-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 15px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
 
-        /* Hover efektinde görselin daha belirgin büyümesi */
-        ul.menu li ul li .photo-box:hover {
-            transform: scale(1.1); /* Görseli biraz büyüt */
-            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3); /* Hover sırasında daha belirgin gölge */
-        }
+/* Hover efekti */
+ul.menu li ul li .photo-box:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+}
 
-        /* Hover durumunda görselin kaymasını sağla */
-        ul.menu li ul li .photo-box:hover img {
-            transform: scale(1.1) translateY(-10%); /* Görseli hafif yukarı kaydır */
-            opacity: 0.8; /* Görselin opaklığını azaltarak daha etkileyici hale getirme */
-        }
+ul.menu li ul li .photo-box:hover img {
+    transform: scale(1.1) translateY(-10%);
+    opacity: 0.8;
+}
 
-        /* Overlay kısmını güncelledim */
-        ul.menu li ul li .photo-box .overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 50%;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.5)); /* Daha yumuşak geçiş */
-            color: #fff;
-            padding: 12px;
-            box-sizing: border-box;
-            text-align: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
+/* Overlay kısmını güncelledim */
+ul.menu li ul li .photo-box .overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
+    color: #fff;
+    padding: 12px;
+    box-sizing: border-box;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
 
-        /* Hover durumunda overlay'in görünür olması */
-        ul.menu li ul li .photo-box:hover .overlay {
-            opacity: 1;
-        }
+ul.menu li ul li .photo-box:hover .overlay {
+    opacity: 1;
+}
 
-        /* Overlay başlık ve açıklama stilini düzenleme */
-        ul.menu li ul li .photo-box .overlay h3 {
-            margin: 0;
-            font-size: 16px;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Daha belirgin metin */
-        }
+ul.menu li ul li .photo-box .overlay h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
 
-        ul.menu li ul li .photo-box .overlay p {
-            margin: 5px 0 0;
-            font-size: 14px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
+ul.menu li ul li .photo-box .overlay p {
+    margin: 5px 0 0;
+    font-size: 14px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
 
-        /* Fotoğraf kutularını düzgün hizalamak için flex düzeni */
-        ul.menu li ul li {
-            display: flex;
-            justify-content: start;
-            flex-wrap: wrap;
-        }
+/* Fotoğraf kutularını düzgün hizalamak için flex düzeni */
+ul.menu li ul li {
+    display: flex;
+    justify-content: start;
+    flex-wrap: wrap;
+}
 
-        /* Fotoğraf kutusuna hover efekti */
-        ul.menu li ul li .photo-box:hover {
-            transform: scale(1.05);
-        }
+/* Fotoğraf kutusuna hover efekti */
+ul.menu li ul li .photo-box:hover {
+    transform: scale(1.05);
+}
 
-        /* Yazının stilini ayarlama */
-        ul.menu li ul li .photo-box .photo-text {
-            background-color: rgba(0, 0, 0, 0.6);
-            color: white;
-            padding: 12px;
-            text-align: center;
-            width: 100%;
-            border-radius: 0 0 10px 10px; /* Köşeleri yuvarlat */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Yazının etrafında hafif gölge */
-            z-index: 1; /* Yazı her zaman görselin üstünde kalacak */
-        }
+/* Fotoğraf kutusu stilini ayarlama */
+ul.menu li ul li .photo-box .photo-text {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 12px;
+    text-align: center;
+    width: 100%;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
 
-        /* iframe için stil */
-        iframe {
-            width: 100%;
-            height: 500px;
-            border: none;
-            border-radius: 5px;
-        }
+/* iframe için stil */
+iframe {
+    width: 100%;
+    height: 500px;
+    border: none;
+    border-radius: 5px;
+}
 
-        /* Diğer menülerdeki bağlantılarda alt çizgiyi kaldırmak için */
-        ul.menu li ul li a {
-            text-decoration: none; /* Alt çizgiyi kaldır */
-        }
+/* Fotoğraf ve yazı kutularını hizalamak */
+ul.menu li ul li .photo-box .photo-text {
+    font-size: 16px;
+}
 
-        /* Fotoğraf kutusundaki yazının stilini ayarlama */
-        ul.menu li ul li .photo-box .photo-text {
-            font-size: 16px; /* Varsayılan yazı boyutu */
-        }
+/* Büyütme/Küçültme butonu için stil */
+.font-size-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+}
 
-        /* Büyütme/Küçültme butonu için stil */
-        .font-size-controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 20px 0;
-        }
+.font-size-controls button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
 
-        /* Büyütme ve küçültme butonları */
-        .font-size-controls button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+.font-size-controls button:hover {
+    background-color: #45a049;
+}
 
-        /* Buton üzerine geldiğinde renk değişimi */
-        .font-size-controls button:hover {
-            background-color: #45a049;
-        }
+/* Responsive Design - Mobil uyumlu */
+@media (max-width: 768px) {
+    /* Menü öğelerini tam genişlikte ve hizalı yap */
+    ul.menu {
+        width: 100%;
+        padding: 0 10px;
+    }
 
-        /* Default yazı tipi boyutunu ayarlama */
-        ul.menu li ul li .photo-box .photo-text {
-            font-size: 16px; /* Varsayılan yazı boyutu */
-        }
+    /* Menü öğeleri tam genişlikte */
+    ul.menu li {
+        width: 100%;
+        text-align: left;
+        padding: 12px;
+    }
 
-        /* Yazı boyutunu artırma */
-        .font-size-controls .increase {
-            font-size: 20px;
-        }
+    /* Fotoğraf kutularını ekran boyutuna göre hizala */
+    ul.menu li ul li .photo-box {
+        width: 48%; /* İki öğe yan yana gelecek şekilde */
+        margin: 10px 0;
+    }
 
-        /* Yazı boyutunu küçültme */
-        .font-size-controls .decrease {
-            font-size: 12px;
-        }
+    /* Flex kutuları alt alta getirme */
+    ul.menu li ul li {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
 
-        /* İletişim kutusundaki yazı tipini değiştirme */
-        .contact-item {
-            font-weight: bold; /* Yazıyı kalınlaştır */
-            font-size: 15px; /* Yazı boyutunu ayarlama */
-        }
+    /* Fotoğraf kutularındaki yazı boyutunu küçültme */
+    ul.menu li ul li .photo-box .photo-text {
+        font-size: 14px;
+    }
 
-        /* Mobile uyumlu stil */
-        @media (max-width: 768px) {
-            /* Küçük ekranlarda checkbox'lar alt alta gelecek */
-            .checkbox-container {
-                flex: 1 1 100%;
-            }
+    .contact-container {
+        flex-direction: column;
+    }
 
-            .font-size-controls {
-                gap: 5px;
-            }
-        }
+    .font-size-controls {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    /* İletişim kutusunu daha geniş yap */
+    .contact-item {
+        width: 100%;
+        margin: 5px 0;
+    }
+}
+
+/* Tabletler ve küçük ekranlar için stil */
+@media (max-width: 1024px) {
+    ul.menu li ul li .photo-box {
+        width: 48%;
+    }
+
+    .font-size-controls {
+        gap: 5px;
+    }
+}
+
+
 
         /* İletişim kutusu için stil */
         .contact-container {
@@ -300,126 +321,128 @@
             width: 20px;
             height: 20px;
         }
-
+        
         /* Teklif Al menüsü için checkbox düzenlemeleri */
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-            cursor: pointer;
-        }
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    cursor: pointer;
+}
 
-        /* Normalde kutucuk boş olacak */
-        .checkbox-container input {
-            display: none; /* Gerçek checkbox'ı gizle */
-        }
+/* Normalde kutucuk boş olacak */
+.checkbox-container input {
+    display: none; /* Gerçek checkbox'ı gizle */
+}
 
-        /* Kutucuk tasarımı */
-        .checkbox-custom {
-            width: 18px;
-            height: 18px;
-            border: 2px solid #444;
-            border-radius: 3px;
-            position: relative;
-            background-color: #fff;
-            transition: background-color 0.3s, border-color 0.3s;
-        }
+/* Kutucuk tasarımı */
+.checkbox-custom {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #444;
+    border-radius: 3px;
+    position: relative;
+    background-color: #fff;
+    transition: background-color 0.3s, border-color 0.3s;
+}
 
-        /* Tıklandığında kutucuk işaretlenmiş olacak */
-        .checkbox-container input:checked + .checkbox-custom {
-            background-color: #4CAF50;
-            border-color: #4CAF50;
-        }
+/* Tıklandığında kutucuk işaretlenmiş olacak */
+.checkbox-container input:checked + .checkbox-custom {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+}
 
-        /* Tik işareti */
-        .checkbox-container input:checked + .checkbox-custom::after {
-            content: '✓';
-            position: absolute;
-            top: 2px;
-            left: 5px;
-            color: white;
-            font-size: 12px;
-        }
+/* Tik işareti */
+.checkbox-container input:checked + .checkbox-custom::after {
+    content: '✓';
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    color: white;
+    font-size: 12px;
+}
 
-        /* Yazı kısmı */
-        .checkbox-text {
-            font-size: 14px;
-            color: #0;
-        }
+/* Yazı kısmı */
+.checkbox-text {
+    font-size: 14px;
+    color: #0;
+}
 
-        /* Randevu saatleri için checkbox'ları yan yana iki adet olacak şekilde düzenle */
-        ul.menu li ul li {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
+/* Randevu saatleri için checkbox'ları yan yana iki adet olacak şekilde düzenle */
+ul.menu li ul li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
 
-        /* Her checkbox öğesinin hizalanması için */
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-            cursor: pointer;
-            flex: 1 1 45%; /* Yüzde 45 genişlik ile iki eleman yan yana */
-        }
+/* Her checkbox öğesinin hizalanması için */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    flex: 1 1 45%; /* Yüzde 45 genişlik ile iki eleman yan yana */
+}
 
-        /* Mobile uyumlu stil */
-        @media (max-width: 768px) {
-            /* Küçük ekranlarda checkbox'lar alt alta gelecek */
-            .checkbox-container {
-                flex: 1 1 100%;
-            }
-        }
+/* Mobile uyumlu stil */
+@media (max-width: 768px) {
+    /* Küçük ekranlarda checkbox'lar alt alta gelecek */
+    .checkbox-container {
+        flex: 1 1 100%;
+    }
+}
 
-        /* İsim Soyad kutucuğu stil */
-        .contact-form input, .contact-form textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
+/* İsim Soyad kutucuğu stil */
+.contact-form input, .contact-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
 
-        /* Açıklama kutusu, textarea için stil */
-        .contact-form textarea {
-            height: 150px;
-            resize: vertical;
-        }
+/* Açıklama kutusu, textarea için stil */
+.contact-form textarea {
+    height: 150px;
+    resize: vertical;
+}
 
-        .checkbox-group {
-            display: flex;
-            flex-wrap: wrap;
-        }
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+}
 
-        .checkbox-container {
-            width: 25%; /* 4 öğe için her biri %25 genişlik alır */
-            box-sizing: border-box;
-        }
+.checkbox-container {
+    width: 25%; /* 4 öğe için her biri %25 genişlik alır */
+    box-sizing: border-box;
+}
 
-        .photo-text {
-            font-size: 10px; /* Yazı tipi boyutunu buradan ayarlayabilirsiniz */
-            font-family: Arial, sans-serif; /* Yazı tipini buradan değiştirebilirsiniz */
-            color: #333; /* Yazı rengini buradan ayarlayabilirsiniz */
-            text-align: center; /* Yazıyı merkeze hizalamak için */
-            margin-top: 10px; /* Yukarıdan boşluk */
-        }
+.photo-text {
+        font-size: 10px; /* Yazı tipi boyutunu buradan ayarlayabilirsiniz */
+        font-family: Arial, sans-serif; /* Yazı tipini buradan değiştirebilirsiniz */
+        color: #333; /* Yazı rengini buradan ayarlayabilirsiniz */
+        text-align: center; /* Yazıyı merkeze hizalamak için */
+        margin-top: 10px; /* Yukarıdan boşluk */
+    }
+    
+    
+    #datePicker {
+    margin-left: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
 
-        #datePicker {
-            margin-left: 10px;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+}
 
-        .checkbox-group label {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 14px;
-        }
 
     </style>
 </head>
