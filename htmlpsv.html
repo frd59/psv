@@ -204,10 +204,76 @@ ul.menu li ul li a {
     text-decoration: none; /* Alt çizgiyi kaldır */
 }
 
+/* Fotoğraf kutusundaki yazının stilini ayarlama */
+ul.menu li ul li .photo-box .photo-text {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 12px;
+    text-align: center;
+    width: 100%;
+    border-radius: 0 0 10px 10px; /* Köşeleri yuvarlat */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Yazının etrafında hafif gölge */
+    z-index: 1; /* Yazı her zaman görselin üstünde kalacak */
+    font-weight: bold; /* Yazıyı kalınlaştır */
+    font-size: 16px; /* Yazı boyutunu belirle */
+    transition: font-size 0.3s ease; /* Büyütme küçültme animasyonu */
+}
+
+/* Büyütme/Küçültme butonu için stil */
+.font-size-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+/* Büyütme ve küçültme butonları */
+.font-size-controls button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Buton üzerine geldiğinde renk değişimi */
+.font-size-controls button:hover {
+    background-color: #45a049;
+}
+
+/* Default yazı tipi boyutunu ayarlama */
+ul.menu li ul li .photo-box .photo-text {
+    font-size: 16px; /* Varsayılan yazı boyutu */
+}
+
+/* Yazı boyutunu artırma */
+.font-size-controls .increase {
+    font-size: 20px;
+}
+
+/* Yazı boyutunu küçültme */
+.font-size-controls .decrease {
+    font-size: 12px;
+}
+
+/* İletişim kutusundaki yazı tipini değiştirme */
+.contact-item {
+    font-weight: bold; /* Yazıyı kalınlaştır */
+    font-size: 15px; /* Yazı boyutunu ayarlama */
+}
+
 /* Mobile uyumlu stil */
 @media (max-width: 768px) {
-    ul.menu {
-        width: 350px; /* Menü genişliği sabit kalacak */
+    /* Küçük ekranlarda checkbox'lar alt alta gelecek */
+    .checkbox-container {
+        flex: 1 1 100%;
+    }
+
+    .font-size-controls {
+        gap: 5px;
     }
 }
 
@@ -464,7 +530,7 @@ ul.menu li ul li {
     <div class="photo-box">
         <img src="https://i.pinimg.com/originals/59/eb/68/59eb6840611bbe0e1a985479365d8fa6.gif" 
              style="width: 201%; height: auto; 
-                    transform: scale(1.1) translateX(-5%) translateY(20%); 
+                    transform: scale(1.1) translateX(-5%) translateY(25%); 
                     position: relative; 
                     left: 0;">
         <div class="photo-text">KLİP</div>
