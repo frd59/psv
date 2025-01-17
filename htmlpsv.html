@@ -937,17 +937,14 @@ function toggleMenu(event) {
 function sendWhatsAppMessage() {
     var selectedServices = [];
     // Checkbox'lar kontrol edilerek seçilen hizmetler ekleniyor
-    if (document.getElementById('serviceD').checked) {
-        selectedServices.push('MASAJ');
-    }
-    
-    if (document.getElementById('serviceA').checked) {
+
+    if (document.getElementById('serviceA') && document.getElementById('serviceA').checked) {
         selectedServices.push('FOTOĞRAF');
     }
-    if (document.getElementById('serviceB').checked) {
+    if (document.getElementById('serviceB') && document.getElementById('serviceB').checked) {
         selectedServices.push('KAMERA');
     }
-    if (document.getElementById('serviceC').checked) {
+    if (document.getElementById('serviceC') && document.getElementById('serviceC').checked) {
         selectedServices.push('DRONE');
     }
 
@@ -961,11 +958,10 @@ function sendWhatsAppMessage() {
     }
 
     // Tarih formatını gün-ay-yıl şeklinde düzenle
+    var formattedDate = 'Tarih seçilmedi';
     if (selectedDate) {
         var dateParts = selectedDate.split('-');
-        var formattedDate = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];  // Gün-Ay-Yıl formatı
-    } else {
-        var formattedDate = 'Tarih seçilmedi';
+        formattedDate = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];  // Gün-Ay-Yıl formatı
     }
 
     // Seçilen hizmetleri ve tarihi mesajda birleştir
@@ -977,6 +973,7 @@ function sendWhatsAppMessage() {
     // WhatsApp linkini yeni sekmede aç
     window.open(whatsappUrl, '_blank');
 }
+
 
 // Bize Ulaşın butonuna tıklanınca mesaj gönder
 document.getElementById('whatsappLink').addEventListener('click', function(e) {
