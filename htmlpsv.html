@@ -428,6 +428,55 @@ ul.menu li ul li {
 }
 
 
+/* Modal Stil */
+.modal {
+    display: none; /* Başlangıçta gizli */
+    position: fixed; /* Ekranın üst kısmında sabit olmasını sağlar */
+    z-index: 1000; /* Üstte görünmesi için */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* Arka plan rengi */
+    overflow: auto; /* Eğer içerik fazla ise kaydırma çubuğu */
+}
+
+/* Modal içerik */
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 60%;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+/* Fotoğraf alanı */
+.modal-photo img {
+    width: 100%;
+    max-width: 200px;
+    border-radius: 50%;
+    margin-bottom: 15px;
+}
+
+/* Kapatma butonu */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
     </style>
 </head>
 <body>
@@ -548,18 +597,31 @@ ul.menu li ul li {
     <ul>
         <li>EKİP
             <ul>
-                <li>MUHARREM PASOV</li>
-                <li>EREN PASOV</li>
-                <li>FERDİ KABALI</li>
+                <li onclick="showMemberInfo('MUHARREM PASOV')">MUHARREM PASOV</li>
+                <li onclick="showMemberInfo('EREN PASOV')">EREN PASOV</li>
+                <li onclick="showMemberInfo('FERDİ KABALI')">FERDİ KABALI</li>
             </ul>
         </li>
         <li>ÇEKİM ARKASI
             <ul>
-
+                <!-- Diğer alt menüler buraya eklenebilir -->
             </ul>
         </li>
     </ul>
 </li>
+
+<!-- Modal (Açılır pencere) -->
+<div id="memberModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div id="modalPhoto" class="modal-photo">
+            <img src="" alt="Üye Fotoğrafı" id="memberPhoto">
+        </div>
+        <div id="modalDescription" class="modal-description">
+            <p id="memberDescription"></p>
+        </div>
+    </div>
+</div>
 <!-- TEKLİF AL Menüsüne eklenen Bize Ulaşın butonu -->
 <li onclick="toggleMenu(event)">TEKLİF AL
     <ul>
@@ -810,6 +872,38 @@ ul.menu li ul li {
 function showMaintenanceMessage(menu) {
     alert(menu + " menüsünde çalışma yapılmaktadır. Lütfen daha sonra tekrar deneyin.");
 }
+
+function showMemberInfo(memberName) {
+    var photoSrc = '';
+    var description = '';
+
+    // Üye bilgilerini kişiye göre ayarlama
+    if (memberName === 'MUHARREM PASOV') {
+        photoSrc = 'https://i.hizliresim.com/se495ix.jpg'; // Buraya fotoğrafın yolunu ekleyin
+        description = 'Muharrem Pasov, Drone Pilotluğu ve Videographerlık alanlarında uzmanlaşmış bir profesyoneldir. Gelişmiş drone teknolojileri ve sinematik çekim tekniklerine dair derin bilgi ve deneyime sahip olan Pasov, projelerin her aşamasında yüksek kaliteli görseller ve videolar sunmaktadır. Müşteri ihtiyaçlarını anlayarak, yaratıcı ve etkili görsel içerikler üretmekte, sektördeki en son yenilikleri takip ederek çözümlerini sürekli geliştirmektedir.';
+    } else if (memberName === 'EREN PASOV') {
+        photoSrc = 'eren-photo.jpg'; // Buraya fotoğrafın yolunu ekleyin
+        description = 'Eren Pasov, kamera uzmanıdır ve video prodüksiyon alanında geniş deneyime sahiptir.';
+    } else if (memberName === 'FERDİ KABALI') {
+        photoSrc = 'ferdi-photo.jpg'; // Buraya fotoğrafın yolunu ekleyin
+        description = 'Ferdi Kabalı, drone operatörü olarak etkinliklerde uçuş yapmaktadır.';
+    }
+
+    // Modal içeriklerini güncelle
+    document.getElementById('memberPhoto').src = photoSrc;
+    document.getElementById('memberDescription').innerText = description;
+
+    // Modal'ı göster
+    var modal = document.getElementById('memberModal');
+    modal.style.display = "block";
+}
+
+// Modal'ı kapatma fonksiyonu
+function closeModal() {
+    var modal = document.getElementById('memberModal');
+    modal.style.display = "none";
+}
+
 
 document.addEventListener("DOMContentLoaded", () => {
     const todayOption = document.getElementById("todayOption");
