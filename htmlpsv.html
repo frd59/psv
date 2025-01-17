@@ -50,7 +50,20 @@ ul.menu li {
     transition: background-color 0.3s, transform 0.3s;
     border-radius: 5px;
     margin: 5px 0;
+    font-family: 'Poppins', sans-serif; /* Modern yazı tipi */
+    font-size: 18px; /* Yazı boyutu */
+    font-weight: 500; /* Orta ağırlık */
+    letter-spacing: 1px; /* Harfler arası mesafe */
 }
+
+/* Menü öğesi üzerine gelince */
+ul.menu li:hover {
+    background-color: #555; /* Hover efekti */
+    transform: scale(1.05); /* Hafif büyütme efekti */
+}
+
+/* Google Fonts'tan 'Poppins' yazı tipini ekleyin */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap');
 
 /* Menü öğelerine hover efekti */
 ul.menu li:hover {
@@ -59,38 +72,80 @@ ul.menu li:hover {
 }
 
 
-        /* Alt menü (drop-down) gizli */
-        ul.menu li ul {
-            display: none; /* Başlangıçta gizli */
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            background-color: #666;
-            opacity: 0; /* Saydam yap */
-            transform: translateY(-20px); /* Başlangıçta yukarıda */
-            transition: opacity 0.3s ease, transform 0.3s ease; /* Opaklık ve transform animasyonu */
-            border-radius: 5px;
-        }
+/* Alt menü (drop-down) gizli */
+ul.menu li ul {
+    display: none; /* Başlangıçta gizli */
+    list-style-type: none;
+    padding: 10px 0; /* Dikey boşluk */
+    margin: 0;
+    background: linear-gradient(135deg, #444, #666); /* Modern degrade */
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2); /* Hafif gölge efekti */
+    opacity: 0; /* Saydam yap */
+    transform: translateY(-10px) scale(0.95); /* Hafif yukarıda ve küçültülmüş */
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* Daha yumuşak animasyon */
+    border-radius: 12px; /* Köşeleri yuvarla */
+}
 
-        /* Alt menü öğeleri */
-        ul.menu li ul li {
-            padding: 12px;
-            text-align: left;
-            border-top: 1px solid #ddd;
-            transition: background-color 0.3s;
-        }
+/* Alt menü öğeleri */
+ul.menu li ul li {
+    padding: 12px 20px; /* İç boşluk */
+    text-align: left;
+    color: #fff; /* Yazı rengi */
+    font-size: 14px; /* Yazı boyutu */
+    font-family: 'Arial', sans-serif;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s; /* Renk animasyonu */
+}
 
-        /* Alt menü öğeleri üzerine gelince */
-        ul.menu li ul li:hover {
-            background-color: #777;
-        }
+/* Alt menü öğeleri üzerine gelince */
+ul.menu li ul li:hover {
+    background: linear-gradient(135deg, #777, #999); /* Üzerine gelince renk geçişi */
+    color: #ffecb3; /* Yazı renginde kontrast */
+}
 
-        /* Menü öğesinin üzerine tıklandığında alt menüyü göster */
-        ul.menu li.active > ul {
-            display: block;
-            opacity: 1; /* Opaklık tamamen görünür */
-            transform: translateY(0); /* Alt menüyü normal konumuna getir */
-        }
+/* Menü öğesinin üzerine tıklandığında alt menüyü göster */
+ul.menu li.active > ul {
+    display: block;
+    opacity: 1; /* Görünürlük */
+    transform: translateY(0) scale(1); /* Tam boyuta büyüt ve yerine getir */
+}
+
+/* Menü öğelerinin kenarlıkları */
+ul.menu li ul li + li {
+    border-top: 1px solid rgba(255, 255, 255, 0.2); /* İnce bir ayraç */
+}
+
+/* Alt menülerin alt menüsü */
+ul.menu li ul li ul {
+    display: none; /* Başlangıçta gizli */
+    background: #333; /* Farklı arka plan rengi */
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15); /* Daha küçük bir gölge */
+    opacity: 0; /* Saydam yap */
+    transform: translateY(-10px) scale(0.9); /* Hafif küçültme ve yukarıda */
+    transition: all 0.3s ease; /* Daha hızlı ve yumuşak animasyon */
+    border-radius: 8px; /* Küçük yuvarlatılmış köşeler */
+}
+
+/* Alt menülerin alt menü öğeleri */
+ul.menu li ul li ul li {
+    padding: 10px 18px; /* Daha küçük iç boşluk */
+    font-size: 13px; /* Küçük yazı boyutu */
+    color: #fff; /* Beyaz yazı rengi */
+}
+
+/* Alt menülerin alt menüsü üzerine gelince */
+ul.menu li ul li ul li:hover {
+    background: #444; /* Daha koyu arka plan */
+    color: #ffcc00; /* Sarı renk */
+}
+
+/* Alt menülerin alt menüsünün görünür olması */
+ul.menu li ul li.active > ul {
+    display: block;
+    opacity: 1; /* Görünürlük */
+    transform: translateY(0) scale(1); /* Tam boyuta büyüt */
+}
+
 
     /* DIŞ ÇEKİM için görsel kolaj stili */
 ul.menu li ul li .photo-box {
@@ -489,12 +544,22 @@ ul.menu li ul li {
                 </li>
             </ul>
         </li>
-        <li onclick="toggleMenu(event)">HAKKIMIZDA
+       <li onclick="toggleMenu(event)">HAKKIMIZDA
+    <ul>
+        <li>EKİP
             <ul>
-                <li>Alt Menü 4.1</li>
-                <li>Alt Menü 4.2</li>
+                <li>MUHARREM PASOV</li>
+                <li>EREN PASOV</li>
+                <li>FERDİ KABALI</li>
             </ul>
         </li>
+        <li>ÇEKİM ARKASI
+            <ul>
+
+            </ul>
+        </li>
+    </ul>
+</li>
 <!-- TEKLİF AL Menüsüne eklenen Bize Ulaşın butonu -->
 <li onclick="toggleMenu(event)">TEKLİF AL
     <ul>
