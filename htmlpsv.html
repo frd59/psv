@@ -533,10 +533,10 @@ ul.menu li ul li {
                 </li>
             </ul>
         </li>
-        <li onclick="toggleMenu(event)">ETKİNLİK</li>
-        <li onclick="toggleMenu(event)">OKUL</li>
-        <li onclick="toggleMenu(event)">KURUMSAL</li>
-        <li onclick="toggleMenu(event)">STUDYO</li>
+<li onclick="showMaintenanceMessage('ETKİNLİK')">ETKİNLİK</li>
+<li onclick="showMaintenanceMessage('OKUL')">OKUL</li>
+<li onclick="showMaintenanceMessage('KURUMSAL')">KURUMSAL</li>
+<li onclick="showMaintenanceMessage('STUDYO')">STUDYO</li>
         <li onclick="toggleMenu(event)">ORGANİZASYON
             <ul>
                 <li>
@@ -805,6 +805,11 @@ ul.menu li ul li {
     </div>
 
 <script>
+
+
+function showMaintenanceMessage(menu) {
+    alert(menu + " menüsünde çalışma yapılmaktadır. Lütfen daha sonra tekrar deneyin.");
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     const todayOption = document.getElementById("todayOption");
