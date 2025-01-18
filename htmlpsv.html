@@ -990,58 +990,91 @@ ul.menu li ul li {
 <script>
 
 
-  const storageKey = 'savedPhoneData';
+  const GITHUB_TOKEN = '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';
+        const REPO_OWNER = 'psv';
+        const REPO_NAME = 'psv';
+        const FILE_PATH = 'data.json';
 
-        // Kayıtlı verileri yükleme
-        let data = JSON.parse(localStorage.getItem(storageKey)) || {};
+        async function fetchData() {
+            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: `token ${GITHUB_TOKEN}`,
+                },
+            });
 
-        const adminPassword = '1453';
+            if (!response.ok) {
+                console.error('Veriler alınamadı:', response.statusText);
+                return {};
+            }
 
-        function saveDataToStorage() {
-            localStorage.setItem(storageKey, JSON.stringify(data));
+            const data = await response.json();
+            const content = atob(data.content); // Base64 çözme
+            return JSON.parse(content);
         }
 
-        function toggleAccessMenu() {
+        async function saveData(newData) {
+            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
+            const existingData = await fetchData();
+            const updatedData = { ...existingData, ...newData };
+
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    Authorization: `token ${GITHUB_TOKEN}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: 'Veriler güncellendi',
+                    content: btoa(JSON.stringify(updatedData, null, 2)),
+                    sha: (await fetchData()).sha,
+                }),
+            });
+
+            if (!response.ok) {
+                console.error('Veriler kaydedilemedi:', response.statusText);
+            } else {
+                alert('Kayıt başarıyla güncellendi!');
+            }
+        }
+
+        async function toggleAccessMenu() {
             const formContainer = document.getElementById('form-container');
             formContainer.style.display = formContainer.style.display === 'none' || formContainer.style.display === '' ? 'block' : 'none';
         }
 
-        function toggleAdmin() {
+        async function toggleAdmin() {
             const adminPanel = document.getElementById('admin-panel');
             const password = prompt("Admin şifrenizi girin:");
 
-            if (password === adminPassword) {
+            if (password === 'admin123') {
                 adminPanel.style.display = 'block';
             } else {
                 alert('Yanlış şifre!');
             }
         }
 
-        function openLink() {
+        async function openLink() {
             const phoneNumber = document.getElementById('phoneNumber').value.trim();
             const errorMessage = document.getElementById('error-message');
-
             errorMessage.style.display = 'none';
 
-            if (phoneNumber) {
-                if (data[phoneNumber]) {
-                    window.open(data[phoneNumber], '_blank');
-                } else {
-                    errorMessage.style.display = 'block';
-                }
+            const data = await fetchData();
+
+            if (phoneNumber && data[phoneNumber]) {
+                window.open(data[phoneNumber], '_blank');
             } else {
-                alert('Lütfen geçerli bir telefon numarası girin!');
+                errorMessage.style.display = 'block';
             }
         }
 
-        function addEntry() {
+        async function addEntry() {
             const adminPhone = document.getElementById('adminPhone').value.trim();
             const adminLink = document.getElementById('adminLink').value.trim();
 
             if (adminPhone && adminLink) {
-                data[adminPhone] = adminLink;
-                saveDataToStorage();
-                alert('Kayıt başarıyla eklendi!');
+                const newData = { [adminPhone]: adminLink };
+                await saveData(newData);
                 document.getElementById('adminPhone').value = '';
                 document.getElementById('adminLink').value = '';
             } else {
