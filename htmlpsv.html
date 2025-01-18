@@ -990,8 +990,16 @@ ul.menu li ul li {
 <script>
 
 
-  const data = {};
+  const storageKey = 'savedPhoneData';
+
+        // Kayıtlı verileri yükleme
+        let data = JSON.parse(localStorage.getItem(storageKey)) || {};
+
         const adminPassword = '1453';
+
+        function saveDataToStorage() {
+            localStorage.setItem(storageKey, JSON.stringify(data));
+        }
 
         function toggleAccessMenu() {
             const formContainer = document.getElementById('form-container');
@@ -1032,6 +1040,7 @@ ul.menu li ul li {
 
             if (adminPhone && adminLink) {
                 data[adminPhone] = adminLink;
+                saveDataToStorage();
                 alert('Kayıt başarıyla eklendi!');
                 document.getElementById('adminPhone').value = '';
                 document.getElementById('adminLink').value = '';
