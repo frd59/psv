@@ -590,7 +590,7 @@ ul.menu li ul li {
     </div>
 
 <ul class="menu">
-    <li onclick="toggleMenu(event)">📍 OFİS / DÜKKAN (KONUM)
+    <li onclick="toggleMenu(event)">📍 OFİS / DÜKKAN (aKONUM)
         <ul>
             <li onclick="window.open('https://www.google.com/maps/place/PasovART+%C3%87orlu/@41.1554651,27.7925095,17z/data=!3m1!4b1!4m6!3m5!1s0x14b4e795a942e17f:0x5dedf296769e3bff!8m2!3d41.1554651!4d27.7925095!16s%2Fg%2F11f5nxt7nl?hl=tr&entry=ttu&g_ep=EgoyMDI1MDEwOC4wIKXMDSoASAFQAw%3D%3D')" style="color: white; cursor: pointer;">
                 📍 ÇORLU
@@ -987,13 +987,12 @@ ul.menu li ul li {
 
     </div>
 
- <!-- Firebase CDN -->
+<!-- Firebase SDK'sı -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-<!-- Firebase ile etkileşim -->
+<!-- Kendi Scriptiniz -->
 <script>
-    // Firebase yapılandırma bilgileri
     const firebaseConfig = {
         apiKey: "AIzaSyDMMpU1l8zabgaw7bfSHKCOxLbz-RhNT7I",
         authDomain: "databasepsv-dc1b7.firebaseapp.com",
@@ -1007,12 +1006,12 @@ ul.menu li ul li {
 
     // Firebase başlatma
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();  // Bu kısımda db başlatılıyor
+    const db = firebase.firestore();  // firestore veritabanı başlatılıyor
 
     // Veri kaydetme fonksiyonu
     async function saveData(newData) {
         try {
-            const docRef = firebase.firestore().collection('links').doc('data');
+            const docRef = db.collection('links').doc('data');
             const existingData = await fetchData();
             const updatedData = { ...existingData, ...newData };
             
@@ -1026,7 +1025,7 @@ ul.menu li ul li {
     // Veri alma fonksiyonu
     async function fetchData() {
         try {
-            const docRef = firebase.firestore().collection('links').doc('data');
+            const docRef = db.collection('links').doc('data');
             const docSnap = await docRef.get();
             if (docSnap.exists) {
                 console.log("Veriler:", docSnap.data());
