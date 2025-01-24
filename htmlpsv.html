@@ -988,56 +988,87 @@ ul.menu li ul li {
     </div>
 
  <!-- Firebase CDN -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-    <!-- Firebase ile etkileşim -->
-    <script>
-        // Firebase yapılandırma bilgileri
-        const firebaseConfig = {
-            apiKey: "AIzaSyDMMpU1l8zabgaw7bfSHKCOxLbz-RhNT7I",
-            authDomain: "databasepsv-dc1b7.firebaseapp.com",
-            databaseURL: "https://databasepsv-dc1b7-default-rtdb.firebaseio.com",
-            projectId: "databasepsv-dc1b7",
-            storageBucket: "databasepsv-dc1b7.firebasestorage.app",
-            messagingSenderId: "106474799557",
-            appId: "1:106474799557:web:8f7cff2b7ef8466ab08bac",
-            measurementId: "G-BKKE9YZS1T"
-        };
+<!-- Firebase ile etkileşim -->
+<script>
+    // Firebase yapılandırma bilgileri
+    const firebaseConfig = {
+        apiKey: "AIzaSyDMMpU1l8zabgaw7bfSHKCOxLbz-RhNT7I",
+        authDomain: "databasepsv-dc1b7.firebaseapp.com",
+        databaseURL: "https://databasepsv-dc1b7-default-rtdb.firebaseio.com",
+        projectId: "databasepsv-dc1b7",
+        storageBucket: "databasepsv-dc1b7.firebasestorage.app",
+        messagingSenderId: "106474799557",
+        appId: "1:106474799557:web:8f7cff2b7ef8466ab08bac",
+        measurementId: "G-BKKE9YZS1T"
+    };
 
-        // Firebase başlatma
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+    // Firebase başlatma
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();  // Bu kısımda db başlatılıyor
 
-        // Veriyi alma fonksiyonu
-        async function fetchData() {
-            try {
-                const docRef = db.collection("links").doc("data");
-                const docSnap = await docRef.get();
-                if (docSnap.exists) {
-                    console.log("Veriler:", docSnap.data());
-                    return docSnap.data();
-                } else {
-                    console.error("Veri bulunamadı!");
-                    return {};
-                }
-            } catch (error) {
-                console.error("Veri alma hatası:", error);
-            }
+    // Veri kaydetme fonksiyonu
+    async function saveData(newData) {
+        try {
+            const docRef = firebase.firestore().collection('links').doc('data');
+            const existingData = await fetchData();
+            const updatedData = { ...existingData, ...newData };
+            
+            await docRef.set(updatedData);
+            alert("Veriler başarıyla kaydedildi!");
+        } catch (error) {
+            console.error("Veri kaydetme hatası:", error);
         }
+    }
 
-        // Veriyi kaydetme fonksiyonu
-        async function saveData(newData) {
-            try {
-                const docRef = db.collection("links").doc("data");
-                const existingData = await fetchData();
-                const updatedData = { ...existingData, ...newData };
-                await docRef.set(updatedData);
-                alert("Veriler başarıyla güncellendi!");
-            } catch (error) {
-                console.error("Veri kaydetme hatası:", error);
+    // Veri alma fonksiyonu
+    async function fetchData() {
+        try {
+            const docRef = firebase.firestore().collection('links').doc('data');
+            const docSnap = await docRef.get();
+            if (docSnap.exists) {
+                console.log("Veriler:", docSnap.data());
+                return docSnap.data();
+            } else {
+                console.error("Veri bulunamadı!");
+                return {};
             }
+        } catch (error) {
+            console.error("Veri alma hatası:", error);
         }
+    }
+
+    // Link açma fonksiyonu
+    async function openLink() {
+        const phoneNumber = document.getElementById("phoneNumber").value.trim();
+        const errorMessage = document.getElementById("error-message");
+        errorMessage.style.display = "none";
+
+        const data = await fetchData();
+
+        if (phoneNumber && data[phoneNumber]) {
+            window.open(data[phoneNumber], "_blank");
+        } else {
+            errorMessage.style.display = "block";
+        }
+    }
+
+    // Yeni giriş ekleme fonksiyonu
+    async function addEntry() {
+        const adminPhone = document.getElementById("adminPhone").value.trim();
+        const adminLink = document.getElementById("adminLink").value.trim();
+
+        if (adminPhone && adminLink) {
+            const newData = { [adminPhone]: adminLink };
+            await saveData(newData);  // Veriyi kaydetme işlemi
+            document.getElementById("adminPhone").value = "";
+            document.getElementById("adminLink").value = "";
+        } else {
+            alert("Lütfen tüm alanları doldurun!");
+        }
+    }
 
         // Menü işlevi
         function toggleAccessMenu() {
