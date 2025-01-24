@@ -590,7 +590,7 @@ ul.menu li ul li {
     </div>
 
 <ul class="menu">
-    <li onclick="toggleMenu(event)">📍 OFİS / DÜKKAN (KONUM)
+    <li onclick="toggleMenu(event)">📍 OFİS / DÜKKAN (KONUMp)
         <ul>
             <li onclick="window.open('https://www.google.com/maps/place/PasovART+%C3%87orlu/@41.1554651,27.7925095,17z/data=!3m1!4b1!4m6!3m5!1s0x14b4e795a942e17f:0x5dedf296769e3bff!8m2!3d41.1554651!4d27.7925095!16s%2Fg%2F11f5nxt7nl?hl=tr&entry=ttu&g_ep=EgoyMDI1MDEwOC4wIKXMDSoASAFQAw%3D%3D')" style="color: white; cursor: pointer;">
                 📍 ÇORLU
@@ -987,57 +987,58 @@ ul.menu li ul li {
 
     </div>
 
- <!-- Firebase CDN -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+ <!-- Firebase'i yüklemek için doğru script'leri ekleyin -->
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
 
-    <!-- Firebase ile etkileşim -->
-    <script>
-        // Firebase yapılandırma bilgileri
-        const firebaseConfig = {
-            apiKey: "AIzaSyDMMpU1l8zabgaw7bfSHKCOxLbz-RhNT7I",
-            authDomain: "databasepsv-dc1b7.firebaseapp.com",
-            databaseURL: "https://databasepsv-dc1b7-default-rtdb.firebaseio.com",
-            projectId: "databasepsv-dc1b7",
-            storageBucket: "databasepsv-dc1b7.firebasestorage.app",
-            messagingSenderId: "106474799557",
-            appId: "1:106474799557:web:8f7cff2b7ef8466ab08bac",
-            measurementId: "G-BKKE9YZS1T"
-        };
+<script>
+  // Firebase yapılandırma bilgileri
+  const firebaseConfig = {
+    apiKey: "AIzaSyDMMpU1l8zabgaw7bfSHKCOxLbz-RhNT7I",
+    authDomain: "databasepsv-dc1b7.firebaseapp.com",
+    databaseURL: "https://databasepsv-dc1b7-default-rtdb.firebaseio.com",
+    projectId: "databasepsv-dc1b7",
+    storageBucket: "databasepsv-dc1b7.firebasestorage.app",
+    messagingSenderId: "106474799557",
+    appId: "1:106474799557:web:8f7cff2b7ef8466ab08bac",
+    measurementId: "G-BKKE9YZS1T",
+  };
 
-        // Firebase başlatma
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+  // Firebase'i başlatma
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore(app); // Firestore'ı başlatıyoruz
 
-        // Veriyi alma fonksiyonu
-        async function fetchData() {
-            try {
-                const docRef = db.collection("links").doc("data");
-                const docSnap = await docRef.get();
-                if (docSnap.exists) {
-                    console.log("Veriler:", docSnap.data());
-                    return docSnap.data();
-                } else {
-                    console.error("Veri bulunamadı!");
-                    return {};
-                }
-            } catch (error) {
-                console.error("Veri alma hatası:", error);
-            }
-        }
+  // Veri alma fonksiyonu
+  async function fetchData() {
+    try {
+      const docRef = db.collection("links").doc("data");
+      const docSnap = await docRef.get();
 
-        // Veriyi kaydetme fonksiyonu
-        async function saveData(newData) {
-            try {
-                const docRef = db.collection("links").doc("data");
-                const existingData = await fetchData();
-                const updatedData = { ...existingData, ...newData };
-                await docRef.set(updatedData);
-                alert("Veriler başarıyla güncellendi!");
-            } catch (error) {
-                console.error("Veri kaydetme hatası:", error);
-            }
-        }
+      if (docSnap.exists) {
+        console.log("Veriler:", docSnap.data());
+        return docSnap.data();
+      } else {
+        console.error("Veri bulunamadı!");
+        return {};
+      }
+    } catch (error) {
+      console.error("Veri alma hatası:", error);
+    }
+  }
+
+  // Veriyi kaydetme fonksiyonu
+  async function saveData(newData) {
+    try {
+      const docRef = db.collection("links").doc("data");
+      const existingData = await fetchData();
+      const updatedData = { ...existingData, ...newData };
+
+      await docRef.set(updatedData);
+      alert("Veriler başarıyla güncellendi!");
+    } catch (error) {
+      console.error("Veri kaydetme hatası:", error);
+    }
+  }
 
         // Menü işlevi
         function toggleAccessMenu() {
