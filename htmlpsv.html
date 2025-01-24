@@ -987,66 +987,68 @@ ul.menu li ul li {
 
     </div>
 
-<script>
+ <!-- Firebase CDN -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
+    <!-- Firebase ile etkileşim -->
+    <script>
+        // Firebase yapılandırma bilgileri
+        const firebaseConfig = {
+            apiKey: "AIzaSyDMMpU1l8zabgaw7bfSHKCOxLbz-RhNT7I",
+            authDomain: "databasepsv-dc1b7.firebaseapp.com",
+            databaseURL: "https://databasepsv-dc1b7-default-rtdb.firebaseio.com",
+            projectId: "databasepsv-dc1b7",
+            storageBucket: "databasepsv-dc1b7.firebasestorage.app",
+            messagingSenderId: "106474799557",
+            appId: "1:106474799557:web:8f7cff2b7ef8466ab08bac",
+            measurementId: "G-BKKE9YZS1T"
+        };
 
-  const GITHUB_TOKEN = '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';
-        const REPO_OWNER = 'frd59';
-        const REPO_NAME = 'psv';
-        const FILE_PATH = 'data.json';
+        // Firebase başlatma
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
+        // Veriyi alma fonksiyonu
         async function fetchData() {
-            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
-            const response = await fetch(url, {
-                headers: {
-                    Authorization: `token ${GITHUB_TOKEN}`,
-                },
-            });
-
-            if (!response.ok) {
-                console.error('Veriler alınamadı:', response.statusText);
-                return {};
+            try {
+                const docRef = db.collection("links").doc("data");
+                const docSnap = await docRef.get();
+                if (docSnap.exists) {
+                    console.log("Veriler:", docSnap.data());
+                    return docSnap.data();
+                } else {
+                    console.error("Veri bulunamadı!");
+                    return {};
+                }
+            } catch (error) {
+                console.error("Veri alma hatası:", error);
             }
-
-            const data = await response.json();
-            const content = atob(data.content); // Base64 çözme
-            return JSON.parse(content);
         }
 
+        // Veriyi kaydetme fonksiyonu
         async function saveData(newData) {
-            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
-            const existingData = await fetchData();
-            const updatedData = { ...existingData, ...newData };
-
-            const response = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    Authorization: `token ${GITHUB_TOKEN}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    message: 'Veriler güncellendi',
-                    content: btoa(JSON.stringify(updatedData, null, 2)),
-                    sha: (await fetchData()).sha,
-                }),
-            });
-
-            if (!response.ok) {
-                console.error('Veriler kaydedilemedi:', response.statusText);
-            } else {
-                alert('Kayıt başarıyla güncellendi!');
+            try {
+                const docRef = db.collection("links").doc("data");
+                const existingData = await fetchData();
+                const updatedData = { ...existingData, ...newData };
+                await docRef.set(updatedData);
+                alert("Veriler başarıyla güncellendi!");
+            } catch (error) {
+                console.error("Veri kaydetme hatası:", error);
             }
         }
 
-        async function toggleAccessMenu() {
+        // Menü işlevi
+        function toggleAccessMenu() {
             const formContainer = document.getElementById('form-container');
             formContainer.style.display = formContainer.style.display === 'none' || formContainer.style.display === '' ? 'block' : 'none';
         }
 
-        async function toggleAdmin() {
+        // Admin paneli işlevi
+        function toggleAdmin() {
             const adminPanel = document.getElementById('admin-panel');
             const password = prompt("Admin şifrenizi girin:");
-
             if (password === 'admin123') {
                 adminPanel.style.display = 'block';
             } else {
@@ -1054,34 +1056,41 @@ ul.menu li ul li {
             }
         }
 
+        // Link açma işlevi
         async function openLink() {
-            const phoneNumber = document.getElementById('phoneNumber').value.trim();
-            const errorMessage = document.getElementById('error-message');
-            errorMessage.style.display = 'none';
-
+            const phoneNumber = document.getElementById("phoneNumber").value.trim();
+            const errorMessage = document.getElementById("error-message");
+            errorMessage.style.display = "none";
             const data = await fetchData();
 
             if (phoneNumber && data[phoneNumber]) {
-                window.open(data[phoneNumber], '_blank');
+                window.open(data[phoneNumber], "_blank");
             } else {
-                errorMessage.style.display = 'block';
+                errorMessage.style.display = "block";
             }
         }
 
+        // Yeni giriş ekleme işlevi
         async function addEntry() {
-            const adminPhone = document.getElementById('adminPhone').value.trim();
-            const adminLink = document.getElementById('adminLink').value.trim();
-
+            const adminPhone = document.getElementById("adminPhone").value.trim();
+            const adminLink = document.getElementById("adminLink").value.trim();
             if (adminPhone && adminLink) {
                 const newData = { [adminPhone]: adminLink };
                 await saveData(newData);
-                document.getElementById('adminPhone').value = '';
-                document.getElementById('adminLink').value = '';
+                document.getElementById("adminPhone").value = "";
+                document.getElementById("adminLink").value = "";
             } else {
-                alert('Lütfen tüm alanları doldurun!');
+                alert("Lütfen tüm alanları doldurun!");
             }
         }
 
+        // Global olarak fonksiyonları erişilebilir hale getirme
+        window.toggleAccessMenu = toggleAccessMenu;
+        window.toggleAdmin = toggleAdmin;
+        window.openLink = openLink;
+        window.addEntry = addEntry;
+        
+        
 function showMaintenanceMessage(menu) {
     alert(menu + " menüsünde çalışma yapılmaktadır. Lütfen daha sonra tekrar deneyin.");
 }
