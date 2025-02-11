@@ -581,93 +581,65 @@ ul.menu li ul li {
         }
         
         
-    <title>Fotoğraf Galerisi (Google Drive)</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
+/* Modal stil */
+.modal {
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.9);
+}
 
-        .photo-box {
-            display: inline-block;
-            position: relative;
-            cursor: pointer;
-            margin: 10px;
-        }
+/* Modal içerik kısmı */
+.modal-content {
+    position: relative;
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+}
 
-        .photo-box img {
-            width: 300px;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 10px;
-            transition: transform 0.3s ease;
-        }
+/* Modal görseli */
+#galleryImage {
+    width: 100%;
+    height: auto;
+    display: block;
+}
 
-        .photo-box:hover img {
-            transform: scale(1.05);
-        }
+/* Önceki ve sonraki butonlar */
+.prev, .next {
+    position: absolute;
+    top: 50%;
+    padding: 16px;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    background-color: rgba(0, 0, 0, 0.5);
+}
 
-        .photo-text {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            padding: 5px 10px;
-            font-size: 16px;
-            border-radius: 5px;
-        }
+.prev {
+    left: 0;
+}
 
-        /* Modal (Galeri) */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-        }
+.next {
+    right: 0;
+}
 
-        .modal-content {
-            position: relative;
-            margin: 5% auto;
-            width: 80%;
-            max-width: 800px;
-            text-align: center;
-        }
-
-        .modal img {
-            width: 100%;
-            height: auto;
-            border-radius: 10px;
-        }
-
-        .close {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 30px;
-            color: white;
-            cursor: pointer;
-        }
-
-        .prev, .next {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 30px;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px;
-            border-radius: 50%;
-        }
-
-        .prev { left: 10px; }
-        .next { right: 10px; }
+/* Kapatma butonu */
+.close {
+    position: absolute;
+    top: 10px;
+    right: 25px;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}
 
     </style>
     
@@ -790,14 +762,14 @@ ul.menu li ul li {
 </li>
 
 <!-- Açılır Modal Galeri -->
-    <div id="galleryModal" class="modal">
-        <span class="close" onclick="closeGallery()">&times;</span>
-        <div class="modal-content">
-            <span class="prev" onclick="changeSlide(-1)">&#10094;</span>
-            <img id="galleryImage" src="">
-            <span class="next" onclick="changeSlide(1)">&#10095;</span>
-        </div>
+<div id="galleryModal" class="modal" style="display:none;">
+    <span class="close" onclick="closeGallery()">&times;</span>
+    <div class="modal-content">
+        <span class="prev" onclick="changeSlide(-1)">&#10094;</span>
+        <img id="galleryImage" src="" alt="Gallery Image">
+        <span class="next" onclick="changeSlide(1)">&#10095;</span>
     </div>
+</div>
 <!-- TEKLİF AL Menüsüne eklenen Bize Ulaşın butonu -->
 <li onclick="toggleMenu(event)">TEKLİF AL
     <ul>
@@ -1064,17 +1036,18 @@ ul.menu li ul li {
  
  
  
-  let currentIndex = 0;
-        let images = [];
+let currentIndex = 0;
+let images = [];
 
-        const API_KEY = "AIzaSyB7sKUC5iP-5NXS8PDFbL5BtU5AaLhXmRY";  // Buraya kendi API anahtarını ekle
+const API_KEY = "AIzaSyB7sKUC5iP-5NXS8PDFbL5BtU5AaLhXmRY";  // Kendi API anahtarınızı buraya ekleyin
 
-       function loadGallery(folderId) {
+function loadGallery(folderId) {
     fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${API_KEY}&fields=files(id,name)`)
         .then(response => response.json())
         .then(data => {
             // Dosya ID'lerini al ve doğru URL formatına dönüştür
             images = data.files.map(file => `https://drive.google.com/uc?export=view&id=${file.id}`);
+            console.log(images);  // Resimlerin URL'lerini kontrol et
 
             if (images.length > 0) {
                 openGallery(0);  // İlk resmi aç
@@ -1084,22 +1057,41 @@ ul.menu li ul li {
         })
         .catch(error => console.error("Hata oluştu:", error));
 }
-        function openGallery(index) {
-            currentIndex = index;
-            document.getElementById("galleryImage").src = images[currentIndex];
-            document.getElementById("galleryModal").style.display = "block";
-        }
 
-        function closeGallery() {
-            document.getElementById("galleryModal").style.display = "none";
-        }
+function openGallery(index) {
+    currentIndex = index;
+    if (images[currentIndex]) {
+        document.getElementById("galleryImage").src = images[currentIndex];
+        document.getElementById("galleryModal").style.display = "block";
+    } else {
+        console.log('Resim bulunamadı');
+    }
+}
 
-        function changeSlide(step) {
-            currentIndex += step;
-            if (currentIndex < 0) currentIndex = images.length - 1;
-            if (currentIndex >= images.length) currentIndex = 0;
-            document.getElementById("galleryImage").src = images[currentIndex];
-        }
+function closeGallery() {
+    document.getElementById("galleryModal").style.display = "none";
+}
+
+function changeSlide(step) {
+    currentIndex += step;
+    if (currentIndex < 0) currentIndex = images.length - 1;
+    if (currentIndex >= images.length) currentIndex = 0;
+    document.getElementById("galleryImage").src = images[currentIndex];
+}
+
+
+const galleryImage = document.getElementById("galleryImage");
+
+galleryImage.onload = function() {
+    console.log("Görsel başarıyla yüklendi!");
+};
+
+galleryImage.onerror = function() {
+    console.log("Görsel yüklenirken hata oluştu!");
+};
+
+galleryImage.src = images[currentIndex];
+
 
 // Firebase yapılandırma bilgileri
         const firebaseConfig = {
