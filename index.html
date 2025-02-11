@@ -579,6 +579,95 @@ ul.menu li ul li {
             color: red;
             display: none;
         }
+        
+        
+    <title>Fotoğraf Galerisi (Google Drive)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        .photo-box {
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        .photo-box img {
+            width: 300px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-box:hover img {
+            transform: scale(1.05);
+        }
+
+        .photo-text {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 5px 10px;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        /* Modal (Galeri) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            position: relative;
+            margin: 5% auto;
+            width: 80%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .modal img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .prev, .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 30px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 50%;
+        }
+
+        .prev { left: 10px; }
+        .next { right: 10px; }
 
     </style>
     
@@ -641,38 +730,20 @@ ul.menu li ul li {
         <li onclick="toggleMenu(event)">DIŞ ÇEKİM
             <ul>
                 <li>
-<a href="https://novasta.com.tr/nvstkatalog/catalog/musteri/psv/20956PSV03960-1-++.html">
-    <div class="photo-box">
-        <img src="https://i.hizliresim.com/fdyht3e.jpg" alt="Çekim 1" 
-             style="width: 105%; height: auto; 
-                    transform: scale(1.1) translateX(0%) translateY(20%); 
-                    position: relative; 
-                    left: 0;">
+   <div class="photo-box" onclick="loadGallery('1bzkOxmpfzB4580qo9St5tEikmXkqbVlx')">
+        <img src="https://i.hizliresim.com/fdyht3e.jpg" alt="Kıyıköy">
         <div class="photo-text">KIYIKÖY</div>
     </div>
-</a>
 
-<a href="https://www.example.com/corlu">
-    <div class="photo-box">
-        <img src="https://i.hizliresim.com/ri9m24n.jpg" alt="Çekim 2" 
-             style="width: 105%; height: auto; 
-                    transform: scale(1.1) translateX(0%) translateY(20%); 
-                    position: relative; 
-                    left: 0;">
+    <div class="photo-box" onclick="loadGallery('1bzkOxmpfzB4580qo9St5tEikmXkqbVlx')">
+        <img src="https://i.hizliresim.com/ri9m24n.jpg" alt="Çorlu">
         <div class="photo-text">ÇORLU</div>
     </div>
-</a>
 
-<a href="https://www.example.com/istanbul-plato">
-    <div class="photo-box">
-        <img src="https://i.hizliresim.com/kp108ri.jpg" alt="Çekim 3" 
-             style="width: 105%; height: auto; 
-                    transform: scale(1.1) translateX(0%) translateY(20%); 
-                    position: relative; 
-                    left: 0;">
+    <div class="photo-box" onclick="openGallery(2)">
+        <img src="https://i.hizliresim.com/kp108ri.jpg" alt="İstanbul Plato">
         <div class="photo-text">İSTANBUL PLATO</div>
     </div>
-</a>
 
 
                         
@@ -686,7 +757,7 @@ ul.menu li ul li {
         <div class="photo-text">KLİP</div>
     </div>
 </a>
-                    </a>
+         
                 </li>
             </ul>
         </li>
@@ -718,18 +789,15 @@ ul.menu li ul li {
     </ul>
 </li>
 
-<!-- Modal (Açılır pencere) -->
-<div id="memberModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <div id="modalPhoto" class="modal-photo">
-            <img src="" alt="Üye Fotoğrafı" id="memberPhoto">
-        </div>
-        <div id="modalDescription" class="modal-description">
-            <p id="memberDescription"></p>
+<!-- Açılır Modal Galeri -->
+    <div id="galleryModal" class="modal">
+        <span class="close" onclick="closeGallery()">&times;</span>
+        <div class="modal-content">
+            <span class="prev" onclick="changeSlide(-1)">&#10094;</span>
+            <img id="galleryImage" src="">
+            <span class="next" onclick="changeSlide(1)">&#10095;</span>
         </div>
     </div>
-</div>
 <!-- TEKLİF AL Menüsüne eklenen Bize Ulaşın butonu -->
 <li onclick="toggleMenu(event)">TEKLİF AL
     <ul>
@@ -993,6 +1061,45 @@ ul.menu li ul li {
     </div>
 
  <script>
+ 
+ 
+ 
+  let currentIndex = 0;
+        let images = [];
+
+        const API_KEY = "AIzaSyB7sKUC5iP-5NXS8PDFbL5BtU5AaLhXmRY";  // Buraya kendi API anahtarını ekle
+
+       function loadGallery(folderId) {
+    fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${API_KEY}&fields=files(id,name)`)
+        .then(response => response.json())
+        .then(data => {
+            // Dosya ID'lerini al ve doğru URL formatına dönüştür
+            images = data.files.map(file => `https://drive.google.com/uc?export=view&id=${file.id}`);
+
+            if (images.length > 0) {
+                openGallery(0);  // İlk resmi aç
+            } else {
+                alert("Bu klasörde fotoğraf bulunamadı.");
+            }
+        })
+        .catch(error => console.error("Hata oluştu:", error));
+}
+        function openGallery(index) {
+            currentIndex = index;
+            document.getElementById("galleryImage").src = images[currentIndex];
+            document.getElementById("galleryModal").style.display = "block";
+        }
+
+        function closeGallery() {
+            document.getElementById("galleryModal").style.display = "none";
+        }
+
+        function changeSlide(step) {
+            currentIndex += step;
+            if (currentIndex < 0) currentIndex = images.length - 1;
+            if (currentIndex >= images.length) currentIndex = 0;
+            document.getElementById("galleryImage").src = images[currentIndex];
+        }
 
 // Firebase yapılandırma bilgileri
         const firebaseConfig = {
@@ -1337,6 +1444,7 @@ document.getElementById('whatsappLink').addEventListener('click', function(e) {
     e.preventDefault(); // Normal link davranışını engelle
     sendWhatsAppMessage(); // Mesaj gönderme fonksiyonunu çalıştır
 });
+
 
 
 </script>
