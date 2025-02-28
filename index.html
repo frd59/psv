@@ -973,11 +973,12 @@ ul.menu li ul li {
         <button onclick="addDebt()">Borç Ekle</button>
     
 <h2>Borç Sorgula</h2>
-<input type="text" id="searchPhone" placeholder="Telefon numarası">
+<input type="text" id="searchPhoneOrName" placeholder="Telefon numarası veya isim soyisim">
 <button onclick="searchDebt()">Sorgula</button>
-<button onclick="searchAllDebts()">Hepsi</button> <!-- Yeni buton -->
+<button onclick="showAllDebts()">Hepsi</button>
 <div id="debtResults"></div>
 <h3 id="totalDebt" style="color: red; font-size: 20px; font-weight: bold;"></h3>
+
     </div>
 
 
@@ -1017,7 +1018,7 @@ function formatDate(dateString) {
 function addDebt() {
     const name = document.getElementById("debtName").value;
     const date = document.getElementById("debtDate").value;
-    const phone = document.getElementById("debtPhone").value;
+    const phone = formatPhoneNumber(document.getElementById("debtPhone").value); // Telefon numarasını normalize et
     const amount = document.getElementById("debtAmount").value;
     const description = document.getElementById("debtDescription").value;
 
@@ -1029,7 +1030,7 @@ function addDebt() {
     db.collection("debts").add({
         name: name,
         date: formatDate(date),
-        phone: phone,
+        phone: phone,  // Normalized telefon numarasını kaydet
         amount: parseFloat(amount),
         description: description
     }).then(() => {
@@ -1039,43 +1040,36 @@ function addDebt() {
     });
 }
 
-function searchDebt() {
-    const phone = document.getElementById("searchPhone").value;
-    const resultsDiv = document.getElementById("debtResults");
-    const totalDebtElement = document.getElementById("totalDebt");
-    resultsDiv.innerHTML = "";
-    let totalDebt = 0;
-
-    db.collection("debts").where("phone", "==", phone).get()
-        .then(querySnapshot => {
-            if (querySnapshot.empty) {
-                resultsDiv.innerHTML = "Bu numara ile ilgili borç kaydı bulunamadı.";
-                totalDebtElement.innerText = "";
-            } else {
-                querySnapshot.forEach(doc => {
-                    const data = doc.data();
-                    totalDebt += data.amount;
-                    resultsDiv.innerHTML += `<p>${data.name} - ${data.date} - ${data.description} - <strong style="color: red;">${data.amount} TL</strong> <button onclick="deleteDebt('${doc.id}')">Sil</button></p>`;
-                });
-                totalDebtElement.innerText = `Toplam Borç: ${totalDebt} TL`;
-            }
-        })
-        .catch(error => {
-            console.error("Hata: ", error);
-        });
+// Telefon numarasını normalize etme
+function formatPhoneNumber(phone) {
+    return phone.replace(/\D/g, ''); // Sadece rakamları bırak
 }
 
-// Yeni fonksiyon: Tüm borçları göster
-function searchAllDebts() {
+function searchDebt() {
+    const searchInput = document.getElementById("searchPhoneOrName").value.trim(); // Kullanıcı girişi
     const resultsDiv = document.getElementById("debtResults");
     const totalDebtElement = document.getElementById("totalDebt");
     resultsDiv.innerHTML = "";
     let totalDebt = 0;
 
-    db.collection("debts").get()
+    // Telefon numarası formatını kontrol et
+    const isPhone = /^\d{10,15}$/.test(searchInput.replace(/\D/g, '')); // Telefon numarası kontrolü
+    const searchPhone = isPhone ? formatPhoneNumber(searchInput) : null; // Telefon numarasını normalize et
+    const searchName = !isPhone ? searchInput.toLowerCase() : null; // İsim kontrolü
+
+    let query = db.collection("debts");
+
+    // Eğer telefon numarası girildiyse sorgu, isim girildiyse sorgu
+    if (searchPhone) {
+        query = query.where("phone", "==", searchPhone); // Telefon ile sorgula
+    } else if (searchName) {
+        query = query.where("name", "==", searchName); // İsimle sorgula
+    }
+
+    query.get()
         .then(querySnapshot => {
             if (querySnapshot.empty) {
-                resultsDiv.innerHTML = "Borç kaydı bulunamadı.";
+                resultsDiv.innerHTML = "Bu numara ya da isim ile ilgili borç kaydı bulunamadı.";
                 totalDebtElement.innerText = "";
             } else {
                 querySnapshot.forEach(doc => {
@@ -1103,7 +1097,32 @@ function deleteDebt(debtId) {
             });
     }
 }
- 
+
+// Tüm borçları görüntüleme (hepsi kısmı)
+function showAllDebts() {
+    const resultsDiv = document.getElementById("debtResults");
+    const totalDebtElement = document.getElementById("totalDebt");
+    resultsDiv.innerHTML = "";
+    let totalDebt = 0;
+
+    db.collection("debts").get()
+        .then(querySnapshot => {
+            if (querySnapshot.empty) {
+                resultsDiv.innerHTML = "Herhangi bir borç kaydı bulunmamaktadır.";
+                totalDebtElement.innerText = "";
+            } else {
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    totalDebt += data.amount;
+                    resultsDiv.innerHTML += `<p>${data.name} - ${data.date} - ${data.description} - <strong style="color: red;">${data.amount} TL</strong> <button onclick="deleteDebt('${doc.id}')">Sil</button></p>`;
+                });
+                totalDebtElement.innerText = `Toplam Borç: ${totalDebt} TL`;
+            }
+        })
+        .catch(error => {
+            console.error("Hata: ", error);
+        });
+}
 
 // Firebase yapılandırma bilgileri
         const firebaseConfig = {
