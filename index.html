@@ -579,67 +579,6 @@ ul.menu li ul li {
             color: red;
             display: none;
         }
-        
-        
-/* Modal stil */
-.modal {
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.9);
-}
-
-/* Modal içerik kısmı */
-.modal-content {
-    position: relative;
-    margin: auto;
-    display: block;
-    width: 80%;
-    max-width: 700px;
-}
-
-/* Modal görseli */
-#galleryImage {
-    width: 100%;
-    height: auto;
-    display: block;
-}
-
-/* Önceki ve sonraki butonlar */
-.prev, .next {
-    position: absolute;
-    top: 50%;
-    padding: 16px;
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    user-select: none;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.prev {
-    left: 0;
-}
-
-.next {
-    right: 0;
-}
-
-/* Kapatma butonu */
-.close {
-    position: absolute;
-    top: 10px;
-    right: 25px;
-    color: white;
-    font-size: 40px;
-    font-weight: bold;
-    cursor: pointer;
-}
 
     </style>
     
@@ -702,20 +641,38 @@ ul.menu li ul li {
         <li onclick="toggleMenu(event)">DIŞ ÇEKİM
             <ul>
                 <li>
-   <div class="photo-box" onclick="loadGallery('1bzkOxmpfzB4580qo9St5tEikmXkqbVlx')">
-        <img src="https://i.hizliresim.com/fdyht3e.jpg" alt="Kıyıköy">
+<a href="https://novasta.com.tr/nvstkatalog/catalog/musteri/psv/20956PSV03960-1-++.html">
+    <div class="photo-box">
+        <img src="https://i.hizliresim.com/fdyht3e.jpg" alt="Çekim 1" 
+             style="width: 105%; height: auto; 
+                    transform: scale(1.1) translateX(0%) translateY(20%); 
+                    position: relative; 
+                    left: 0;">
         <div class="photo-text">KIYIKÖY</div>
     </div>
+</a>
 
-    <div class="photo-box" onclick="loadGallery('1bzkOxmpfzB4580qo9St5tEikmXkqbVlx')">
-        <img src="https://i.hizliresim.com/ri9m24n.jpg" alt="Çorlu">
+<a href="https://www.example.com/corlu">
+    <div class="photo-box">
+        <img src="https://i.hizliresim.com/ri9m24n.jpg" alt="Çekim 2" 
+             style="width: 105%; height: auto; 
+                    transform: scale(1.1) translateX(0%) translateY(20%); 
+                    position: relative; 
+                    left: 0;">
         <div class="photo-text">ÇORLU</div>
     </div>
+</a>
 
-    <div class="photo-box" onclick="openGallery(2)">
-        <img src="https://i.hizliresim.com/kp108ri.jpg" alt="İstanbul Plato">
+<a href="https://www.example.com/istanbul-plato">
+    <div class="photo-box">
+        <img src="https://i.hizliresim.com/kp108ri.jpg" alt="Çekim 3" 
+             style="width: 105%; height: auto; 
+                    transform: scale(1.1) translateX(0%) translateY(20%); 
+                    position: relative; 
+                    left: 0;">
         <div class="photo-text">İSTANBUL PLATO</div>
     </div>
+</a>
 
 
                         
@@ -729,7 +686,7 @@ ul.menu li ul li {
         <div class="photo-text">KLİP</div>
     </div>
 </a>
-         
+                    </a>
                 </li>
             </ul>
         </li>
@@ -761,13 +718,16 @@ ul.menu li ul li {
     </ul>
 </li>
 
-<!-- Açılır Modal Galeri -->
-<div id="galleryModal" class="modal" style="display:none;">
-    <span class="close" onclick="closeGallery()">&times;</span>
+<!-- Modal (Açılır pencere) -->
+<div id="memberModal" class="modal">
     <div class="modal-content">
-        <span class="prev" onclick="changeSlide(-1)">&#10094;</span>
-        <img id="galleryImage" src="" alt="Gallery Image">
-        <span class="next" onclick="changeSlide(1)">&#10095;</span>
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div id="modalPhoto" class="modal-photo">
+            <img src="" alt="Üye Fotoğrafı" id="memberPhoto">
+        </div>
+        <div id="modalDescription" class="modal-description">
+            <p id="memberDescription"></p>
+        </div>
     </div>
 </div>
 <!-- TEKLİF AL Menüsüne eklenen Bize Ulaşın butonu -->
@@ -1033,65 +993,6 @@ ul.menu li ul li {
     </div>
 
  <script>
- 
- 
- 
-let currentIndex = 0;
-let images = [];
-
-const API_KEY = "AIzaSyB7sKUC5iP-5NXS8PDFbL5BtU5AaLhXmRY";  // Kendi API anahtarınızı buraya ekleyin
-
-function loadGallery(folderId) {
-    fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${API_KEY}&fields=files(id,name)`)
-        .then(response => response.json())
-        .then(data => {
-            // Dosya ID'lerini al ve doğru URL formatına dönüştür
-            images = data.files.map(file => `https://drive.google.com/uc?export=view&id=${file.id}`);
-            console.log(images);  // Resimlerin URL'lerini kontrol et
-
-            if (images.length > 0) {
-                openGallery(0);  // İlk resmi aç
-            } else {
-                alert("Bu klasörde fotoğraf bulunamadı.");
-            }
-        })
-        .catch(error => console.error("Hata oluştu:", error));
-}
-
-function openGallery(index) {
-    currentIndex = index;
-    if (images[currentIndex]) {
-        document.getElementById("galleryImage").src = images[currentIndex];
-        document.getElementById("galleryModal").style.display = "block";
-    } else {
-        console.log('Resim bulunamadı');
-    }
-}
-
-function closeGallery() {
-    document.getElementById("galleryModal").style.display = "none";
-}
-
-function changeSlide(step) {
-    currentIndex += step;
-    if (currentIndex < 0) currentIndex = images.length - 1;
-    if (currentIndex >= images.length) currentIndex = 0;
-    document.getElementById("galleryImage").src = images[currentIndex];
-}
-
-
-const galleryImage = document.getElementById("galleryImage");
-
-galleryImage.onload = function() {
-    console.log("Görsel başarıyla yüklendi!");
-};
-
-galleryImage.onerror = function() {
-    console.log("Görsel yüklenirken hata oluştu!");
-};
-
-galleryImage.src = images[currentIndex];
-
 
 // Firebase yapılandırma bilgileri
         const firebaseConfig = {
@@ -1125,19 +1026,20 @@ galleryImage.src = images[currentIndex];
 
         // Veri alma fonksiyonu
         async function fetchData() {
-    try {
-        const docRef = db.collection('links').doc('data');
-        const docSnap = await docRef.get();
-        if (docSnap.exists) {
-            return docSnap.data(); // Konsola yazdırma
-        } else {
-            console.error("Veri bulunamadı!");
-            return {}; // Veri bulunamadığında boş bir nesne döner
+            try {
+                const docRef = db.collection('links').doc('data');
+                const docSnap = await docRef.get();
+                if (docSnap.exists) {
+                    console.log("Veriler:", docSnap.data());
+                    return docSnap.data();
+                } else {
+                    console.error("Veri bulunamadı!");
+                    return {};  // Veri bulunamadığında boş bir nesne döner
+                }
+            } catch (error) {
+                console.error("Veri alma hatası:", error);
+            }
         }
-    } catch (error) {
-        console.error("Veri alma hatası:", error);
-    }
-}
 
         // Link açma fonksiyonu
         async function openLink() {
@@ -1436,7 +1338,6 @@ document.getElementById('whatsappLink').addEventListener('click', function(e) {
     e.preventDefault(); // Normal link davranışını engelle
     sendWhatsAppMessage(); // Mesaj gönderme fonksiyonunu çalıştır
 });
-
 
 
 </script>
