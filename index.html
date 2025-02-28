@@ -972,11 +972,12 @@ ul.menu li ul li {
         <input type="text" id="debtDescription" placeholder="Açıklama">
         <button onclick="addDebt()">Borç Ekle</button>
     
-        <h2>Borç Sorgula</h2>
-        <input type="text" id="searchPhone" placeholder="Telefon numarası">
-        <button onclick="searchDebt()">Sorgula</button>
-        <div id="debtResults"></div>
-        <h3 id="totalDebt" style="color: red; font-size: 20px; font-weight: bold;"></h3>
+<h2>Borç Sorgula</h2>
+<input type="text" id="searchPhone" placeholder="Telefon numarası">
+<button onclick="searchDebt()">Sorgula</button>
+<button onclick="searchAllDebts()">Hepsi</button> <!-- Yeni buton -->
+<div id="debtResults"></div>
+<h3 id="totalDebt" style="color: red; font-size: 20px; font-weight: bold;"></h3>
     </div>
 
 
@@ -1008,74 +1009,100 @@ ul.menu li ul li {
  <script>
  
  
-  function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('tr-TR');
-        }
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('tr-TR');
+}
 
-        function addDebt() {
-            const name = document.getElementById("debtName").value;
-            const date = document.getElementById("debtDate").value;
-            const phone = document.getElementById("debtPhone").value;
-            const amount = document.getElementById("debtAmount").value;
-            const description = document.getElementById("debtDescription").value;
+function addDebt() {
+    const name = document.getElementById("debtName").value;
+    const date = document.getElementById("debtDate").value;
+    const phone = document.getElementById("debtPhone").value;
+    const amount = document.getElementById("debtAmount").value;
+    const description = document.getElementById("debtDescription").value;
 
-            if (!name || !date || !phone || !amount || !description) {
-                alert("Lütfen tüm alanları doldurun");
-                return;
+    if (!name || !date || !phone || !amount || !description) {
+        alert("Lütfen tüm alanları doldurun");
+        return;
+    }
+
+    db.collection("debts").add({
+        name: name,
+        date: formatDate(date),
+        phone: phone,
+        amount: parseFloat(amount),
+        description: description
+    }).then(() => {
+        alert("Borç başarıyla eklendi");
+    }).catch(error => {
+        console.error("Hata: ", error);
+    });
+}
+
+function searchDebt() {
+    const phone = document.getElementById("searchPhone").value;
+    const resultsDiv = document.getElementById("debtResults");
+    const totalDebtElement = document.getElementById("totalDebt");
+    resultsDiv.innerHTML = "";
+    let totalDebt = 0;
+
+    db.collection("debts").where("phone", "==", phone).get()
+        .then(querySnapshot => {
+            if (querySnapshot.empty) {
+                resultsDiv.innerHTML = "Bu numara ile ilgili borç kaydı bulunamadı.";
+                totalDebtElement.innerText = "";
+            } else {
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    totalDebt += data.amount;
+                    resultsDiv.innerHTML += `<p>${data.name} - ${data.date} - ${data.description} - <strong style="color: red;">${data.amount} TL</strong> <button onclick="deleteDebt('${doc.id}')">Sil</button></p>`;
+                });
+                totalDebtElement.innerText = `Toplam Borç: ${totalDebt} TL`;
             }
+        })
+        .catch(error => {
+            console.error("Hata: ", error);
+        });
+}
 
-            db.collection("debts").add({
-                name: name,
-                date: formatDate(date),
-                phone: phone,
-                amount: parseFloat(amount),
-                description: description
-            }).then(() => {
-                alert("Borç başarıyla eklendi");
-            }).catch(error => {
+// Yeni fonksiyon: Tüm borçları göster
+function searchAllDebts() {
+    const resultsDiv = document.getElementById("debtResults");
+    const totalDebtElement = document.getElementById("totalDebt");
+    resultsDiv.innerHTML = "";
+    let totalDebt = 0;
+
+    db.collection("debts").get()
+        .then(querySnapshot => {
+            if (querySnapshot.empty) {
+                resultsDiv.innerHTML = "Borç kaydı bulunamadı.";
+                totalDebtElement.innerText = "";
+            } else {
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    totalDebt += data.amount;
+                    resultsDiv.innerHTML += `<p>${data.name} - ${data.date} - ${data.description} - <strong style="color: red;">${data.amount} TL</strong> <button onclick="deleteDebt('${doc.id}')">Sil</button></p>`;
+                });
+                totalDebtElement.innerText = `Toplam Borç: ${totalDebt} TL`;
+            }
+        })
+        .catch(error => {
+            console.error("Hata: ", error);
+        });
+}
+
+function deleteDebt(debtId) {
+    if (confirm("Bu borcu silmek istediğinize emin misiniz?")) {
+        db.collection("debts").doc(debtId).delete()
+            .then(() => {
+                alert("Borç başarıyla silindi");
+                searchDebt();  // Borç silindiğinde tekrar sorgula
+            })
+            .catch(error => {
                 console.error("Hata: ", error);
             });
-        }
-
-        function searchDebt() {
-            const phone = document.getElementById("searchPhone").value;
-            const resultsDiv = document.getElementById("debtResults");
-            const totalDebtElement = document.getElementById("totalDebt");
-            resultsDiv.innerHTML = "";
-            let totalDebt = 0;
-
-            db.collection("debts").where("phone", "==", phone).get()
-                .then(querySnapshot => {
-                    if (querySnapshot.empty) {
-                        resultsDiv.innerHTML = "Bu numara ile ilgili borç kaydı bulunamadı.";
-                        totalDebtElement.innerText = "";
-                    } else {
-                        querySnapshot.forEach(doc => {
-                            const data = doc.data();
-                            totalDebt += data.amount;
-                            resultsDiv.innerHTML += `<p>${data.name} - ${data.date} - ${data.description} - <strong style="color: red;">${data.amount} TL</strong> <button onclick="deleteDebt('${doc.id}')">Sil</button></p>`;
-                        });
-                        totalDebtElement.innerText = `Toplam Borç: ${totalDebt} TL`;
-                    }
-                })
-                .catch(error => {
-                    console.error("Hata: ", error);
-                });
-        }
-
-        function deleteDebt(debtId) {
-            if (confirm("Bu borcu silmek istediğinize emin misiniz?")) {
-                db.collection("debts").doc(debtId).delete()
-                    .then(() => {
-                        alert("Borç başarıyla silindi");
-                        searchDebt();
-                    })
-                    .catch(error => {
-                        console.error("Hata: ", error);
-                    });
-            }
-        }
+    }
+}
  
 
 // Firebase yapılandırma bilgileri
