@@ -946,40 +946,51 @@ ul.menu li ul li {
     </ul>
 </li>
 
- <ul class="menu">
-        <li onclick="toggleAccessMenu()">ERİŞİM</li>
-        <li onclick="toggleAdmin()">ADMIN</li>
-    </ul>
+<ul class="menu">
+    <li onclick="toggleAccessMenu()">ERİŞİM</li>
+    <li onclick="toggleAdmin()">ADMIN</li>
+</ul>
+<div class="form-container" id="form-container">
+    <h2>Numara Sorgu</h2>
+    <input type="text" id="phoneNumber" placeholder="Telefon numarasını girin">
+    <button onclick="openLink()">Sorgula</button>
+    <p id="error-message" class="error-message">Bu numara kayıtlı değil!</p>
+</div>
+<div class="admin-panel" id="admin-panel">
+    <h2>Admin Paneli</h2>
+    <input type="text" id="adminPhone" placeholder="Telefon numarası">
+    <input type="url" id="adminLink" placeholder="Bağlantı URL'si">
+    <button onclick="addEntry()">Ekle</button>
 
-    <div class="form-container" id="form-container">
-        <h2>Numara Sorgu</h2>
-        <input type="text" id="phoneNumber" placeholder="Telefon numarasını girin">
-        <button onclick="openLink()">Sorgula</button>
-        <p id="error-message" class="error-message">Bu numara kayıtlı değil!</p>
-    </div>
+    <h2>Borç Ekle</h2>
+    <input type="text" id="debtName" placeholder="İsim Soyisim">
+    <input type="date" id="debtDate">
+    <input type="text" id="debtPhone" placeholder="Telefon Numarası">
+    <input type="number" id="debtAmount" placeholder="Borç Miktarı">
+    <input type="text" id="debtDescription" placeholder="Açıklama">
+    <button onclick="addDebt()">Borç Ekle</button>
 
-    <div class="admin-panel" id="admin-panel">
-        <h2>Admin Paneli</h2>
-        <input type="text" id="adminPhone" placeholder="Telefon numarası">
-        <input type="url" id="adminLink" placeholder="Bağlantı URL'si">
-        <button onclick="addEntry()">Ekle</button>
+    <h2>Borç Sorgula</h2>
+    <input type="text" id="searchPhoneOrName" placeholder="Telefon numarası veya isim soyisim">
+    <button onclick="searchDebt()">Sorgula</button>
+    <button onclick="showAllDebts()">Hepsi</button>
+    <div id="debtResults"></div>
+    <h3 id="totalDebt" style="color: red; font-size: 20px; font-weight: bold;"></h3>
     
-        <h2>Borç Ekle</h2>
-        <input type="text" id="debtName" placeholder="İsim Soyisim">
-        <input type="date" id="debtDate">
-        <input type="text" id="debtPhone" placeholder="Telefon Numarası">
-        <input type="number" id="debtAmount" placeholder="Borç Miktarı">
-        <input type="text" id="debtDescription" placeholder="Açıklama">
-        <button onclick="addDebt()">Borç Ekle</button>
-    
-<h2>Borç Sorgula</h2>
-<input type="text" id="searchPhoneOrName" placeholder="Telefon numarası veya isim soyisim">
-<button onclick="searchDebt()">Sorgula</button>
-<button onclick="showAllDebts()">Hepsi</button>
-<div id="debtResults"></div>
-<h3 id="totalDebt" style="color: red; font-size: 20px; font-weight: bold;"></h3>
+    <h2>Ürün Ekle</h2>
+    <input type="text" id="productName" placeholder="Ürün Adı">
+    <input type="number" id="productPrice" placeholder="Ürün Fiyatı">
+    <input type="number" id="productStock" placeholder="Stok Miktarı">
+    <input type="text" id="productDescription" placeholder="Ürün Açıklaması">
+    <button onclick="addProduct()">Ürün Ekle</button>
 
-    </div>
+    <h2>Ürün Sorgula</h2>
+    <input type="text" id="searchProduct" placeholder="Ürün adı veya açıklama">
+    <button onclick="searchProduct()">Sorgula</button>
+    <button onclick="showAllProducts()">Tüm Ürünler</button>
+    <div id="productResults"></div>
+    
+<button onclick="fetchProductsFromCSV()" style="margin-top: 20px; margin-bottom: 20px;">Google Sheets'ten Ürünleri Güncelle</button>
 
 
         
@@ -1008,6 +1019,136 @@ ul.menu li ul li {
     </div>
 
  <script>
+ 
+ function searchProduct() {
+    const query = document.getElementById('searchProduct').value.trim().toLowerCase();
+    const products = JSON.parse(localStorage.getItem('products')) || [];
+
+    if (!query) {
+        alert("Lütfen bir ürün adı veya açıklama girin.");
+        return;
+    }
+
+    const filteredProducts = products.filter(product => 
+        product.name.toLowerCase().includes(query) || 
+        (product.description && product.description.toLowerCase().includes(query))
+    );
+
+    displayProducts(filteredProducts);
+}
+
+function showAllProducts() {
+    const products = JSON.parse(localStorage.getItem('products')) || [];
+    displayProducts(products);
+}
+
+function displayProducts(products) {
+    const resultsDiv = document.getElementById('productResults');
+    resultsDiv.innerHTML = ""; // Önce temizle
+
+    if (products.length === 0) {
+        resultsDiv.innerHTML = "<p>Ürün bulunamadı.</p>";
+        return;
+    }
+
+    const list = document.createElement('ul');
+    products.forEach(product => {
+        const item = document.createElement('li');
+
+        if (product.url) {
+            const link = document.createElement('a');
+            link.textContent = `🛒 ${product.name}`;
+            link.href = product.url;
+            link.target = "_blank";
+            link.style.textDecoration = "none";
+            link.style.color = "#007bff";
+            item.appendChild(link);
+        } else {
+            item.textContent = `🛒 ${product.name}`;
+        }
+
+        item.innerHTML += ` - 💰 ${product.price} TL - 📦 Stok: ${product.stock} - 🏬 Şube: ${product.branch}`;
+        list.appendChild(item);
+    });
+
+    resultsDiv.appendChild(list);
+}
+
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRyJU-D3IprgwgdvQ_8A_2HtOGqTPO6I-P0Fdbf8AefGPUJ74yefBACavVDWHlanuXJtFedoRoERnLg/pub?gid=1283657881&single=true&output=csv";
+
+function fetchProductsFromCSV() {
+    fetch(SHEET_CSV_URL)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ağ yanıtı başarısız oldu');
+            }
+            return response.text();
+        })
+        .then(csvData => {
+            console.log("CSV verisi alındı");
+            const products = parseCSV(csvData);
+            localStorage.setItem('products', JSON.stringify(products));
+            alert("Ürünler Google Sheets'ten başarıyla yüklendi!");
+        })
+        .catch(error => {
+            console.error("CSV verisi çekilirken hata oluştu:", error);
+            alert("Veriler yüklenirken bir hata oluştu. Lütfen konsolu kontrol edin.");
+        });
+}
+
+function parseCSV(csv) {
+    const lines = csv.split('\n');
+    const products = [];
+    if (lines.length <= 1) return products;
+
+    // Sütun indeksleri (0 tabanlı)
+    const nameIndex = 1;  // B sütunu → Ürün Adı
+    const urlIndex = 3;   // D sütunu → Ürün Bağlantısı
+    const branchIndex = 6; // G sütunu → Hangi Şube
+    const typeIndex = 8;  // I sütunu → Ürün Cinsi
+    const stockIndex = 9;  // J sütunu → Stok Adedi
+    const priceIndex = 11; // L sütunu → Fiyat
+
+    for (let i = 1; i < lines.length; i++) {
+        if (lines[i].trim() === '') continue; // Boş satırları atla
+        const values = parseCSVLine(lines[i]); // Satırı parse et
+        if (values.length <= nameIndex) continue; // Eksik veri varsa atla
+
+        let name = values[nameIndex] ? values[nameIndex].trim() : `Ürün ${i}`;
+        let url = values[urlIndex] ? values[urlIndex].trim() : ""; // D sütunundan linki al
+
+        products.push({
+            id: Date.now() + i,
+            name: name,
+            url: url, // D sütunundaki bağlantı
+            branch: values[branchIndex] ? values[branchIndex].trim() : "Bilinmiyor",
+            type: values[typeIndex] ? values[typeIndex].trim() : "Bilinmiyor",
+            stock: values[stockIndex] ? parseInt(values[stockIndex].trim()) : 0,
+            price: values[priceIndex] ? parseFloat(values[priceIndex].trim()) : 0
+        });
+    }
+    return products;
+}
+
+// CSV satırlarını doğru şekilde bölmek için
+function parseCSVLine(line) {
+    const result = [];
+    let current = "";
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+            inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+            result.push(current.replace(/"/g, ''));
+            current = "";
+        } else {
+            current += char;
+        }
+    }
+    result.push(current.replace(/"/g, ''));
+    return result;
+}
  
  
 function formatDate(dateString) {
