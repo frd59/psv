@@ -980,12 +980,6 @@ ul.menu li ul li {
     <div id="debtResults"></div>
     <h3 id="totalDebt" style="color: red; font-size: 20px; font-weight: bold;"></h3>
     
-    <h2>Ürün Ekle</h2>
-    <input type="text" id="productName" placeholder="Ürün Adı">
-    <input type="number" id="productPrice" placeholder="Ürün Fiyatı">
-    <input type="number" id="productStock" placeholder="Stok Miktarı">
-    <input type="text" id="productDescription" placeholder="Ürün Açıklaması">
-    <button onclick="addProduct()">Ürün Ekle</button>
 
     <h2>Ürün Sorgula</h2>
     <input type="text" id="searchProduct" placeholder="Ürün adı veya açıklama">
@@ -1407,6 +1401,185 @@ document.addEventListener('DOMContentLoaded', function() {
     // Sayfa yüklendiğinde ürünleri çek
     fetchProductsFromShopier();
 });
+ 
+ 
+ 
+ 
+ 
+ /**
+ * Shopier'e yeni ürün ekleyen fonksiyon
+ * @param {Object} product - Eklenecek ürün bilgileri
+ * @returns {Promise} - İşlem sonucu
+ */
+function addProductToShopier(product) {
+    // Sonuç mesajını göstermek için elementi seç (varsa)
+    const resultElement = document.getElementById('addProductResult');
+    
+    // İsteğin gösterileceği bir elementi güncelleme işlevi
+    function updateStatus(message) {
+        if (resultElement) {
+            resultElement.innerHTML = message;
+        }
+        console.log(message);
+    }
+    
+    // Başlangıç durumunu göster
+    updateStatus("Ürün ekleniyor...");
+    
+    // Shopier API endpoint'i
+    const apiUrl = `${SHOPIER_API_URL}/products`; // Shopier'in ürün ekleme endpoint'i
+    
+    // API isteği gönder
+    return fetch(CORS_PROXY_URL + apiUrl, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${SHOPIER_API_KEY}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(product)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(`API Hatası: ${err.message || response.statusText}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Shopier'e ürün başarıyla eklendi:", data);
+        updateStatus(`<p class="success">Ürün başarıyla eklendi! Ürün ID: ${data.id || 'Bilinmiyor'}</p>`);
+        return data;
+    })
+    .catch(error => {
+        console.error("Ürün eklenirken hata oluştu:", error);
+        updateStatus(`<p class="error">Ürün eklenirken hata oluştu: ${error.message}</p>`);
+        throw error;
+    });
+}
+
+/**
+ * Ürün ekleme formu submit olduğunda
+ */
+document.getElementById('addProductForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Form verilerini al
+    const formData = new FormData(this);
+    
+    // Ürün nesnesini oluştur
+    const product = {
+        title: formData.get('title'),
+        description: formData.get('description'),
+        price: parseFloat(formData.get('price')),
+        stock: parseInt(formData.get('stock'), 10),
+        sku: formData.get('sku') || null,
+        // Shopier'in ürün şemasına göre diğer alanları ekleyin
+        category_id: parseInt(formData.get('category_id'), 10),
+        images: formData.get('images') ? formData.get('images').split(',').map(url => url.trim()) : [],
+        variants: [], // Varyantları ekleme işlemi ayrı bir fonksiyonda yapılabilir
+        status: formData.get('status') === 'on' ? 'active' : 'draft',
+        tax_rate: parseFloat(formData.get('tax_rate') || 0),
+        // Diğer ürün özellikleri...
+    };
+    
+    // Ürünü ekle
+    addProductToShopier(product)
+        .then(addedProduct => {
+            // Eklenen ürün ile başka işlemler yapabilirsiniz
+            // Örneğin, yerel veritabanınıza da kaydedebilirsiniz
+            console.log("Eklenen ürün bilgileri:", addedProduct);
+            
+            // Formu sıfırla
+            document.getElementById('addProductForm').reset();
+        })
+        .catch(err => {
+            // Hata durumunda ek işlemler
+        });
+});
+
+/**
+ * Toplu ürün ekleme fonksiyonu
+ * @param {Array} products - Eklenecek ürünlerin listesi
+ */
+async function bulkAddProductsToShopier(products) {
+    const resultElement = document.getElementById('bulkAddResult');
+    
+    if (resultElement) {
+        resultElement.innerHTML = `<p>Toplu ürün ekleme başlatıldı. Toplam: ${products.length} ürün</p>
+                                 <div id="bulkProgress"></div>
+                                 <div id="bulkStatus"></div>`;
+    }
+    
+    const successProducts = [];
+    const failedProducts = [];
+    
+    // Her ürünü sırayla ekle
+    for (let i = 0; i < products.length; i++) {
+        try {
+            // İlerleme durumunu güncelle
+            const progress = Math.round(((i + 1) / products.length) * 100);
+            if (document.getElementById('bulkProgress')) {
+                document.getElementById('bulkProgress').innerHTML = 
+                    `<p>İşleniyor: ${i + 1}/${products.length} (%${progress})</p>
+                     <div style="width: 100%; background-color: #ddd; border-radius: 5px;">
+                        <div style="width: ${progress}%; background-color: #4CAF50; height: 20px; border-radius: 5px;"></div>
+                     </div>`;
+            }
+            
+            // Rate limit'e takılmamak için kısa bir bekleme
+            if (i > 0) {
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+            
+            // Ürünü ekle
+            const result = await addProductToShopier(products[i]);
+            successProducts.push({
+                original: products[i],
+                result: result
+            });
+            
+            if (document.getElementById('bulkStatus')) {
+                document.getElementById('bulkStatus').innerHTML = 
+                    `<p>Başarılı: ${successProducts.length}, Başarısız: ${failedProducts.length}</p>`;
+            }
+        } catch (error) {
+            failedProducts.push({
+                product: products[i],
+                error: error.message
+            });
+            
+            if (document.getElementById('bulkStatus')) {
+                document.getElementById('bulkStatus').innerHTML = 
+                    `<p>Başarılı: ${successProducts.length}, Başarısız: ${failedProducts.length}</p>`;
+            }
+        }
+    }
+    
+    // İşlem tamamlandığında sonucu göster
+    if (resultElement) {
+        resultElement.innerHTML += `
+            <p>İşlem tamamlandı.</p>
+            <p>Başarıyla eklenen: ${successProducts.length}</p>
+            <p>Eklenemeyenler: ${failedProducts.length}</p>
+        `;
+    }
+    
+    return {
+        success: successProducts,
+        failed: failedProducts
+    };
+}
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
  
  
 function formatDate(dateString) {
