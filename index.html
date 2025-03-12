@@ -1017,6 +1017,355 @@ ul.menu li ul li {
 
  <script>
  
+ 
+ 
+ 
+ 
+ 
+// Firebase yapılandırma bilgileri
+        const firebaseConfig = {
+            apiKey: "AIzaSyDMMpU1l8zabgaw7bfSHKCOxLbz-RhNT7I",
+            authDomain: "databasepsv-dc1b7.firebaseapp.com",
+            databaseURL: "https://databasepsv-dc1b7-default-rtdb.firebaseio.com",
+            projectId: "databasepsv-dc1b7",
+            storageBucket: "databasepsv-dc1b7.firebasestorage.app",
+            messagingSenderId: "106474799557",
+            appId: "1:106474799557:web:8f7cff2b7ef8466ab08bac",
+            measurementId: "G-BKKE9YZS1T"
+        };
+
+        // Firebase başlatma
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Veri kaydetme fonksiyonu
+        async function saveData(newData) {
+            try {
+                const docRef = db.collection('links').doc('data');
+                const existingData = await fetchData();
+                const updatedData = { ...existingData, ...newData };
+
+                await docRef.set(updatedData);  // Firebase'e veri kaydetme
+                alert("Veriler başarıyla kaydedildi!");
+            } catch (error) {
+                console.error("Veri kaydetme hatası:", error);
+            }
+        }
+
+        // Veri alma fonksiyonu
+        async function fetchData() {
+            try {
+                const docRef = db.collection('links').doc('data');
+                const docSnap = await docRef.get();
+                if (docSnap.exists) {
+                    console.log("Veriler:", docSnap.data());
+                    return docSnap.data();
+                } else {
+                    console.error("Veri bulunamadı!");
+                    return {};  // Veri bulunamadığında boş bir nesne döner
+                }
+            } catch (error) {
+                console.error("Veri alma hatası:", error);
+            }
+        }
+
+        // Link açma fonksiyonu
+        async function openLink() {
+            const phoneNumber = document.getElementById("phoneNumber").value.trim();
+            const errorMessage = document.getElementById("error-message");
+            errorMessage.style.display = "none";
+            const data = await fetchData();
+
+            if (phoneNumber && data[phoneNumber]) {
+                window.open(data[phoneNumber], "_blank");
+            } else {
+                errorMessage.style.display = "block";
+            }
+        }
+
+        // Yeni giriş ekleme fonksiyonu
+        async function addEntry() {
+            const adminPhone = document.getElementById("adminPhone").value.trim();
+            const adminLink = document.getElementById("adminLink").value.trim();
+
+            if (adminPhone && adminLink) {
+                const newData = { [adminPhone]: adminLink };
+                await saveData(newData);
+                document.getElementById("adminPhone").value = "";
+                document.getElementById("adminLink").value = "";
+            } else {
+                alert("Lütfen tüm alanları doldurun!");
+            }
+        }
+
+        // Menü işlevi
+        function toggleAccessMenu() {
+            const formContainer = document.getElementById('form-container');
+            formContainer.style.display = formContainer.style.display === 'none' || formContainer.style.display === '' ? 'block' : 'none';
+        }
+
+        // Admin paneli işlevi
+        function toggleAdmin() {
+            const adminPanel = document.getElementById('admin-panel');
+            const password = prompt("Admin şifrenizi girin:");
+            if (password === 'admin123') {
+                adminPanel.style.display = 'block';
+            } else {
+                alert('Yanlış şifre!');
+            }
+        }
+
+        // Link açma işlevi
+        async function openLink() {
+    const phoneNumber = document.getElementById("phoneNumber").value.trim();
+    const errorMessage = document.getElementById("error-message");
+    errorMessage.style.display = "none";
+
+    try {
+        const data = await fetchData();
+
+        // Data'nın doğru şekilde yüklendiğini kontrol et
+        if (data && phoneNumber && data[phoneNumber]) {
+            window.open(data[phoneNumber], "_blank");
+        } else {
+            errorMessage.style.display = "block"; // Veritabanında numara bulunamadığında
+        }
+    } catch (error) {
+        console.error("Veri alma hatası:", error);
+        errorMessage.style.display = "block"; // Veri alma hatası durumunda
+    }
+}
+        // Yeni giriş ekleme işlevi
+        async function addEntry() {
+            const adminPhone = document.getElementById("adminPhone").value.trim();
+            const adminLink = document.getElementById("adminLink").value.trim();
+            if (adminPhone && adminLink) {
+                const newData = { [adminPhone]: adminLink };
+                await saveData(newData);
+                document.getElementById("adminPhone").value = "";
+                document.getElementById("adminLink").value = "";
+            } else {
+                alert("Lütfen tüm alanları doldurun!");
+            }
+        }
+
+        // Global olarak fonksiyonları erişilebilir hale getirme
+        window.toggleAccessMenu = toggleAccessMenu;
+        window.toggleAdmin = toggleAdmin;
+        window.openLink = openLink;
+        window.addEntry = addEntry;
+        
+        
+function showMaintenanceMessage(menu) {
+    alert(menu + " menüsünde çalışma yapılmaktadır. Lütfen daha sonra tekrar deneyin.");
+}
+
+function showMemberInfo(memberName) {
+    var photoSrc = '';
+    var description = '';
+
+    // Üye bilgilerini kişiye göre ayarlama
+    if (memberName === 'MUHARREM PASOV') {
+        photoSrc = 'https://i.hizliresim.com/se495ix.jpg'; // Buraya fotoğrafın yolunu ekleyin
+        description = 'Muharrem Pasov, Drone Pilotluğu ve Videographerlık alanlarında uzmanlaşmış bir profesyoneldir. Gelişmiş drone teknolojileri ve sinematik çekim tekniklerine dair derin bilgi ve deneyime sahip olan Pasov, projelerin her aşamasında yüksek kaliteli görseller ve videolar sunmaktadır. Müşteri ihtiyaçlarını anlayarak, yaratıcı ve etkili görsel içerikler üretmekte, sektördeki en son yenilikleri takip ederek çözümlerini sürekli geliştirmektedir.';
+    } else if (memberName === 'EREN PASOV') {
+        photoSrc = 'https://i.hizliresim.com/pywfxg3.jpg'; // Buraya fotoğrafın yolunu ekleyin
+        description = 'Eren Pasov, özellikle düğün fotoğrafçılığı ve dış mekan çekimleri konusunda uzmanlaşmış bir profesyoneldir. Çiftlerin özel günlerinde en anlamlı anları yakalayarak, hem iç mekan hem de dış mekan çekimlerinde estetik ve doğal bir bakış açısı sunmaktadır. Dış çekimlerde, doğanın ve mekanın sunduğu güzellikleri, çiftin samimi anlarıyla birleştirerek özgün ve zarif fotoğraflar ortaya çıkarmaktadır. Her bir düğün ve dış mekan çekimi, Eren Pasov’un yaratıcı bakış açısı ile kişiye özel hale gelmektedir. Ayrıca, fotoğraf düzenleme konusundaki uzmanlığıyla, her çekimi profesyonelce işleyerek, müşterilerine mükemmel sonuçlar sunmaktadır.';
+    } else if (memberName === 'FERDİ KABALI') {
+        photoSrc = 'https://i.hizliresim.com/k2j42h1.jpg'; // Buraya fotoğrafın yolunu ekleyin
+        description = 'Ferdi Kabalı, hem fotoğrafçılık hem de videography alanlarında klip çekimleri yapmanın yanı sıra, kurgu ve After Effects editörlüğü konularında da uzmanlaşmıştır. Yaratıcı bakış açısı ve teknik bilgisiyle, çekimlerin ardından etkileyici kurgu ve animasyonlar hazırlayarak, her projeye profesyonel bir dokunuş katmaktadır. Hem fotoğraf hem de video içeriği üzerinde çalışarak, görsel anlatımı güçlendirir ve müşterilerine sinematik deneyimler sunar. Ferdi Kabalı, her adımda yüksek kaliteyi ve sanatsal mükemmeliyeti hedeflemektedir.';
+    }
+
+    // Modal içeriklerini güncelle
+    document.getElementById('memberPhoto').src = photoSrc;
+    document.getElementById('memberDescription').innerText = description;
+
+    // Modal'ı göster
+    var modal = document.getElementById('memberModal');
+    modal.style.display = "block";
+}
+
+// Modal'ı kapatma fonksiyonu
+function closeModal() {
+    var modal = document.getElementById('memberModal');
+    modal.style.display = "none";
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const todayOption = document.getElementById("todayOption");
+    const otherDateOption = document.getElementById("otherDateOption");
+    const datePicker = document.getElementById("datePicker");
+
+    otherDateOption.addEventListener("change", () => {
+        if (otherDateOption.checked) {
+            datePicker.style.display = "inline-block"; // Takvimi göster
+        }
+    });
+
+    todayOption.addEventListener("change", () => {
+        if (todayOption.checked) {
+            datePicker.style.display = "none"; // Takvimi gizle
+        }
+    });
+});
+
+function sendWhatsAppMessagee(event) {
+    // Kullanıcıdan alınan bilgiler
+    const fullName = document.getElementById('fullName').value.trim();
+    const description = document.getElementById('description').value.trim();
+
+    // Saat bilgileri (tam ve yarım saatleri kontrol et)
+    const selectedHours = [];
+    for (let i = 9; i <= 19; i++) {
+        // Tam saat
+        const hour = document.getElementById(`hour${i}`);
+        if (hour && hour.checked) selectedHours.push(`${i}:00`);
+
+        // Yarım saat
+        const halfHour = document.getElementById(`hour${i}30`);
+        if (halfHour && halfHour.checked) selectedHours.push(`${i}:30`);
+    }
+
+    // Tarih bilgisi
+    const todayOption = document.getElementById("todayOption")?.checked;
+    const selectedDate = document.getElementById("datePicker")?.value;
+
+    // Tarih bilgisi metni
+    let dateMessage = "";
+    if (todayOption) {
+        const today = new Date();
+        const formattedToday = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1)
+            .toString()
+            .padStart(2, '0')}/${today.getFullYear()}`;
+        dateMessage = `*TARİH*: Bugün (${formattedToday})`;
+    } else if (selectedDate) {
+        const dateParts = selectedDate.split("-"); // "YYYY-MM-DD" formatını parçala
+        const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`; // "GG/AA/YYYY" olarak yeniden düzenle
+        dateMessage = `*TARİH*: ${formattedDate}`;
+    } else {
+        alert('Lütfen bir tarih seçin.');
+        event.preventDefault(); // Form gönderimini engelle
+        return;
+    }
+
+    // Boş alan kontrolü
+    if (!fullName || !description) {
+        alert('Ad Soyad ve Açıklama alanlarını doldurduğunuzdan emin olun.');
+        event.preventDefault(); // Form gönderimini engelle
+        return;
+    }
+
+    // En az bir saat seçildi mi kontrolü
+    if (selectedHours.length === 0) {
+        alert('En az bir hizmet saati seçmeniz gerekiyor.');
+        event.preventDefault(); // Form gönderimini engelle
+        return;
+    }
+
+    // Saatleri string olarak birleştir
+    const hoursMessage = `*RANDEVU SAATİ*: ${selectedHours.join(', ')}`;
+
+    // WhatsApp mesaj bağlantısını oluştur
+    const message = `*Ad Soyad*: ${fullName}\n*Açıklama*: ${description}\n${dateMessage}\n${hoursMessage}`;
+    const phoneNumber = `https://wa.me/905550950059?text=${encodeURIComponent(message)}`;
+
+    // WhatsApp'a yönlendirme
+    window.location.href = phoneNumber;
+}
+
+
+
+
+// Menü dışındaki bir alana tıklanması durumunda menüyü kapatmak için
+document.addEventListener('click', function(event) {
+    var menu = document.querySelector('.menu'); // Menü elemanını seç
+    var inputElements = menu.querySelectorAll('input, textarea'); // Menüdeki input ve textarea elemanlarını seç
+    
+    // Eğer tıklanan eleman bir input ya da textarea ise, menü kapanmasın
+    if ([...inputElements].includes(event.target)) {
+        return;
+    }
+
+    // Eğer menü dışında bir alana tıklanmışsa, menüyü kapat
+    if (!menu.contains(event.target)) {
+        var activeMenus = document.querySelectorAll('.menu li.active');
+        activeMenus.forEach(function(menuItem) {
+            menuItem.classList.remove('active'); // Tüm aktif menüler kapanır
+        });
+    }
+});
+
+// Menüye tıklanarak alt menülerin açılmasını sağlayan fonksiyon
+function toggleMenu(event) {
+    var li = event.target.closest('li');
+    
+    // Eğer tıklanan eleman bir input ya da textarea ise, menü kapanmasın
+    if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') {
+        return;
+    }
+
+    // Alt menü öğesinin olup olmadığını kontrol et
+    if (li && li.querySelector('ul')) {
+        li.classList.toggle('active');  // Alt menüyü aç/kapat
+    }
+
+    // Alt menülerin kapanması için tüm aktif menüleri kontrol et
+    var allActiveMenus = document.querySelectorAll('.menu li.active');
+    allActiveMenus.forEach(function(menu) {
+        if (menu !== li && !menu.contains(event.target)) {
+            menu.classList.remove('active');  // Tıklanmayan diğer menüler kapanır
+        }
+    });
+
+}
+
+function sendWhatsAppMessage() {
+    var selectedServices = [];
+    // Checkbox'lar kontrol edilerek seçilen hizmetler ekleniyor
+
+    if (document.getElementById('serviceA') && document.getElementById('serviceA').checked) {
+        selectedServices.push('FOTOĞRAF');
+    }
+    if (document.getElementById('serviceB') && document.getElementById('serviceB').checked) {
+        selectedServices.push('KAMERA');
+    }
+    if (document.getElementById('serviceC') && document.getElementById('serviceC').checked) {
+        selectedServices.push('DRONE');
+    }
+
+    // Tarih seçimi alınması (isteğe bağlı)
+    var selectedDate = document.getElementById('selectDate').value;
+
+    // Seçilen hizmetlerin boş olup olmadığının kontrolü
+    if (selectedServices.length === 0) {
+        alert('Lütfen en az bir hizmet seçin.');
+        return;
+    }
+
+    // Tarih formatını gün-ay-yıl şeklinde düzenle
+    var formattedDate = 'Tarih seçilmedi';
+    if (selectedDate) {
+        var dateParts = selectedDate.split('-');
+        formattedDate = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];  // Gün-Ay-Yıl formatı
+    }
+
+    // Seçilen hizmetleri ve tarihi mesajda birleştir
+    var message = 'Merhaba, aşağıdaki hizmetleri talep ediyorum:\n' + selectedServices.join(', ') + '.\n*Tarih*: ' + formattedDate;
+    
+    // WhatsApp URL'sini oluştur
+    var whatsappUrl = 'https://wa.me/905550950059?text=' + encodeURIComponent(message);
+    
+    // WhatsApp linkini yeni sekmede aç
+    window.open(whatsappUrl, '_blank');
+}
+
+
+
+ 
+ 
+ 
+ 
 
 const CORS_PROXY_URL = 'https://cors-anywhere.dfprod.dataplusfeminism.mit.edu/';
 const SHOPIER_API_URL = 'https://api.shopier.com/v1/products';
@@ -1696,351 +2045,12 @@ function showAllDebts() {
         });
 }
 
-// Firebase yapılandırma bilgileri
-        const firebaseConfig = {
-            apiKey: "AIzaSyDMMpU1l8zabgaw7bfSHKCOxLbz-RhNT7I",
-            authDomain: "databasepsv-dc1b7.firebaseapp.com",
-            databaseURL: "https://databasepsv-dc1b7-default-rtdb.firebaseio.com",
-            projectId: "databasepsv-dc1b7",
-            storageBucket: "databasepsv-dc1b7.firebasestorage.app",
-            messagingSenderId: "106474799557",
-            appId: "1:106474799557:web:8f7cff2b7ef8466ab08bac",
-            measurementId: "G-BKKE9YZS1T"
-        };
-
-        // Firebase başlatma
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        // Veri kaydetme fonksiyonu
-        async function saveData(newData) {
-            try {
-                const docRef = db.collection('links').doc('data');
-                const existingData = await fetchData();
-                const updatedData = { ...existingData, ...newData };
-
-                await docRef.set(updatedData);  // Firebase'e veri kaydetme
-                alert("Veriler başarıyla kaydedildi!");
-            } catch (error) {
-                console.error("Veri kaydetme hatası:", error);
-            }
-        }
-
-        // Veri alma fonksiyonu
-        async function fetchData() {
-            try {
-                const docRef = db.collection('links').doc('data');
-                const docSnap = await docRef.get();
-                if (docSnap.exists) {
-                    console.log("Veriler:", docSnap.data());
-                    return docSnap.data();
-                } else {
-                    console.error("Veri bulunamadı!");
-                    return {};  // Veri bulunamadığında boş bir nesne döner
-                }
-            } catch (error) {
-                console.error("Veri alma hatası:", error);
-            }
-        }
-
-        // Link açma fonksiyonu
-        async function openLink() {
-            const phoneNumber = document.getElementById("phoneNumber").value.trim();
-            const errorMessage = document.getElementById("error-message");
-            errorMessage.style.display = "none";
-            const data = await fetchData();
-
-            if (phoneNumber && data[phoneNumber]) {
-                window.open(data[phoneNumber], "_blank");
-            } else {
-                errorMessage.style.display = "block";
-            }
-        }
-
-        // Yeni giriş ekleme fonksiyonu
-        async function addEntry() {
-            const adminPhone = document.getElementById("adminPhone").value.trim();
-            const adminLink = document.getElementById("adminLink").value.trim();
-
-            if (adminPhone && adminLink) {
-                const newData = { [adminPhone]: adminLink };
-                await saveData(newData);
-                document.getElementById("adminPhone").value = "";
-                document.getElementById("adminLink").value = "";
-            } else {
-                alert("Lütfen tüm alanları doldurun!");
-            }
-        }
-
-        // Menü işlevi
-        function toggleAccessMenu() {
-            const formContainer = document.getElementById('form-container');
-            formContainer.style.display = formContainer.style.display === 'none' || formContainer.style.display === '' ? 'block' : 'none';
-        }
-
-        // Admin paneli işlevi
-        function toggleAdmin() {
-            const adminPanel = document.getElementById('admin-panel');
-            const password = prompt("Admin şifrenizi girin:");
-            if (password === 'admin123') {
-                adminPanel.style.display = 'block';
-            } else {
-                alert('Yanlış şifre!');
-            }
-        }
-
-        // Link açma işlevi
-        async function openLink() {
-    const phoneNumber = document.getElementById("phoneNumber").value.trim();
-    const errorMessage = document.getElementById("error-message");
-    errorMessage.style.display = "none";
-
-    try {
-        const data = await fetchData();
-
-        // Data'nın doğru şekilde yüklendiğini kontrol et
-        if (data && phoneNumber && data[phoneNumber]) {
-            window.open(data[phoneNumber], "_blank");
-        } else {
-            errorMessage.style.display = "block"; // Veritabanında numara bulunamadığında
-        }
-    } catch (error) {
-        console.error("Veri alma hatası:", error);
-        errorMessage.style.display = "block"; // Veri alma hatası durumunda
-    }
-}
-        // Yeni giriş ekleme işlevi
-        async function addEntry() {
-            const adminPhone = document.getElementById("adminPhone").value.trim();
-            const adminLink = document.getElementById("adminLink").value.trim();
-            if (adminPhone && adminLink) {
-                const newData = { [adminPhone]: adminLink };
-                await saveData(newData);
-                document.getElementById("adminPhone").value = "";
-                document.getElementById("adminLink").value = "";
-            } else {
-                alert("Lütfen tüm alanları doldurun!");
-            }
-        }
-
-        // Global olarak fonksiyonları erişilebilir hale getirme
-        window.toggleAccessMenu = toggleAccessMenu;
-        window.toggleAdmin = toggleAdmin;
-        window.openLink = openLink;
-        window.addEntry = addEntry;
-        
-        
-function showMaintenanceMessage(menu) {
-    alert(menu + " menüsünde çalışma yapılmaktadır. Lütfen daha sonra tekrar deneyin.");
-}
-
-function showMemberInfo(memberName) {
-    var photoSrc = '';
-    var description = '';
-
-    // Üye bilgilerini kişiye göre ayarlama
-    if (memberName === 'MUHARREM PASOV') {
-        photoSrc = 'https://i.hizliresim.com/se495ix.jpg'; // Buraya fotoğrafın yolunu ekleyin
-        description = 'Muharrem Pasov, Drone Pilotluğu ve Videographerlık alanlarında uzmanlaşmış bir profesyoneldir. Gelişmiş drone teknolojileri ve sinematik çekim tekniklerine dair derin bilgi ve deneyime sahip olan Pasov, projelerin her aşamasında yüksek kaliteli görseller ve videolar sunmaktadır. Müşteri ihtiyaçlarını anlayarak, yaratıcı ve etkili görsel içerikler üretmekte, sektördeki en son yenilikleri takip ederek çözümlerini sürekli geliştirmektedir.';
-    } else if (memberName === 'EREN PASOV') {
-        photoSrc = 'https://i.hizliresim.com/pywfxg3.jpg'; // Buraya fotoğrafın yolunu ekleyin
-        description = 'Eren Pasov, özellikle düğün fotoğrafçılığı ve dış mekan çekimleri konusunda uzmanlaşmış bir profesyoneldir. Çiftlerin özel günlerinde en anlamlı anları yakalayarak, hem iç mekan hem de dış mekan çekimlerinde estetik ve doğal bir bakış açısı sunmaktadır. Dış çekimlerde, doğanın ve mekanın sunduğu güzellikleri, çiftin samimi anlarıyla birleştirerek özgün ve zarif fotoğraflar ortaya çıkarmaktadır. Her bir düğün ve dış mekan çekimi, Eren Pasov’un yaratıcı bakış açısı ile kişiye özel hale gelmektedir. Ayrıca, fotoğraf düzenleme konusundaki uzmanlığıyla, her çekimi profesyonelce işleyerek, müşterilerine mükemmel sonuçlar sunmaktadır.';
-    } else if (memberName === 'FERDİ KABALI') {
-        photoSrc = 'https://i.hizliresim.com/k2j42h1.jpg'; // Buraya fotoğrafın yolunu ekleyin
-        description = 'Ferdi Kabalı, hem fotoğrafçılık hem de videography alanlarında klip çekimleri yapmanın yanı sıra, kurgu ve After Effects editörlüğü konularında da uzmanlaşmıştır. Yaratıcı bakış açısı ve teknik bilgisiyle, çekimlerin ardından etkileyici kurgu ve animasyonlar hazırlayarak, her projeye profesyonel bir dokunuş katmaktadır. Hem fotoğraf hem de video içeriği üzerinde çalışarak, görsel anlatımı güçlendirir ve müşterilerine sinematik deneyimler sunar. Ferdi Kabalı, her adımda yüksek kaliteyi ve sanatsal mükemmeliyeti hedeflemektedir.';
-    }
-
-    // Modal içeriklerini güncelle
-    document.getElementById('memberPhoto').src = photoSrc;
-    document.getElementById('memberDescription').innerText = description;
-
-    // Modal'ı göster
-    var modal = document.getElementById('memberModal');
-    modal.style.display = "block";
-}
-
-// Modal'ı kapatma fonksiyonu
-function closeModal() {
-    var modal = document.getElementById('memberModal');
-    modal.style.display = "none";
-}
-
-
-document.addEventListener("DOMContentLoaded", () => {
-    const todayOption = document.getElementById("todayOption");
-    const otherDateOption = document.getElementById("otherDateOption");
-    const datePicker = document.getElementById("datePicker");
-
-    otherDateOption.addEventListener("change", () => {
-        if (otherDateOption.checked) {
-            datePicker.style.display = "inline-block"; // Takvimi göster
-        }
-    });
-
-    todayOption.addEventListener("change", () => {
-        if (todayOption.checked) {
-            datePicker.style.display = "none"; // Takvimi gizle
-        }
-    });
-});
-
-function sendWhatsAppMessagee(event) {
-    // Kullanıcıdan alınan bilgiler
-    const fullName = document.getElementById('fullName').value.trim();
-    const description = document.getElementById('description').value.trim();
-
-    // Saat bilgileri (tam ve yarım saatleri kontrol et)
-    const selectedHours = [];
-    for (let i = 9; i <= 19; i++) {
-        // Tam saat
-        const hour = document.getElementById(`hour${i}`);
-        if (hour && hour.checked) selectedHours.push(`${i}:00`);
-
-        // Yarım saat
-        const halfHour = document.getElementById(`hour${i}30`);
-        if (halfHour && halfHour.checked) selectedHours.push(`${i}:30`);
-    }
-
-    // Tarih bilgisi
-    const todayOption = document.getElementById("todayOption")?.checked;
-    const selectedDate = document.getElementById("datePicker")?.value;
-
-    // Tarih bilgisi metni
-    let dateMessage = "";
-    if (todayOption) {
-        const today = new Date();
-        const formattedToday = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1)
-            .toString()
-            .padStart(2, '0')}/${today.getFullYear()}`;
-        dateMessage = `*TARİH*: Bugün (${formattedToday})`;
-    } else if (selectedDate) {
-        const dateParts = selectedDate.split("-"); // "YYYY-MM-DD" formatını parçala
-        const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`; // "GG/AA/YYYY" olarak yeniden düzenle
-        dateMessage = `*TARİH*: ${formattedDate}`;
-    } else {
-        alert('Lütfen bir tarih seçin.');
-        event.preventDefault(); // Form gönderimini engelle
-        return;
-    }
-
-    // Boş alan kontrolü
-    if (!fullName || !description) {
-        alert('Ad Soyad ve Açıklama alanlarını doldurduğunuzdan emin olun.');
-        event.preventDefault(); // Form gönderimini engelle
-        return;
-    }
-
-    // En az bir saat seçildi mi kontrolü
-    if (selectedHours.length === 0) {
-        alert('En az bir hizmet saati seçmeniz gerekiyor.');
-        event.preventDefault(); // Form gönderimini engelle
-        return;
-    }
-
-    // Saatleri string olarak birleştir
-    const hoursMessage = `*RANDEVU SAATİ*: ${selectedHours.join(', ')}`;
-
-    // WhatsApp mesaj bağlantısını oluştur
-    const message = `*Ad Soyad*: ${fullName}\n*Açıklama*: ${description}\n${dateMessage}\n${hoursMessage}`;
-    const phoneNumber = `https://wa.me/905550950059?text=${encodeURIComponent(message)}`;
-
-    // WhatsApp'a yönlendirme
-    window.location.href = phoneNumber;
-}
-
-
-
-
-// Menü dışındaki bir alana tıklanması durumunda menüyü kapatmak için
-document.addEventListener('click', function(event) {
-    var menu = document.querySelector('.menu'); // Menü elemanını seç
-    var inputElements = menu.querySelectorAll('input, textarea'); // Menüdeki input ve textarea elemanlarını seç
-    
-    // Eğer tıklanan eleman bir input ya da textarea ise, menü kapanmasın
-    if ([...inputElements].includes(event.target)) {
-        return;
-    }
-
-    // Eğer menü dışında bir alana tıklanmışsa, menüyü kapat
-    if (!menu.contains(event.target)) {
-        var activeMenus = document.querySelectorAll('.menu li.active');
-        activeMenus.forEach(function(menuItem) {
-            menuItem.classList.remove('active'); // Tüm aktif menüler kapanır
-        });
-    }
-});
-
-// Menüye tıklanarak alt menülerin açılmasını sağlayan fonksiyon
-function toggleMenu(event) {
-    var li = event.target.closest('li');
-    
-    // Eğer tıklanan eleman bir input ya da textarea ise, menü kapanmasın
-    if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') {
-        return;
-    }
-
-    // Alt menü öğesinin olup olmadığını kontrol et
-    if (li && li.querySelector('ul')) {
-        li.classList.toggle('active');  // Alt menüyü aç/kapat
-    }
-
-    // Alt menülerin kapanması için tüm aktif menüleri kontrol et
-    var allActiveMenus = document.querySelectorAll('.menu li.active');
-    allActiveMenus.forEach(function(menu) {
-        if (menu !== li && !menu.contains(event.target)) {
-            menu.classList.remove('active');  // Tıklanmayan diğer menüler kapanır
-        }
-    });
-
-}
-
-function sendWhatsAppMessage() {
-    var selectedServices = [];
-    // Checkbox'lar kontrol edilerek seçilen hizmetler ekleniyor
-
-    if (document.getElementById('serviceA') && document.getElementById('serviceA').checked) {
-        selectedServices.push('FOTOĞRAF');
-    }
-    if (document.getElementById('serviceB') && document.getElementById('serviceB').checked) {
-        selectedServices.push('KAMERA');
-    }
-    if (document.getElementById('serviceC') && document.getElementById('serviceC').checked) {
-        selectedServices.push('DRONE');
-    }
-
-    // Tarih seçimi alınması (isteğe bağlı)
-    var selectedDate = document.getElementById('selectDate').value;
-
-    // Seçilen hizmetlerin boş olup olmadığının kontrolü
-    if (selectedServices.length === 0) {
-        alert('Lütfen en az bir hizmet seçin.');
-        return;
-    }
-
-    // Tarih formatını gün-ay-yıl şeklinde düzenle
-    var formattedDate = 'Tarih seçilmedi';
-    if (selectedDate) {
-        var dateParts = selectedDate.split('-');
-        formattedDate = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];  // Gün-Ay-Yıl formatı
-    }
-
-    // Seçilen hizmetleri ve tarihi mesajda birleştir
-    var message = 'Merhaba, aşağıdaki hizmetleri talep ediyorum:\n' + selectedServices.join(', ') + '.\n*Tarih*: ' + formattedDate;
-    
-    // WhatsApp URL'sini oluştur
-    var whatsappUrl = 'https://wa.me/905550950059?text=' + encodeURIComponent(message);
-    
-    // WhatsApp linkini yeni sekmede aç
-    window.open(whatsappUrl, '_blank');
-}
-
-
 // Bize Ulaşın butonuna tıklanınca mesaj gönder
 document.getElementById('whatsappLink').addEventListener('click', function(e) {
     e.preventDefault(); // Normal link davranışını engelle
     sendWhatsAppMessage(); // Mesaj gönderme fonksiyonunu çalıştır
 });
-
+ 
 
 </script>
 
