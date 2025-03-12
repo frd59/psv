@@ -1,3 +1,6 @@
+
+
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -990,6 +993,12 @@ ul.menu li ul li {
     <button onclick="showAllProducts()">Tüm Ürünler</button>
     <div id="productResults"></div>
     
+    <input type="text" id="searchProduct" placeholder="Ürün ara..." />
+<button onclick="searchProduct()">Ara</button>
+<button onclick="showAllProducts()">Tüm Ürünleri Göster</button>
+
+<div id="productResults"></div>
+    
 <button onclick="fetchProductsFromCSV()" style="margin-top: 20px; margin-bottom: 20px;">Google Sheets'ten Ürünleri Güncelle</button>
 
 
@@ -1020,135 +1029,355 @@ ul.menu li ul li {
 
  <script>
  
- function searchProduct() {
+
+const CORS_PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
+const SHOPIER_API_URL = 'https://api.shopier.com/v1/products';
+const SHOPIER_API_KEY = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJmNmZhN2ZiNWE4NjhmODI1YTMwZTYzYThlMTU3YmE4NiIsImp0aSI6IjRkYTBhYzI0YjNmNGY0ZGFkZWYxNmE3YmZmNjEwMDhkZjE0MTgxZGJjOGU2NDI1Y2ZkZTI4YmUxNDExMWMxOTc2NzFmYTdjNjBhMjQ3ODc3YTlmNjJiODlkM2EyNzQ4YTNjNjJlZjcwNjkzNDc5ZTM2MjM1YmU5ZjcyMTVkNjA2ZTZhMjgwNWFmNTAzMmU2NGU2NTFhMjM3NzMxNzRmOGQiLCJpYXQiOjE3NDE2OTk4NzgsIm5iZiI6MTc0MTY5OTg3OCwiZXhwIjoxODk5NDg0NjM4LCJzdWIiOiIzNjU5OTUiLCJzY29wZXMiOlsib3JkZXJzOnJlYWQiLCJvcmRlcnM6d3JpdGUiLCJwcm9kdWN0czpyZWFkIiwicHJvZHVjdHM6d3JpdGUiLCJzaGlwcGluZ3M6cmVhZCIsInNoaXBwaW5nczp3cml0ZSIsImRpc2NvdW50czpyZWFkIiwiZGlzY291bnRzOndyaXRlIiwicGF5b3V0czpyZWFkIiwicmVmdW5kczpyZWFkIiwicmVmdW5kczp3cml0ZSIsInNob3A6cmVhZCIsInNob3A6d3JpdGUiXX0.kpyQwSmbldkIe-M2mKX3R-9XSWHquaAHh4879lR0weEA5EfamW6BZiQL6oGR1Pic9_tkWNoZkQpi6jSt_gzs_x5-VJSbzBiGHXut9jgw9XztLBey6Fb8xJgpkwG3UrPBBsx94-S5hHaraDci2fizS4F7xZ-jgbgm1dWhiOhmpZv88UoCCtfbSP-SHDCSX3IkZwYxY0u5ECGdIimMZ28EosTEKih3UiQTAeUOt-29LBZdC_JoNPY6hFIimoeyg6ZAS2X9e2jaVP05jiGbFe-6yI_gq46v9IAKdaWTVVnHdaL3foVxLc2QPWa9MU2dP89SqroWt8tRZeqcFTmyYRt3Xw';
+
+
+
+
+function fetchProductsFromShopier() {
+    // Başlangıçta yükleniyor mesajı göster
+    document.getElementById('productResults').innerHTML = "<p>Ürünler yükleniyor...</p>";
+    
+    // Tüm ürünleri içerecek dizi
+    let allProducts = [];
+    
+    // Sayfalandırma ile tüm ürünleri çekme fonksiyonu
+    function fetchProductPage(page = 1) {
+        // Shopier API'sinin izin verdiği maksimum limit olan 50 ürün kullan
+        const apiUrl = `${SHOPIER_API_URL}?page=${page}&limit=50`;
+        
+        fetch(CORS_PROXY_URL + apiUrl, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${SHOPIER_API_KEY}`,
+            },
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(`API Hatası: ${err.message || response.statusText}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(`Shopier'den sayfa ${page} ürün verisi alındı:`, data);
+            
+            // Veri yapısını kontrol et ve düzenle
+            let products = [];
+            if (data.products) {
+                products = data.products;
+            } else if (Array.isArray(data)) {
+                products = data;
+            } else if (data.data && Array.isArray(data.data)) {
+                // Bazı API'ler data altında veri döndürür
+                products = data.data;
+            } else {
+                products = [data]; // Tek bir ürün olabilir
+            }
+            
+            // Ürünleri ana diziye ekle
+            allProducts = [...allProducts, ...products];
+            
+            // Daha fazla sayfa varsa bir sonraki sayfayı çek
+            if (products.length === 50) { // Tam sayfa geldi, muhtemelen daha fazla ürün var
+                // Bir sonraki sayfayı çekmeden önce kısa bir gecikme ekleyelim
+                // Bu, API rate limit hataları olasılığını azaltır
+                setTimeout(() => {
+                    fetchProductPage(page + 1);
+                }, 500); // 500ms gecikme
+            } else {
+                // Tüm sayfalar çekildi, ürünleri kaydet
+                console.log("Toplam çekilen ürün sayısı:", allProducts.length);
+                localStorage.setItem('products', JSON.stringify(allProducts));
+                
+                // Yükleme tamamlandı mesajı göster
+                document.getElementById('productResults').innerHTML = 
+                    `<p>Toplam ${allProducts.length} ürün yüklendi. Arama yapmak için yukarıdaki kutucuğu kullanabilirsiniz.</p>`;
+            }
+        })
+        .catch(error => {
+            console.error(`Sayfa ${page} verileri çekilirken hata oluştu:`, error);
+            
+            // Hata oluşsa bile elde edilen ürünleri kaydet
+            if (allProducts.length > 0) {
+                localStorage.setItem('products', JSON.stringify(allProducts));
+                document.getElementById('productResults').innerHTML = 
+                    `<p>Toplam ${allProducts.length} ürün yüklenebildi. Arama yapmak için yukarıdaki kutucuğu kullanabilirsiniz.</p>
+                    <p>Not: Bazı ürünler yüklenirken hata oluştu: ${error.message}</p>`;
+            } else {
+                document.getElementById('productResults').innerHTML = 
+                    `<p>Veriler yüklenirken bir hata oluştu: ${error.message}</p>
+                     <p>Lütfen daha sonra tekrar deneyin veya API anahtarınızı kontrol edin.</p>`;
+            }
+        });
+    }
+    
+    // İlk sayfadan başlayarak ürünleri çek
+    fetchProductPage();
+}
+
+// Ürünleri arama fonksiyonu - özel format için güncellenmiş
+function searchProduct() {
     const query = document.getElementById('searchProduct').value.trim().toLowerCase();
     const products = JSON.parse(localStorage.getItem('products')) || [];
-
+    
     if (!query) {
-        alert("Lütfen bir ürün adı veya açıklama girin.");
+        document.getElementById('productResults').innerHTML = 
+            "<p>Lütfen bir ürün adı veya açıklama girin.</p>";
         return;
     }
-
-    const filteredProducts = products.filter(product => 
-        product.name.toLowerCase().includes(query) || 
-        (product.description && product.description.toLowerCase().includes(query))
-    );
-
+    
+    // ** ile başlayan ve ** ile biten özel kod formatını kontrol et
+    if (query.startsWith('**') && query.endsWith('**')) {
+        // Özel sorgu modu - tüm detayları göster
+        const searchCode = query.slice(2, -2); // ** işaretlerini kaldır
+        const foundProduct = products.find(product => {
+            // Ürün kodunu bul - title, id, code veya sku içinde olabilir
+            return Object.entries(product).some(([key, value]) => {
+                if (typeof value === 'string') {
+                    return value.toLowerCase() === searchCode.toLowerCase();
+                } else if (typeof value === 'number') {
+                    return value.toString() === searchCode;
+                }
+                return false;
+            });
+        });
+        
+        if (foundProduct) {
+            displayDetailedProduct(foundProduct);
+        } else {
+            document.getElementById('productResults').innerHTML = "<p>Bu kodla eşleşen ürün bulunamadı.</p>";
+        }
+        return;
+    }
+    
+    // Normal arama modu - geliştirilmiş arama yeteneği
+    const filteredProducts = products.filter(product => {
+        // Her alana bakarak arama yap
+        return Object.entries(product).some(([key, value]) => {
+            if (typeof value === 'string') {
+                return value.toLowerCase().includes(query);
+            }
+            return false;
+        });
+    });
+    
     displayProducts(filteredProducts);
 }
 
+// Tüm ürünleri gösterme fonksiyonu - artık sayfa yüklendiğinde otomatik çağrılmıyor
 function showAllProducts() {
     const products = JSON.parse(localStorage.getItem('products')) || [];
     displayProducts(products);
 }
 
+// Ürünleri görüntüleme fonksiyonu (farklı alan isimleri için güncellendi)
 function displayProducts(products) {
     const resultsDiv = document.getElementById('productResults');
     resultsDiv.innerHTML = ""; // Önce temizle
-
+    
     if (products.length === 0) {
         resultsDiv.innerHTML = "<p>Ürün bulunamadı.</p>";
         return;
     }
-
+    
+    // Bulunan ürün sayısını göster
+    const countInfo = document.createElement('p');
+    countInfo.innerHTML = `<strong>${products.length} adet ürün bulundu</strong>`;
+    resultsDiv.appendChild(countInfo);
+    
     const list = document.createElement('ul');
+    list.style.listStyleType = "none";
+    list.style.padding = "0";
+    
     products.forEach(product => {
         const item = document.createElement('li');
-
-        if (product.url) {
-            const link = document.createElement('a');
-            link.textContent = `🛒 ${product.name}`;
-            link.href = product.url;
-            link.target = "_blank";
-            link.style.textDecoration = "none";
-            link.style.color = "#007bff";
-            item.appendChild(link);
+        item.style.margin = "10px 0";
+        item.style.padding = "10px";
+        item.style.border = "1px solid #ddd";
+        item.style.borderRadius = "5px";
+        
+        // Ürün adını bul (name veya title olabilir)
+        const productName = product.name || product.title || "İsimsiz Ürün";
+        
+        // Ürün fiyatını bul
+        const productPrice = product.price || product.amount || "";
+        
+        // Ürün URL'sini bul
+        const productUrl = product.url || product.link || "";
+        
+        // Ürün stoğunu bul
+        const productStock = product.stock || product.quantity || product.count || "Belirtilmemiş";
+        
+        // Şube bilgisini bul
+        const productBranch = product.branch || product.store || product.shop || "";
+        
+        // Ürün HTML'ini oluştur
+        let html = '';
+        
+        if (productUrl) {
+            html += `<a href="${productUrl}" target="_blank" style="text-decoration:none;color:#007bff">🛒 <strong>${productName}</strong></a>`;
         } else {
-            item.textContent = `🛒 ${product.name}`;
+            html += `🛒 <strong>${productName}</strong>`;
         }
-
-        item.innerHTML += ` - 💰 ${product.price} TL - 📦 Stok: ${product.stock} - 🏬 Şube: ${product.branch}`;
+        
+        if (productPrice) {
+            html += ` - 💰 ${productPrice} TL`;
+        }
+        
+        html += ` - 📦 Stok: ${productStock}`;
+        
+        if (productBranch) {
+            html += ` - 🏬 Şube: ${productBranch}`;
+        }
+        
+        // Detaylı görüntüleme için kod göster
+        let productCode = product.id || product.code || product.sku || "";
+        if (productCode) {
+            html += `<br><small>Detaylı bilgi için arama kutusuna <strong>**${productCode}**</strong> yazın.</small>`;
+        }
+        
+        item.innerHTML = html;
         list.appendChild(item);
     });
-
+    
     resultsDiv.appendChild(list);
 }
 
-const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRyJU-D3IprgwgdvQ_8A_2HtOGqTPO6I-P0Fdbf8AefGPUJ74yefBACavVDWHlanuXJtFedoRoERnLg/pub?gid=1283657881&single=true&output=csv";
-
-function fetchProductsFromCSV() {
-    fetch(SHEET_CSV_URL)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Ağ yanıtı başarısız oldu');
-            }
-            return response.text();
-        })
-        .then(csvData => {
-            console.log("CSV verisi alındı");
-            const products = parseCSV(csvData);
-            localStorage.setItem('products', JSON.stringify(products));
-            alert("Ürünler Google Sheets'ten başarıyla yüklendi!");
-        })
-        .catch(error => {
-            console.error("CSV verisi çekilirken hata oluştu:", error);
-            alert("Veriler yüklenirken bir hata oluştu. Lütfen konsolu kontrol edin.");
-        });
-}
-
-function parseCSV(csv) {
-    const lines = csv.split('\n');
-    const products = [];
-    if (lines.length <= 1) return products;
-
-    // Sütun indeksleri (0 tabanlı)
-    const nameIndex = 1;  // B sütunu → Ürün Adı
-    const urlIndex = 3;   // D sütunu → Ürün Bağlantısı
-    const branchIndex = 6; // G sütunu → Hangi Şube
-    const typeIndex = 8;  // I sütunu → Ürün Cinsi
-    const stockIndex = 9;  // J sütunu → Stok Adedi
-    const priceIndex = 11; // L sütunu → Fiyat
-
-    for (let i = 1; i < lines.length; i++) {
-        if (lines[i].trim() === '') continue; // Boş satırları atla
-        const values = parseCSVLine(lines[i]); // Satırı parse et
-        if (values.length <= nameIndex) continue; // Eksik veri varsa atla
-
-        let name = values[nameIndex] ? values[nameIndex].trim() : `Ürün ${i}`;
-        let url = values[urlIndex] ? values[urlIndex].trim() : ""; // D sütunundan linki al
-
-        products.push({
-            id: Date.now() + i,
-            name: name,
-            url: url, // D sütunundaki bağlantı
-            branch: values[branchIndex] ? values[branchIndex].trim() : "Bilinmiyor",
-            type: values[typeIndex] ? values[typeIndex].trim() : "Bilinmiyor",
-            stock: values[stockIndex] ? parseInt(values[stockIndex].trim()) : 0,
-            price: values[priceIndex] ? parseFloat(values[priceIndex].trim()) : 0
-        });
-    }
-    return products;
-}
-
-// CSV satırlarını doğru şekilde bölmek için
-function parseCSVLine(line) {
-    const result = [];
-    let current = "";
-    let inQuotes = false;
-    for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-        if (char === '"') {
-            inQuotes = !inQuotes;
-        } else if (char === ',' && !inQuotes) {
-            result.push(current.replace(/"/g, ''));
-            current = "";
-        } else {
-            current += char;
+// Detaylı ürün görüntüleme fonksiyonu (** kod ** araması için)
+function displayDetailedProduct(product) {
+    const resultsDiv = document.getElementById('productResults');
+    resultsDiv.innerHTML = "";
+    
+    const detailCard = document.createElement('div');
+    detailCard.style.padding = "20px";
+    detailCard.style.border = "1px solid #ddd";
+    detailCard.style.borderRadius = "8px";
+    detailCard.style.backgroundColor = "#f9f9f9";
+    
+    // Başlık
+    const title = document.createElement('h2');
+    title.textContent = product.name || product.title || "İsimsiz Ürün";
+    detailCard.appendChild(title);
+    
+    // Tüm ürün detaylarını görüntüle
+    const detailsList = document.createElement('dl');
+    detailsList.style.display = "grid";
+    detailsList.style.gridTemplateColumns = "auto 1fr";
+    detailsList.style.gap = "8px";
+    
+    // Önemli verileri en üste koy
+    const importantFields = ['price', 'amount', 'stock', 'quantity', 'branch', 'store', 'description', 'desc'];
+    
+    // Önce önemli alanları ekle
+    importantFields.forEach(field => {
+        if (product[field]) {
+            const dt = document.createElement('dt');
+            dt.style.fontWeight = "bold";
+            dt.textContent = fieldToTurkish(field) + ":";
+            
+            const dd = document.createElement('dd');
+            dd.style.margin = "0";
+            dd.textContent = product[field];
+            
+            detailsList.appendChild(dt);
+            detailsList.appendChild(dd);
         }
-    }
-    result.push(current.replace(/"/g, ''));
-    return result;
+    });
+    
+    // Sonra diğer tüm alanları ekle
+    Object.entries(product).forEach(([key, value]) => {
+        // Önemli alanları tekrar ekleme
+        if (importantFields.includes(key)) return;
+        
+        // Nesne veya dizi tipindeki değerleri JSON olarak göster
+        if (typeof value === 'object' && value !== null) {
+            value = JSON.stringify(value);
+        }
+        
+        const dt = document.createElement('dt');
+        dt.style.fontWeight = "bold";
+        dt.textContent = fieldToTurkish(key) + ":";
+        
+        const dd = document.createElement('dd');
+        dd.style.margin = "0";
+        dd.textContent = value;
+        
+        detailsList.appendChild(dt);
+        detailsList.appendChild(dd);
+    });
+    
+    detailCard.appendChild(detailsList);
+    
+    // Geri dönüş butonu
+    const backButton = document.createElement('button');
+    backButton.textContent = "Arama Sonuçlarına Dön";
+    backButton.style.marginTop = "20px";
+    backButton.style.padding = "5px 10px";
+    backButton.style.backgroundColor = "#007bff";
+    backButton.style.color = "white";
+    backButton.style.border = "none";
+    backButton.style.borderRadius = "5px";
+    backButton.style.cursor = "pointer";
+    backButton.onclick = function() {
+        searchProduct(); // Son aramayı tekrarla
+    };
+    
+    detailCard.appendChild(backButton);
+    resultsDiv.appendChild(detailCard);
 }
+
+// Alan adlarını Türkçeye çevir
+function fieldToTurkish(field) {
+    const translations = {
+        'name': 'Ürün Adı',
+        'title': 'Başlık',
+        'price': 'Fiyat',
+        'amount': 'Tutar',
+        'stock': 'Stok',
+        'quantity': 'Miktar',
+        'branch': 'Şube',
+        'store': 'Mağaza',
+        'shop': 'Dükkan',
+        'description': 'Açıklama',
+        'desc': 'Açıklama',
+        'id': 'Ürün ID',
+        'code': 'Ürün Kodu',
+        'sku': 'Stok Kodu',
+        'url': 'Ürün Bağlantısı',
+        'link': 'Bağlantı',
+        'image': 'Görsel',
+        'category': 'Kategori',
+        'brand': 'Marka'
+    };
+    
+    return translations[field] || field;
+}
+
+// HTML'inize eklenecek arama butonuna olay dinleyicisi
+document.addEventListener('DOMContentLoaded', function() {
+    const searchButton = document.getElementById('searchButton');
+    if (searchButton) {
+        searchButton.addEventListener('click', searchProduct);
+    }
+    
+    // Enter tuşuna basıldığında arama yapma
+    const searchInput = document.getElementById('searchProduct');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchProduct();
+            }
+        });
+    }
+    
+    // Sayfa yüklendiğinde ürünleri çek
+    fetchProductsFromShopier();
+});
  
  
 function formatDate(dateString) {
