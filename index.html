@@ -993,13 +993,7 @@ ul.menu li ul li {
     <button onclick="showAllProducts()">Tüm Ürünler</button>
     <div id="productResults"></div>
     
-    <input type="text" id="searchProduct" placeholder="Ürün ara..." />
-<button onclick="searchProduct()">Ara</button>
-<button onclick="showAllProducts()">Tüm Ürünleri Göster</button>
 
-<div id="productResults"></div>
-    
-<button onclick="fetchProductsFromCSV()" style="margin-top: 20px; margin-bottom: 20px;">Google Sheets'ten Ürünleri Güncelle</button>
 
 
         
@@ -1044,12 +1038,26 @@ function fetchProductsFromShopier() {
     // Tüm ürünleri içerecek dizi
     let allProducts = [];
     
-    // Sayfalandırma ile tüm ürünleri çekme fonksiyonu
-    function fetchProductPage(page = 1) {
-        // Shopier API'sinin izin verdiği maksimum limit olan 50 ürün kullan
+    // İlerleme durumunu takip etmek için sayaçlar
+    let totalPages = 37; // Toplam sayfa sayısını biliyoruz
+    let completedPages = 0;
+    let failedPages = 0;
+    
+    // İlerleme durumunu güncelleyen fonksiyon
+    function updateProgress() {
+        const percentage = Math.round((completedPages / totalPages) * 100);
+        document.getElementById('productResults').innerHTML = 
+            `<p>Ürünler yükleniyor... %${percentage} tamamlandı (${completedPages}/${totalPages} sayfa)</p>
+             <div style="width: 100%; background-color: #ddd; border-radius: 5px;">
+                <div style="width: ${percentage}%; background-color: #4CAF50; height: 20px; border-radius: 5px;"></div>
+             </div>`;
+    }
+    
+    // Tek bir sayfayı çeken fonksiyon
+    function fetchSinglePage(page) {
         const apiUrl = `${SHOPIER_API_URL}?page=${page}&limit=50`;
         
-        fetch(CORS_PROXY_URL + apiUrl, {
+        return fetch(CORS_PROXY_URL + apiUrl, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${SHOPIER_API_KEY}`,
@@ -1058,13 +1066,13 @@ function fetchProductsFromShopier() {
         .then(response => {
             if (!response.ok) {
                 return response.json().then(err => {
-                    throw new Error(`API Hatası: ${err.message || response.statusText}`);
+                    throw new Error(`Sayfa ${page} - API Hatası: ${err.message || response.statusText}`);
                 });
             }
             return response.json();
         })
         .then(data => {
-            console.log(`Shopier'den sayfa ${page} ürün verisi alındı:`, data);
+            console.log(`Shopier'den sayfa ${page} ürün verisi alındı`);
             
             // Veri yapısını kontrol et ve düzenle
             let products = [];
@@ -1073,51 +1081,80 @@ function fetchProductsFromShopier() {
             } else if (Array.isArray(data)) {
                 products = data;
             } else if (data.data && Array.isArray(data.data)) {
-                // Bazı API'ler data altında veri döndürür
                 products = data.data;
             } else {
                 products = [data]; // Tek bir ürün olabilir
             }
             
-            // Ürünleri ana diziye ekle
-            allProducts = [...allProducts, ...products];
-            
-            // Daha fazla sayfa varsa bir sonraki sayfayı çek
-            if (products.length === 50) { // Tam sayfa geldi, muhtemelen daha fazla ürün var
-                // Bir sonraki sayfayı çekmeden önce kısa bir gecikme ekleyelim
-                // Bu, API rate limit hataları olasılığını azaltır
-                setTimeout(() => {
-                    fetchProductPage(page + 1);
-                }, 500); // 500ms gecikme
-            } else {
-                // Tüm sayfalar çekildi, ürünleri kaydet
-                console.log("Toplam çekilen ürün sayısı:", allProducts.length);
-                localStorage.setItem('products', JSON.stringify(allProducts));
-                
-                // Yükleme tamamlandı mesajı göster
-                document.getElementById('productResults').innerHTML = 
-                    `<p>Toplam ${allProducts.length} ürün yüklendi. Arama yapmak için yukarıdaki kutucuğu kullanabilirsiniz.</p>`;
-            }
-        })
-        .catch(error => {
-            console.error(`Sayfa ${page} verileri çekilirken hata oluştu:`, error);
-            
-            // Hata oluşsa bile elde edilen ürünleri kaydet
-            if (allProducts.length > 0) {
-                localStorage.setItem('products', JSON.stringify(allProducts));
-                document.getElementById('productResults').innerHTML = 
-                    `<p>Toplam ${allProducts.length} ürün yüklenebildi. Arama yapmak için yukarıdaki kutucuğu kullanabilirsiniz.</p>
-                    <p>Not: Bazı ürünler yüklenirken hata oluştu: ${error.message}</p>`;
-            } else {
-                document.getElementById('productResults').innerHTML = 
-                    `<p>Veriler yüklenirken bir hata oluştu: ${error.message}</p>
-                     <p>Lütfen daha sonra tekrar deneyin veya API anahtarınızı kontrol edin.</p>`;
-            }
+            return products;
         });
     }
     
-    // İlk sayfadan başlayarak ürünleri çek
-    fetchProductPage();
+    // Paralel isteklerle tüm sayfaları çeken ana fonksiyon
+    async function fetchAllPages() {
+        // Kaç sayfa paralel çekilecek
+        const CONCURRENT_REQUESTS = 10; // Aynı anda çekilecek sayfa sayısı
+        
+        // Tüm sayfaları çekmek için
+        for (let i = 0; i < totalPages; i += CONCURRENT_REQUESTS) {
+            // Bu döngüde çekilecek sayfa numaraları
+            const pagePromises = [];
+            
+            // Paralel istekler oluştur
+            for (let j = 0; j < CONCURRENT_REQUESTS && (i + j) < totalPages; j++) {
+                const pageNum = i + j + 1; // Sayfa numarası 1'den başlar
+                pagePromises.push(
+                    fetchSinglePage(pageNum)
+                    .then(products => {
+                        completedPages++;
+                        updateProgress();
+                        return products;
+                    })
+                    .catch(error => {
+                        console.error(`Sayfa ${pageNum} verileri çekilirken hata oluştu:`, error);
+                        failedPages++;
+                        completedPages++;
+                        updateProgress();
+                        return []; // Hata durumunda boş dizi döndür
+                    })
+                );
+            }
+            
+            // Bu gruptaki tüm sayfaları bekle
+            const pagesResults = await Promise.all(pagePromises);
+            
+            // Sonuçları ana diziye ekle
+            for (const products of pagesResults) {
+                allProducts = allProducts.concat(products);
+            }
+            
+            // API rate limit'e takılmamak için gruplar arası kısa bir bekleme süresi
+            if (i + CONCURRENT_REQUESTS < totalPages) {
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+        }
+        
+        // Tüm işlemler tamamlandı, sonuçları kaydet ve göster
+        console.log("Toplam çekilen ürün sayısı:", allProducts.length);
+        localStorage.setItem('products', JSON.stringify(allProducts));
+        
+        // Bitirme mesajı
+        let message = `<p>Toplam ${allProducts.length} ürün yüklendi. Arama yapmak için yukarıdaki kutucuğu kullanabilirsiniz.</p>`;
+        
+        if (failedPages > 0) {
+            message += `<p>Not: ${failedPages} sayfada hata oluştu, bazı ürünler eksik olabilir.</p>`;
+        }
+        
+        document.getElementById('productResults').innerHTML = message;
+    }
+    
+    // Çekme işlemini başlat
+    fetchAllPages().catch(error => {
+        console.error("Veri çekme işlemi sırasında kritik hata:", error);
+        document.getElementById('productResults').innerHTML = 
+            `<p>Veriler yüklenirken bir hata oluştu: ${error.message}</p>
+             <p>Lütfen daha sonra tekrar deneyin veya API anahtarınızı kontrol edin.</p>`;
+    });
 }
 
 // Ürünleri arama fonksiyonu - özel format için güncellenmiş
@@ -1185,7 +1222,6 @@ function displayProducts(products) {
         return;
     }
     
-    // Bulunan ürün sayısını göster
     const countInfo = document.createElement('p');
     countInfo.innerHTML = `<strong>${products.length} adet ürün bulundu</strong>`;
     resultsDiv.appendChild(countInfo);
@@ -1200,48 +1236,41 @@ function displayProducts(products) {
         item.style.padding = "10px";
         item.style.border = "1px solid #ddd";
         item.style.borderRadius = "5px";
+        item.style.display = "flex";
+        item.style.alignItems = "center";
         
-        // Ürün adını bul (name veya title olabilir)
+        // Ürün görseli
+        let productImage = product.media && product.media.length > 0 ? product.media[0].url : "";
+        if (productImage) {
+            const img = document.createElement('img');
+            img.src = productImage;
+            img.alt = product.name || product.title || "Ürün görseli";
+            img.style.width = "100px";
+            img.style.height = "100px";
+            img.style.marginRight = "10px";
+            item.appendChild(img);
+        }
+        
+        const details = document.createElement('div');
+        
+        // Ürün adı
         const productName = product.name || product.title || "İsimsiz Ürün";
-        
-        // Ürün fiyatını bul
-        const productPrice = product.price || product.amount || "";
-        
-        // Ürün URL'sini bul
         const productUrl = product.url || product.link || "";
         
-        // Ürün stoğunu bul
-        const productStock = product.stock || product.quantity || product.count || "Belirtilmemiş";
-        
-        // Şube bilgisini bul
-        const productBranch = product.branch || product.store || product.shop || "";
-        
-        // Ürün HTML'ini oluştur
         let html = '';
-        
         if (productUrl) {
             html += `<a href="${productUrl}" target="_blank" style="text-decoration:none;color:#007bff">🛒 <strong>${productName}</strong></a>`;
         } else {
             html += `🛒 <strong>${productName}</strong>`;
         }
         
-        if (productPrice) {
-            html += ` - 💰 ${productPrice} TL`;
-        }
+        // Ürün fiyatı
+        let productPrice = product.priceData ? product.priceData.price : "Bilinmiyor";
+        html += ` - 💰 ${productPrice} TL`;
         
-        html += ` - 📦 Stok: ${productStock}`;
+        details.innerHTML = html;
+        item.appendChild(details);
         
-        if (productBranch) {
-            html += ` - 🏬 Şube: ${productBranch}`;
-        }
-        
-        // Detaylı görüntüleme için kod göster
-        let productCode = product.id || product.code || product.sku || "";
-        if (productCode) {
-            html += `<br><small>Detaylı bilgi için arama kutusuna <strong>**${productCode}**</strong> yazın.</small>`;
-        }
-        
-        item.innerHTML = html;
         list.appendChild(item);
     });
     
