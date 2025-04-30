@@ -582,6 +582,19 @@ ul.menu li ul li {
             color: red;
             display: none;
         }
+        
+        
+         /* Tüm <a> etiketlerini beyaz yap ve alt çizgisini kaldır */
+    li a {
+        color: white;
+        text-decoration: none;
+    }
+
+    /* Üzerine gelindiğinde de beyaz kalsın */
+    li a:hover {
+        color: white;
+        text-decoration: underline; /* İstersen underline kaldırabilirsin */
+    }
 
     </style>
     
@@ -694,7 +707,36 @@ ul.menu li ul li {
             </ul>
         </li>
 <li onclick="showMaintenanceMessage('ETKİNLİK')">ETKİNLİK</li>
-<li onclick="showMaintenanceMessage('OKUL')">OKUL</li>
+<li onclick="toggleMenu(event)">OKUL
+    <ul>
+        <li>MEZUNİYET
+            <ul>
+                <li>ALBÜM ÖRNEKLERİ
+                    <ul>
+                        <li><a href="https://drive.google.com/drive/folders/10ehAdFq_G5rPlXRpkZtANYc__R_upY-9?usp=drive_link">2+1 ALBÜM MODEL 2</a></li>
+                        <li><a href="3plus1-album.html">3+1 ALBÜM</a></li>
+                        <li><a href="10plus1-album.html">10+1 ALBÜM</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+
+        <li>ÖĞRENCİ ÇEKİMLERİ
+            <ul>
+                <li>VİDEO</li>
+                <li>FOTOĞRAF</li>
+                <li>KLİP</li>
+            </ul>
+        </li>
+        <li>ETKİNLİK ÇEKİMLERİ
+            <ul>
+                <li>VİDEO</li>
+                <li>FOTOĞRAF</li>
+                <li>KLİP</li>
+            </ul>
+        </li>
+    </ul>
+</li>
 <li onclick="showMaintenanceMessage('KURUMSAL')">KURUMSAL</li>
 <li onclick="showMaintenanceMessage('STUDYO')">STUDYO</li>
         <li onclick="toggleMenu(event)">ORGANİZASYON
@@ -2056,5 +2098,4 @@ document.getElementById('whatsappLink').addEventListener('click', function(e) {
 
 </body>
 </html>
-
 
