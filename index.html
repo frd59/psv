@@ -351,18 +351,21 @@
 
 <script>
   // Firebase Configuration - Bu kısmı kendi Firebase projenizin bilgileriyle değiştirin
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
-  };
+// Firebase yapılandırma bilgileri
+        const firebaseConfig = {
+            apiKey: "AIzaSyDMMpU1l8zabgaw7bfSHKCOxLbz-RhNT7I",
+            authDomain: "databasepsv-dc1b7.firebaseapp.com",
+            databaseURL: "https://databasepsv-dc1b7-default-rtdb.firebaseio.com",
+            projectId: "databasepsv-dc1b7",
+            storageBucket: "databasepsv-dc1b7.firebasestorage.app",
+            messagingSenderId: "106474799557",
+            appId: "1:106474799557:web:8f7cff2b7ef8466ab08bac",
+            measurementId: "G-BKKE9YZS1T"
+        };
 
-  // Firebase'i başlat
-  let db;
-  let firebaseConnected = false;
+        // Firebase başlatma
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
   try {
     firebase.initializeApp(firebaseConfig);
