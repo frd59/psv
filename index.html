@@ -54,6 +54,47 @@
       min-height: 180px;
     }
 
+    /* Loading spinner */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #007bff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .loading-text {
+      color: #666;
+      font-style: italic;
+      text-align: center;
+      padding: 20px;
+    }
+
+    /* Firebase bağlantı durumu */
+    .firebase-status {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: bold;
+      z-index: 1000;
+    }
+    .firebase-connected {
+      background-color: #28a745;
+      color: white;
+    }
+    .firebase-disconnected {
+      background-color: #dc3545;
+      color: white;
+    }
+
     /* Kart stil */
     .card-container {
       margin-top: 15px;
@@ -208,6 +249,10 @@
   </style>
 </head>
 <body>
+  <!-- Firebase bağlantı durumu -->
+  <div id="firebaseStatus" class="firebase-status firebase-disconnected">
+    🔴 Firebase Bağlanıyor...
+  </div>
 
   <div class="container">
     <div class="logo">
@@ -244,7 +289,7 @@
     <label>Referans Kişi</label>
     <input type="text" id="referans" placeholder="Seni öneren kişi (isteğe bağlı)" />
 
-    <button onclick="teklifHazirla()">TEKLİFİ OLUŞTUR</button>
+    <button onclick="teklifHazirla()" id="teklifBtn">TEKLİFİ OLUŞTUR</button>
 
     <div id="output"></div>
 
@@ -300,7 +345,49 @@
     <!-- PDF içeriği buraya dinamik olarak eklenecek -->
   </div>
 
+  <!-- Firebase SDK -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
+
 <script>
+  // Firebase Configuration - Bu kısmı kendi Firebase projenizin bilgileriyle değiştirin
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  // Firebase'i başlat
+  let db;
+  let firebaseConnected = false;
+
+  try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    firebaseConnected = true;
+    updateFirebaseStatus(true);
+    console.log("Firebase başarıyla bağlandı!");
+  } catch (error) {
+    console.error("Firebase bağlantı hatası:", error);
+    updateFirebaseStatus(false);
+    // Firebase bağlantısı yoksa yerel depolama kullan
+    alert("Firebase bağlantısı kurulamadı. Veriler geçici olarak tarayıcıda saklanacak.");
+  }
+
+  function updateFirebaseStatus(connected) {
+    const statusEl = document.getElementById('firebaseStatus');
+    if (connected) {
+      statusEl.textContent = '🟢 Firebase Bağlı';
+      statusEl.className = 'firebase-status firebase-connected';
+    } else {
+      statusEl.textContent = '🔴 Firebase Bağlantısız';
+      statusEl.className = 'firebase-status firebase-disconnected';
+    }
+  }
+
   const paketler = {
     bronze: {
       fiyat: 3000,
@@ -319,6 +406,63 @@
   let teklifler = [];
   let sozlesmeler = [];
   let duzenlenenTeklifId = null;
+
+  // Sayfa yüklendiğinde verileri çek
+  window.addEventListener('load', async () => {
+    await veriCek();
+  });
+
+  // Firebase'den verileri çek
+  async function veriCek() {
+    if (!firebaseConnected) {
+      console.log("Firebase bağlantısı yok, yerel veriler kullanılıyor.");
+      return;
+    }
+
+    try {
+      showLoading("tekliflerListesi");
+      showLoading("sozlesmelerListesi");
+
+      // Teklifleri çek
+      const teklifSnapshot = await db.collection('teklifler').orderBy('createdAt', 'desc').get();
+      teklifler = [];
+      teklifSnapshot.forEach(doc => {
+        teklifler.push({
+          id: doc.id,
+          ...doc.data()
+        });
+      });
+
+      // Sözleşmeleri çek
+      const sozlesmeSnapshot = await db.collection('sozlesmeler').orderBy('createdAt', 'desc').get();
+      sozlesmeler = [];
+      sozlesmeSnapshot.forEach(doc => {
+        sozlesmeler.push({
+          id: doc.id,
+          ...doc.data()
+        });
+      });
+
+      renderTeklifler();
+      renderSozlesmeler();
+    } catch (error) {
+      console.error("Veri çekme hatası:", error);
+      document.getElementById('output').innerHTML = `
+        <div style="color: red; padding: 10px; border: 1px solid red; border-radius: 5px;">
+          ❌ Veriler yüklenirken hata oluştu: ${error.message}
+        </div>
+      `;
+    }
+  }
+
+  function showLoading(containerId) {
+    document.getElementById(containerId).innerHTML = `
+      <div class="loading-text">
+        <div class="loading"></div>
+        Veriler yükleniyor...
+      </div>
+    `;
+  }
 
   // Accordion aç/kapa
   document.querySelectorAll(".accordion").forEach(button => {
@@ -349,12 +493,17 @@
     }
   }
 
-  function teklifHazirla() {
+  async function teklifHazirla() {
     const ad = document.getElementById("ad").value.trim();
     if (!ad) {
       alert("Müşteri adı boş bırakılamaz!");
       return;
     }
+
+    const btn = document.getElementById("teklifBtn");
+    btn.disabled = true;
+    btn.innerHTML = '<div class="loading"></div> Teklif Oluşturuluyor...';
+
     const cekim = document.getElementById("cekim").value
       .split(',')
       .map(c => c.trim())
@@ -370,24 +519,55 @@
     const bugun = new Date().toLocaleDateString('tr-TR');
 
     const teklif = {
-      id: Date.now(),
       ad, cekim, paket, yer, tarih, fiyat, aciklama, referans, bugun,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
-    teklifler.push(teklif);
 
-    renderTeklifler();
+    try {
+      if (firebaseConnected) {
+        // Firebase'e kaydet
+        const docRef = await db.collection('teklifler').add(teklif);
+        teklif.id = docRef.id;
+      } else {
+        // Yerel olarak kaydet
+        teklif.id = Date.now().toString();
+      }
+      
+      teklifler.unshift(teklif);
+      renderTeklifler();
 
-    document.getElementById("output").innerHTML = "Teklif başarıyla oluşturuldu! Aşağıda listede görebilirsiniz.";
+      document.getElementById("output").innerHTML = `
+        <div style="color: green; padding: 10px; border: 1px solid green; border-radius: 5px;">
+          ✅ Teklif başarıyla oluşturuldu!
+        </div>
+      `;
 
-    // Formu temizle
-    ["ad", "cekim", "paket", "yer", "tarih", "fiyat", "aciklama", "referans"].forEach(id => {
-      if(id === "paket") document.getElementById(id).value = "";
-      else document.getElementById(id).value = "";
-    });
+      // Formu temizle
+      ["ad", "cekim", "paket", "yer", "tarih", "fiyat", "aciklama", "referans"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
+
+    } catch (error) {
+      console.error("Teklif kaydetme hatası:", error);
+      document.getElementById("output").innerHTML = `
+        <div style="color: red; padding: 10px; border: 1px solid red; border-radius: 5px;">
+          ❌ Teklif kaydedilirken hata oluştu: ${error.message}
+        </div>
+      `;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'TEKLİFİ OLUŞTUR';
+    }
   }
 
   function renderTeklifler() {
     const container = document.getElementById("tekliflerListesi");
+    
+    if (teklifler.length === 0) {
+      container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Henüz teklif bulunmamaktadır.</p>';
+      return;
+    }
+
     container.innerHTML = "";
     teklifler.forEach(teklif => {
       const card = document.createElement("div");
@@ -400,10 +580,10 @@
         <p><strong>Etkinlik Yeri:</strong> ${teklif.yer}</p>
         <p><strong>Tarih:</strong> ${teklif.tarih}</p>
         <p><strong>Fiyat:</strong> ${teklif.fiyat} TL</p>
-        <button onclick="teklifiGoster(${teklif.id})">Teklifi Göster</button>
-        <button onclick="pdfOlusturVePaylas(${teklif.id})">PDF Kaydet ve Paylaş</button>
-        <button onclick="teklifiDuzenle(${teklif.id})">Düzenle</button>
-        <button onclick="teklifiKabulEt(${teklif.id})">Sözleşmeye Dönüştür</button>
+        <button onclick="teklifiGoster('${teklif.id}')">Teklifi Göster</button>
+        <button onclick="pdfOlusturVePaylas('${teklif.id}')">PDF Kaydet ve Paylaş</button>
+        <button onclick="teklifiDuzenle('${teklif.id}')">Düzenle</button>
+        <button onclick="teklifiKabulEt('${teklif.id}')">Sözleşmeye Dönüştür</button>
       `;
 
       container.appendChild(card);
@@ -428,7 +608,7 @@
           <p><strong>📅 Tarih:</strong> ${teklif.tarih}</p>
           <p><strong>💰 Fiyat:</strong> ${teklif.fiyat} TL</p>
           <p><strong>📝 Açıklama:</strong><br>${teklif.aciklama}</p>
-          ${teklif.referans.trim() !== "" ? `<p><strong>👥 Referans:</strong> ${teklif.referans}</p>` : ""}
+          ${teklif.referans && teklif.referans.trim() !== "" ? `<p><strong>👥 Referans:</strong> ${teklif.referans}</p>` : ""}
         </div>
         <div style="margin-top:30px; text-align:center; font-size:14px; color:#666;">
           Bu teklif <strong>${teklif.bugun}</strong> tarihinde hazırlanmıştır.<br>
@@ -458,7 +638,7 @@
         <p><strong>📅 Tarih:</strong> ${teklif.tarih}</p>
         <p><strong>💰 Fiyat:</strong> ${teklif.fiyat} TL</p>
         <p><strong>📝 Açıklama:</strong><br>${teklif.aciklama}</p>
-        ${teklif.referans.trim() !== "" ? `<p><strong>👥 Referans:</strong> ${teklif.referans}</p>` : ""}
+        ${teklif.referans && teklif.referans.trim() !== "" ? `<p><strong>👥 Referans:</strong> ${teklif.referans}</p>` : ""}
       </div>
       <div class="pdf-footer">
         <p>Bu teklif <strong>${teklif.bugun}</strong> tarihinde hazırlanmıştır.</p>
@@ -497,7 +677,7 @@
     mesaj += `Tarih: ${teklif.tarih}\n`;
     mesaj += `Fiyat: ${teklif.fiyat} TL\n`;
     mesaj += `Açıklama: ${teklif.aciklama.replace(/<br>/g, '\n')}\n`;
-    if (teklif.referans.trim() !== "") {
+    if (teklif.referans && teklif.referans.trim() !== "") {
       mesaj += `Referans: ${teklif.referans}\n`;
     }
     mesaj += `\n📄 Detaylı teklif PDF'i ekte gönderilmiştir.\n\nFotoğrafçı: Ferdi Kabalı`;
