@@ -348,7 +348,6 @@
 
 <script>
  
-// Firebase yapılandırma bilgileri
         const firebaseConfig = {
             apiKey: "AIzaSyDMMpU1l8zabgaw7bfSHKCOxLbz-RhNT7I",
             authDomain: "databasepsv-dc1b7.firebaseapp.com",
@@ -363,6 +362,37 @@
         // Firebase başlatma
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+
+        // Veri kaydetme fonksiyonu
+        async function saveData(newData) {
+            try {
+                const docRef = db.collection('links').doc('data');
+                const existingData = await fetchData();
+                const updatedData = { ...existingData, ...newData };
+
+                await docRef.set(updatedData);  // Firebase'e veri kaydetme
+                alert("Veriler başarıyla kaydedildi!");
+            } catch (error) {
+                console.error("Veri kaydetme hatası:", error);
+            }
+        }
+
+        // Veri alma fonksiyonu
+        async function fetchData() {
+            try {
+                const docRef = db.collection('links').doc('data');
+                const docSnap = await docRef.get();
+                if (docSnap.exists) {
+                    console.log("Veriler:", docSnap.data());
+                    return docSnap.data();
+                } else {
+                    console.error("Veri bulunamadı!");
+                    return {};  // Veri bulunamadığında boş bir nesne döner
+                }
+            } catch (error) {
+                console.error("Veri alma hatası:", error);
+            }
+        }
 
   try {
     firebase.initializeApp(firebaseConfig);
