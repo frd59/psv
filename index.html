@@ -441,6 +441,9 @@
   <!-- Firebase SDK -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 
 <script>
   // Firebase Configuration
@@ -1057,11 +1060,13 @@ async function teklifiSil(id) {
     }
   }
 
-  function pdfOlusturVePaylas(id) {
-    const teklif = teklifler.find(t => t.id === id);
-    if (!teklif) return;
+ function pdfOlusturVePaylas(id) {
+  const teklif = teklifler.find(t => t.id === id);
+  if (!teklif) return;
 
     const pdfContent = document.getElementById('pdfContent');
+    html2pdf().from(pdfContent).save(`${teklif.ad}_teklif.pdf`);
+  pdfContent.style.display = 'block';
     pdfContent.innerHTML = `
       <div class="pdf-header">
         <img src="https://i.hizliresim.com/eqyhuxx.png" alt="Logo" />
