@@ -1060,45 +1060,43 @@ async function teklifiSil(id) {
   }
 
 function pdfOlusturVeKaydet(id) {
-  const teklif = teklifler.find(t => t.id === id);
-  if (!teklif) return;
+    const teklif = teklifler.find(t => t.id === id);
+    if (!teklif) return;
 
-  const pdfContent = document.getElementById('pdfContent');
-  pdfContent.innerHTML = `
-    <div class="pdf-header">
-      <img src="https://i.hizliresim.com/eqyhuxx.png" alt="Logo" />
-      <h1 class="pdf-title">TEKLİF FORMU</h1>
-    </div>
-    <div class="pdf-body">
-      <p><strong>Müşteri Adı:</strong> ${teklif.ad}</p>
-      <p><strong>Çekim Türü:</strong></p>
-      <div style="margin-left: 20px;">${teklif.cekim}</div>
-      <p><strong>Paket:</strong> ${teklif.paket}</p>
-      <p><strong>Etkinlik Yeri:</strong> ${teklif.yer}</p>
-      <p><strong>Tarih:</strong> ${teklif.tarih}</p>
-      <p><strong>Fiyat:</strong> ${teklif.fiyat} TL</p>
-      <p><strong>Açıklama:</strong></p>
-      <div style="margin-left: 20px;">${teklif.aciklama}</div>
-      ${teklif.referans ? `<p><strong>Referans:</strong> ${teklif.referans}</p>` : ''}
-    </div>
-    <div class="pdf-footer">
-      <p>Teklif Tarihi: ${teklif.bugun}</p>
-      <p>Bu teklif 30 gün geçerlidir.</p>
-    </div>
-  `;
+    const pdfContent = document.getElementById('pdfContent');
+    pdfContent.innerHTML = `
+      <div class="pdf-header">
+        <img src="https://i.hizliresim.com/eqyhuxx.png" alt="Logo" />
+        <h1 class="pdf-title">TEKLİF FORMU</h1>
+      </div>
+      <div class="pdf-body">
+        <p><strong>Müşteri Adı:</strong> ${teklif.ad}</p>
+        <p><strong>Çekim Türü:</strong></p>
+        <div style="margin-left: 20px;">${teklif.cekim}</div>
+        <p><strong>Paket:</strong> ${teklif.paket}</p>
+        <p><strong>Etkinlik Yeri:</strong> ${teklif.yer}</p>
+        <p><strong>Tarih:</strong> ${teklif.tarih}</p>
+        <p><strong>Fiyat:</strong> ${teklif.fiyat} TL</p>
+        <p><strong>Açıklama:</strong></p>
+        <div style="margin-left: 20px;">${teklif.aciklama}</div>
+        ${teklif.referans ? `<p><strong>Referans:</strong> ${teklif.referans}</p>` : ''}
+      </div>
+      <div class="pdf-footer">
+        <p>Teklif Tarihi: ${teklif.bugun}</p>
+        <p>Bu teklif 30 gün geçerlidir.</p>
+      </div>
+    `;
 
-  pdfContent.style.display = 'block';
+    pdfContent.style.display = 'block';
 
-  html2canvas(pdfContent).then(canvas => {
-    const link = document.createElement('a');
-    link.download = `${teklif.ad}_teklif.png`;
-    link.href = canvas.toDataURL();
-    link.click();
-
-    pdfContent.style.display = 'none';
-  });
-}
-
+    html2canvas(pdfContent).then(canvas => {
+      const link = document.createElement('a');
+      link.download = `${teklif.ad}_teklif.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+      pdfContent.style.display = 'none';
+    });
+  }
   function sozlesmePdfOlustur(id) {
     const sozlesme = sozlesmeler.find(s => s.id === id);
     if (!sozlesme) return;
