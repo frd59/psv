@@ -252,7 +252,8 @@
     }
     
     .pdf-header {
-      text-align: center;
+      text-align: center
+      
       margin-bottom: 30px;
       border-bottom: 2px solid #007bff;
       padding-bottom: 20px;
@@ -380,6 +381,7 @@
         <input type="text" id="teklifArama" class="search-input" placeholder="Müşteri adı, paket, yer ile arayın...">
         <button onclick="teklifAra()" class="search-btn">🔍 Ara</button>
         <button onclick="aramaTemizle('teklif')" class="clear-btn">Temizle</button>
+        
       </div>
       <div id="tekliflerListesi" class="list-container"></div>
     </div>
@@ -692,6 +694,8 @@
             <button onclick="pdfOlusturVePaylas('${teklif.id}')" class="btn-pdf" title="PDF">📄</button>
             <button onclick="teklifiDuzenle('${teklif.id}')" class="btn-edit" title="Düzenle">✏</button>
             <button onclick="teklifiKabulEt('${teklif.id}')" class="btn-contract" title="Sözleşme">📋</button>
+			<button onclick="teklifiSil('${teklif.id}')" class="btn-delete" title="Sil">🗑</button>
+
           </div>
         </div>
       `;
@@ -833,6 +837,40 @@
       </div>
     `;
   }
+
+
+async function teklifiSil(id) {
+  const teklif = teklifler.find(t => t.id === id);
+  if (!teklif) return;
+
+  if (!confirm(`${teklif.ad} müşterisinin teklifini silmek istediğinizden emin misiniz?`)) {
+    return;
+  }
+
+  try {
+    if (firebaseConnected) {
+      await db.collection('teklifler').doc(id).delete();
+    }
+
+    teklifler = teklifler.filter(t => t.id !== id);
+    filtreliTeklifler = [...teklifler];
+    renderTeklifler();
+
+    document.getElementById("output").innerHTML = `
+      <div style="color: green; padding: 10px; border: 1px solid green; border-radius: 5px;">
+        ✅ Teklif başarıyla silindi!
+      </div>
+    `;
+  } catch (error) {
+    console.error("Silme hatası:", error);
+    document.getElementById("output").innerHTML = `
+      <div style="color: red; padding: 10px; border: 1px solid red; border-radius: 5px;">
+        ❌ Teklif silinirken hata oluştu: ${error.message}
+      </div>
+    `;
+  }
+}
+
 
   function sozlesmeGoster(id) {
     const sozlesme = sozlesmeler.find(s => s.id === id);
