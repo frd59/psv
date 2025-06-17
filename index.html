@@ -441,8 +441,6 @@
   <!-- Firebase SDK -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
 
 <script>
   // Firebase Configuration
@@ -1059,7 +1057,7 @@ async function teklifiSil(id) {
     }
   }
 
-function pdfOlusturVeKaydet(id) {
+  function pdfOlusturVePaylas(id) {
     const teklif = teklifler.find(t => t.id === id);
     if (!teklif) return;
 
@@ -1069,6 +1067,7 @@ function pdfOlusturVeKaydet(id) {
         <img src="https://i.hizliresim.com/eqyhuxx.png" alt="Logo" />
         <h1 class="pdf-title">TEKLİF FORMU</h1>
       </div>
+      
       <div class="pdf-body">
         <p><strong>Müşteri Adı:</strong> ${teklif.ad}</p>
         <p><strong>Çekim Türü:</strong></p>
@@ -1081,22 +1080,19 @@ function pdfOlusturVeKaydet(id) {
         <div style="margin-left: 20px;">${teklif.aciklama}</div>
         ${teklif.referans ? `<p><strong>Referans:</strong> ${teklif.referans}</p>` : ''}
       </div>
+      
       <div class="pdf-footer">
         <p>Teklif Tarihi: ${teklif.bugun}</p>
         <p>Bu teklif 30 gün geçerlidir.</p>
       </div>
     `;
 
+    // PDF'i göster ve yazdır
     pdfContent.style.display = 'block';
-
-    html2canvas(pdfContent).then(canvas => {
-      const link = document.createElement('a');
-      link.download = `${teklif.ad}_teklif.png`;
-      link.href = canvas.toDataURL();
-      link.click();
-      pdfContent.style.display = 'none';
-    });
+    window.print();
+    pdfContent.style.display = 'none';
   }
+
   function sozlesmePdfOlustur(id) {
     const sozlesme = sozlesmeler.find(s => s.id === id);
     if (!sozlesme) return;
