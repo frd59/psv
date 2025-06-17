@@ -351,9 +351,9 @@
     <label>Paket Seçimi</label>
     <select id="paket" onchange="paketBilgisiYukle()">
       <option value="">-- Paket Seçin --</option>
-      <option value="bronze">Bronze</option>
-      <option value="silver">Silver</option>
-      <option value="gold">Gold</option>
+      <option value="s">Standart Ekip</option>
+      <option value="silver">Profesyonel Ekip</option>
+
     </select>
 
     <label>Etkinlik Yeri</label>
@@ -408,9 +408,9 @@
       <label>Paket Seçimi</label>
       <select id="editPaket" onchange="editPaketBilgisiYukle()">
         <option value="">-- Paket Seçin --</option>
-        <option value="bronze">Bronze</option>
-        <option value="silver">Silver</option>
-        <option value="gold">Gold</option>
+        <option value="Standart Ekip">Standart Ekip</option>
+        <option value="Profesyonel Ekip">Profesyonel Ekip</option>
+    
       </select>
 
       <label>Etkinlik Yeri</label>
@@ -483,17 +483,21 @@
   }
 
   const paketler = {
-    bronze: {
-      fiyat: 3000,
-      aciklama: "2 saat çekim, 30 düzenlenmiş fotoğraf, 1 dakikalık reels"
+    Standart Ekip: {
+      fiyat: ,
+      aciklama: ""
     },
-    silver: {
-      fiyat: 5000,
-      aciklama: "4 saat çekim, 60 düzenlenmiş fotoğraf, 2 dakikalık klip"
+    Profesyonel Ekip: {
+      fiyat: 
+	      ,
+      aciklama: "
+	      "
     },
     gold: {
-      fiyat: 8000,
-      aciklama: "Tüm gün çekim, 100+ fotoğraf, drone + 3 dakikalık klip"
+      fiyat: 
+	      ,
+      aciklama: "
+	      "
     }
   };
 
