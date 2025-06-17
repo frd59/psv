@@ -1067,6 +1067,9 @@ async function teklifiSil(id) {
     const pdfContent = document.getElementById('pdfContent');
     html2pdf().from(pdfContent).save(`${teklif.ad}_teklif.pdf`);
   pdfContent.style.display = 'block';
+	   alert("PDF görünümüne geçildi. Ekran görüntüsü alarak paylaşabilirsiniz.");
+  // window.print(); // Bunu kullanma!
+}
     pdfContent.innerHTML = `
       <div class="pdf-header">
         <img src="https://i.hizliresim.com/eqyhuxx.png" alt="Logo" />
