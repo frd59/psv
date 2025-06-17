@@ -441,7 +441,8 @@
   <!-- Firebase SDK -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 
 <script>
   // Firebase Configuration
@@ -1058,7 +1059,7 @@ async function teklifiSil(id) {
     }
   }
 
-function pdfOlusturVePaylas(id) {
+function pdfOlusturVeKaydet(id) {
   const teklif = teklifler.find(t => t.id === id);
   if (!teklif) return;
 
@@ -1086,14 +1087,16 @@ function pdfOlusturVePaylas(id) {
     </div>
   `;
 
-  // PDF oluştur ve indir
-  html2pdf().set({
-    margin: 0.5,
-    filename: `${teklif.ad}_teklif.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-  }).from(pdfContent).save();
+  pdfContent.style.display = 'block';
+
+  html2canvas(pdfContent).then(canvas => {
+    const link = document.createElement('a');
+    link.download = `${teklif.ad}_teklif.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+
+    pdfContent.style.display = 'none';
+  });
 }
 
   function sozlesmePdfOlustur(id) {
