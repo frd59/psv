@@ -351,9 +351,9 @@
     <label>Paket Seçimi</label>
     <select id="paket" onchange="paketBilgisiYukle()">
       <option value="">-- Paket Seçin --</option>
-      <option value="s">Standart Ekip</option>
-      <option value="silver">Profesyonel Ekip</option>
-
+      <option value="Standart Ekip">Standart Ekip</option>
+      <option value="Profesyonel Ekip">Profesyonel Ekip</option>
+   
     </select>
 
     <label>Etkinlik Yeri</label>
@@ -408,9 +408,9 @@
       <label>Paket Seçimi</label>
       <select id="editPaket" onchange="editPaketBilgisiYukle()">
         <option value="">-- Paket Seçin --</option>
-        <option value="Standart Ekip">Standart Ekip</option>
-        <option value="Profesyonel Ekip">Profesyonel Ekip</option>
-    
+        <option value="StandartEkip">Standart Ekip</option>
+        <option value="ProfesyonelEkip">Profesyonel Ekip</option>
+       
       </select>
 
       <label>Etkinlik Yeri</label>
@@ -482,7 +482,17 @@
     }
   }
 
+  const paketler = {
+    StandartEkip: {
+      fiyat: 3000,
+      aciklama: "2 saat çekim, 30 düzenlenmiş fotoğraf, 1 dakikalık reels"
+    },
+    ProfesyonelEkip: {
+      fiyat: 5000,
+      aciklama: "4 saat çekim, 60 düzenlenmiş fotoğraf, 2 dakikalık klip"
+    },
 
+  };
 
   let teklifler = [];
   let sozlesmeler = [];
