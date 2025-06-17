@@ -441,8 +441,6 @@
   <!-- Firebase SDK -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
-  <script src="https://apis.google.com/js/api.js"></script>
-
 
 <script>
   // Firebase Configuration
@@ -483,52 +481,6 @@
       statusEl.className = 'firebase-status firebase-disconnected';
     }
   }
-  
-  
-   // Google API ayarları
-const CLIENT_ID = '270944409412-g5p51bra8t2cedq1h3mrdobd4dtm871o.apps.googleusercontent.com'; // kendi client ID
-const SCOPES = 'https://www.googleapis.com/auth/calendar';
-
-function googleTakvimGirisYap(callback) {
-  gapi.load('client:auth2', () => {
-    gapi.client.init({
-      clientId: CLIENT_ID,
-      scope: SCOPES
-    }).then(() => {
-      const authInstance = gapi.auth2.getAuthInstance();
-      if (!authInstance.isSignedIn.get()) {
-        authInstance.signIn().then(callback);
-      } else {
-        callback();
-      }
-    });
-  });
-}
-
-// Takvime etkinlik ekle
-function googleTakvimeEkle(teklif, renkKodu = '9') {
-  gapi.client.calendar.events.insert({
-    calendarId: 'primary',
-    resource: {
-      summary: `Teklif: ${teklif.ad}`,
-      description: teklif.aciklama,
-      start: {
-        date: teklif.tarih,
-        timeZone: 'Europe/Istanbul'
-      },
-      end: {
-        date: teklif.tarih,
-        timeZone: 'Europe/Istanbul'
-      },
-      colorId: renkKodu
-    }
-  }).then(response => {
-    console.log('Etkinlik eklendi:', response);
-  }).catch(error => {
-    console.error('Takvim ekleme hatası:', error);
-  });
-}
-
 
   const paketler = {
     bronze: {
@@ -1195,11 +1147,7 @@ async function teklifiSil(id) {
     pdfContent.style.display = 'block';
     window.print();
     pdfContent.style.display = 'none';
-	
   }
-  
- 
-
 </script>
 </body>
 </html>
