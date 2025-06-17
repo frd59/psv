@@ -10,7 +10,7 @@
       margin: 0; padding: 20px;
     }
     .container {
-      max-width: 800px;
+      max-width: 1200px;
       margin: auto;
       background: white;
       padding: 30px;
@@ -95,32 +95,94 @@
       color: white;
     }
 
-    /* Kart stil */
-    .card-container {
+    /* Yeni Liste Tasarımı */
+    .search-container {
+      margin: 20px 0;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .search-input {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid #007bff;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    .search-btn {
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: auto;
+    }
+    .clear-btn {
+      padding: 10px 15px;
+      background: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: auto;
+    }
+
+    .list-container {
+      background: #f8f9fa;
+      border-radius: 8px;
+      overflow: hidden;
       margin-top: 15px;
     }
-    .card {
-      background: #fff;
-      border: 2px solid #007bff;
-      border-radius: 10px;
-      padding: 15px 20px;
-      margin-bottom: 15px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    .card h3 {
-      margin-top: 0;
-      color: #007bff;
-    }
-    .card p {
-      margin: 6px 0;
-      color: #333;
-    }
-    .card button {
-      margin-right: 10px;
-      margin-top: 10px;
-      width: auto;
-      padding: 6px 14px;
+    .list-header {
+      background: #007bff;
+      color: white;
+      padding: 15px;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr 150px;
+      gap: 10px;
+      font-weight: bold;
       font-size: 14px;
+    }
+    .list-item {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e9ecef;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr 150px;
+      gap: 10px;
+      align-items: center;
+      background: white;
+      transition: background-color 0.2s;
+      font-size: 14px;
+    }
+    .list-item:hover {
+      background-color: #f8f9fa;
+    }
+    .list-item:last-child {
+      border-bottom: none;
+    }
+    .list-actions {
+      display: flex;
+      gap: 5px;
+    }
+    .list-actions button {
+      padding: 4px 8px;
+      font-size: 12px;
+      border-radius: 3px;
+      width: auto;
+      margin: 0;
+    }
+    .btn-view { background: #17a2b8; }
+    .btn-edit { background: #ffc107; color: #212529; }
+    .btn-delete { background: #dc3545; }
+    .btn-contract { background: #28a745; }
+    .btn-pdf { background: #6c757d; }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #6c757d;
+      font-style: italic;
     }
 
     /* Accordion Menü */
@@ -146,7 +208,7 @@
       background-color: #00408d;
     }
     .panel {
-      padding: 0 20px 15px 20px;
+      padding: 0;
       display: none;
       background-color: white;
       overflow: hidden;
@@ -229,6 +291,25 @@
       padding-top: 20px;
     }
 
+    /* Responsive */
+    @media (max-width: 768px) {
+      .list-header, .list-item {
+        grid-template-columns: 1fr;
+        gap: 5px;
+      }
+      .list-header {
+        display: none;
+      }
+      .list-item {
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+      .search-container {
+        flex-direction: column;
+      }
+    }
+
     /* Yazdır için gizle */
     @media print {
       body * {
@@ -295,12 +376,22 @@
 
     <button class="accordion">Teklifler</button>
     <div class="panel" id="tekliflerPanel">
-      <div id="tekliflerListesi" class="card-container"></div>
+      <div class="search-container">
+        <input type="text" id="teklifArama" class="search-input" placeholder="Müşteri adı, paket, yer ile arayın...">
+        <button onclick="teklifAra()" class="search-btn">🔍 Ara</button>
+        <button onclick="aramaTemizle('teklif')" class="clear-btn">Temizle</button>
+      </div>
+      <div id="tekliflerListesi" class="list-container"></div>
     </div>
 
     <button class="accordion">Sözleşmeler</button>
     <div class="panel" id="sozlesmelerPanel">
-      <div id="sozlesmelerListesi" class="card-container"></div>
+      <div class="search-container">
+        <input type="text" id="sozlesmeArama" class="search-input" placeholder="Müşteri adı, paket, yer ile arayın...">
+        <button onclick="sozlesmeAra()" class="search-btn">🔍 Ara</button>
+        <button onclick="aramaTemizle('sozlesme')" class="clear-btn">Temizle</button>
+      </div>
+      <div id="sozlesmelerListesi" class="list-container"></div>
     </div>
 
     <!-- Düzenleme Formu (gizli) -->
@@ -350,17 +441,17 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
 
 <script>
-  // Firebase Configuration - Bu kısmı kendi Firebase projenizin bilgileriyle değiştirin
-       const firebaseConfig = {
-            apiKey: "AIzaSyDMMpU1l8zabgaw7bfSHKCOxLbz-RhNT7I",
-            authDomain: "databasepsv-dc1b7.firebaseapp.com",
-            databaseURL: "https://databasepsv-dc1b7-default-rtdb.firebaseio.com",
-            projectId: "databasepsv-dc1b7",
-            storageBucket: "databasepsv-dc1b7.firebasestorage.app",
-            messagingSenderId: "106474799557",
-            appId: "1:106474799557:web:8f7cff2b7ef8466ab08bac",
-            measurementId: "G-BKKE9YZS1T"
-        };
+  // Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDMMpU1l8zabgaw7bfSHKCOxLbz-RhNT7I",
+    authDomain: "databasepsv-dc1b7.firebaseapp.com",
+    databaseURL: "https://databasepsv-dc1b7-default-rtdb.firebaseio.com",
+    projectId: "databasepsv-dc1b7",
+    storageBucket: "databasepsv-dc1b7.firebasestorage.app",
+    messagingSenderId: "106474799557",
+    appId: "1:106474799557:web:8f7cff2b7ef8466ab08bac",
+    measurementId: "G-BKKE9YZS1T"
+  };
 
   // Firebase'i başlat
   let db;
@@ -375,7 +466,6 @@
   } catch (error) {
     console.error("Firebase bağlantı hatası:", error);
     updateFirebaseStatus(false);
-    // Firebase bağlantısı yoksa yerel depolama kullan
     alert("Firebase bağlantısı kurulamadı. Veriler geçici olarak tarayıcıda saklanacak.");
   }
 
@@ -408,6 +498,8 @@
   let teklifler = [];
   let sozlesmeler = [];
   let duzenlenenTeklifId = null;
+  let filtreliTeklifler = [];
+  let filtreliSozlesmeler = [];
 
   // Sayfa yüklendiğinde verileri çek
   window.addEventListener('load', async () => {
@@ -445,6 +537,8 @@
         });
       });
 
+      filtreliTeklifler = [...teklifler];
+      filtreliSozlesmeler = [...sozlesmeler];
       renderTeklifler();
       renderSozlesmeler();
     } catch (error) {
@@ -527,15 +621,14 @@
 
     try {
       if (firebaseConnected) {
-        // Firebase'e kaydet
         const docRef = await db.collection('teklifler').add(teklif);
         teklif.id = docRef.id;
       } else {
-        // Yerel olarak kaydet
         teklif.id = Date.now().toString();
       }
       
       teklifler.unshift(teklif);
+      filtreliTeklifler = [...teklifler];
       renderTeklifler();
 
       document.getElementById("output").innerHTML = `
@@ -562,144 +655,222 @@
     }
   }
 
+  // Yeni liste tasarımıyla teklifleri render et
   function renderTeklifler() {
     const container = document.getElementById("tekliflerListesi");
     
-    if (teklifler.length === 0) {
-      container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Henüz teklif bulunmamaktadır.</p>';
+    if (filtreliTeklifler.length === 0) {
+      container.innerHTML = '<div class="empty-state">Henüz teklif bulunmamaktadır.</div>';
       return;
     }
 
-    container.innerHTML = "";
-    teklifler.forEach(teklif => {
-      const card = document.createElement("div");
-      card.className = "card";
+    let html = `
+      <div class="list-header">
+        <div>Müşteri / Çekim</div>
+        <div>Paket</div>
+        <div>Yer</div>
+        <div>Tarih</div>
+        <div>Fiyat</div>
+        <div>İşlemler</div>
+      </div>
+    `;
 
-      card.innerHTML = `
-        <h3>${teklif.ad}</h3>
-        <p><strong>Çekim Türü:</strong><br>${teklif.cekim}</p>
-        <p><strong>Paket:</strong> ${teklif.paket}</p>
-        <p><strong>Etkinlik Yeri:</strong> ${teklif.yer}</p>
-        <p><strong>Tarih:</strong> ${teklif.tarih}</p>
-        <p><strong>Fiyat:</strong> ${teklif.fiyat} TL</p>
-        <button onclick="teklifiGoster('${teklif.id}')">Teklifi Göster</button>
-        <button onclick="pdfOlusturVePaylas('${teklif.id}')">PDF Kaydet ve Paylaş</button>
-        <button onclick="teklifiDuzenle('${teklif.id}')">Düzenle</button>
-        <button onclick="teklifiKabulEt('${teklif.id}')">Sözleşmeye Dönüştür</button>
+    filtreliTeklifler.forEach(teklif => {
+      const cekimKisa = teklif.cekim.replace(/<br>/g, ', ').replace(/- /g, '').substring(0, 30) + '...';
+      html += `
+        <div class="list-item">
+          <div>
+            <strong>${teklif.ad}</strong><br>
+            <small style="color: #666;">${cekimKisa}</small>
+          </div>
+          <div>${teklif.paket}</div>
+          <div>${teklif.yer}</div>
+          <div>${teklif.tarih}</div>
+          <div><strong>${teklif.fiyat} TL</strong></div>
+          <div class="list-actions">
+            <button onclick="teklifiGoster('${teklif.id}')" class="btn-view" title="Görüntüle">👁</button>
+            <button onclick="pdfOlusturVePaylas('${teklif.id}')" class="btn-pdf" title="PDF">📄</button>
+            <button onclick="teklifiDuzenle('${teklif.id}')" class="btn-edit" title="Düzenle">✏</button>
+            <button onclick="teklifiKabulEt('${teklif.id}')" class="btn-contract" title="Sözleşme">📋</button>
+          </div>
+        </div>
       `;
-
-      container.appendChild(card);
     });
+
+    container.innerHTML = html;
   }
+
+  // Yeni liste tasarımıyla sözleşmeleri render et
+  function renderSozlesmeler() {
+    const container = document.getElementById("sozlesmelerListesi");
+    
+    if (filtreliSozlesmeler.length === 0) {
+      container.innerHTML = '<div class="empty-state">Henüz sözleşme bulunmamaktadır.</div>';
+      return;
+    }
+
+    let html = `
+      <div class="list-header">
+        <div>Müşteri / Çekim</div>
+        <div>Paket</div>
+        <div>Yer</div>
+        <div>Tarih</div>
+        <div>Fiyat</div>
+        <div>İşlemler</div>
+      </div>
+    `;
+
+    filtreliSozlesmeler.forEach(sozlesme => {
+      const cekimKisa = sozlesme.cekim.replace(/<br>/g, ', ').replace(/- /g, '').substring(0, 30) + '...';
+      html += `
+        <div class="list-item">
+          <div>
+            <strong>${sozlesme.ad}</strong><br>
+            <small style="color: #666;">${cekimKisa}</small>
+          </div>
+          <div>${sozlesme.paket}</div>
+          <div>${sozlesme.yer}</div>
+          <div>${sozlesme.tarih}</div>
+          <div><strong>${sozlesme.fiyat} TL</strong></div>
+          <div class="list-actions">
+            <button onclick="sozlesmeGoster('${sozlesme.id}')" class="btn-view" title="Görüntüle">👁</button>
+            <button onclick="sozlesmePdfOlustur('${sozlesme.id}')" class="btn-pdf" title="PDF">📄</button>
+            <button onclick="sozlesmeSil('${sozlesme.id}')" class="btn-delete" title="Sil">🗑</button>
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+  }
+
+  // Arama fonksiyonları
+  function teklifAra() {
+    const arama = document.getElementById('teklifArama').value.toLowerCase().trim();
+    
+    if (!arama) {
+      filtreliTeklifler = [...teklifler];
+    } else {
+      filtreliTeklifler = teklifler.filter(teklif => 
+        teklif.ad.toLowerCase().includes(arama) ||
+        teklif.cekim.toLowerCase().includes(arama) ||
+        teklif.paket.toLowerCase().includes(arama) ||
+        teklif.yer.toLowerCase().includes(arama)
+      );
+    }
+    
+    renderTeklifler();
+  }
+
+  function sozlesmeAra() {
+    const arama = document.getElementById('sozlesmeArama').value.toLowerCase().trim();
+    
+    if (!arama) {
+      filtreliSozlesmeler = [...sozlesmeler];
+    } else {
+      filtreliSozlesmeler = sozlesmeler.filter(sozlesme => 
+        sozlesme.ad.toLowerCase().includes(arama) ||
+        sozlesme.cekim.toLowerCase().includes(arama) ||
+        sozlesme.paket.toLowerCase().includes(arama) ||
+        sozlesme.yer.toLowerCase().includes(arama)
+      );
+    }
+    
+    renderSozlesmeler();
+  }
+
+  function aramaTemizle(tip) {
+    if (tip === 'teklif') {
+      document.getElementById('teklifArama').value = '';
+      filtreliTeklifler = [...teklifler];
+      renderTeklifler();
+    } else {
+      document.getElementById('sozlesmeArama').value = '';
+      filtreliSozlesmeler = [...sozlesmeler];
+      renderSozlesmeler();
+    }
+  }
+
+ // Enter tuşu ile arama - devam eden kısım
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('teklifArama').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        teklifAra();
+      }
+    });
+    
+    document.getElementById('sozlesmeArama').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sozlesmeAra();
+      }
+    });
+  });
 
   function teklifiGoster(id) {
     const teklif = teklifler.find(t => t.id === id);
-    if (!teklif) return alert("Teklif bulunamadı.");
+    if (!teklif) return;
 
-    const html = `
-      <div style="border:2px solid #007bff; padding:20px; border-radius:10px; max-width:700px; margin:auto; background:#fff;">
-        <div style="text-align:center; margin-bottom:20px;">
-          <img src='https://i.hizliresim.com/eqyhuxx.png' style="max-height:80px;">
-          <h2 style="color:#007bff; margin:10px 0;">📸 FOTOĞRAFÇILIK HİZMET TEKLİFİ</h2>
+    document.getElementById("output").innerHTML = `
+      <div style="padding: 20px; border: 2px solid #007bff; border-radius: 10px; background: #f8f9fa;">
+        <h3 style="color: #007bff; text-align: center; margin-bottom: 20px;">TEKLİF DETAYI</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div><strong>Müşteri:</strong> ${teklif.ad}</div>
+          <div><strong>Paket:</strong> ${teklif.paket}</div>
+          <div><strong>Etkinlik Yeri:</strong> ${teklif.yer}</div>
+          <div><strong>Tarih:</strong> ${teklif.tarih}</div>
+          <div><strong>Fiyat:</strong> ${teklif.fiyat} TL</div>
+          <div><strong>Teklif Tarihi:</strong> ${teklif.bugun}</div>
         </div>
-        <div style="font-size:16px; color:#333; line-height:1.6;">
-          <p><strong>👤 Müşteri:</strong> ${teklif.ad}</p>
-          <p><strong>📷 Çekim Türü:</strong><br>${teklif.cekim}</p>
-          <p><strong>📦 Paket:</strong> ${teklif.paket}</p>
-          <p><strong>📍 Etkinlik Yeri:</strong> ${teklif.yer}</p>
-          <p><strong>📅 Tarih:</strong> ${teklif.tarih}</p>
-          <p><strong>💰 Fiyat:</strong> ${teklif.fiyat} TL</p>
-          <p><strong>📝 Açıklama:</strong><br>${teklif.aciklama}</p>
-          ${teklif.referans && teklif.referans.trim() !== "" ? `<p><strong>👥 Referans:</strong> ${teklif.referans}</p>` : ""}
+        <div style="margin-top: 15px;">
+          <div><strong>Çekim Türü:</strong></div>
+          <div style="margin-left: 10px;">${teklif.cekim}</div>
         </div>
-        <div style="margin-top:30px; text-align:center; font-size:14px; color:#666;">
-          Bu teklif <strong>${teklif.bugun}</strong> tarihinde hazırlanmıştır.<br>
-          Fotoğrafçı: <strong>PASOVART</strong> | Tüm hakları saklıdır.
+        <div style="margin-top: 15px;">
+          <div><strong>Açıklama:</strong></div>
+          <div style="margin-left: 10px;">${teklif.aciklama}</div>
         </div>
+        ${teklif.referans ? `<div style="margin-top: 15px;"><strong>Referans:</strong> ${teklif.referans}</div>` : ''}
       </div>
     `;
-    document.getElementById("output").innerHTML = html;
   }
 
-  function pdfOlusturVePaylas(id) {
-    const teklif = teklifler.find(t => t.id === id);
-    if (!teklif) return alert("Teklif bulunamadı.");
+  function sozlesmeGoster(id) {
+    const sozlesme = sozlesmeler.find(s => s.id === id);
+    if (!sozlesme) return;
 
-    // PDF içeriğini hazırla
-    const pdfContent = document.getElementById("pdfContent");
-    pdfContent.innerHTML = `
-      <div class="pdf-header">
-        <img src="https://i.hizliresim.com/eqyhuxx.png" alt="Logo">
-        <h1 class="pdf-title">📸 FOTOĞRAFÇILIK HİZMET TEKLİFİ</h1>
-      </div>
-      <div class="pdf-body">
-        <p><strong>👤 Müşteri:</strong> ${teklif.ad}</p>
-        <p><strong>📷 Çekim Türü:</strong><br>${teklif.cekim}</p>
-        <p><strong>📦 Paket:</strong> ${teklif.paket}</p>
-        <p><strong>📍 Etkinlik Yeri:</strong> ${teklif.yer}</p>
-        <p><strong>📅 Tarih:</strong> ${teklif.tarih}</p>
-        <p><strong>💰 Fiyat:</strong> ${teklif.fiyat} TL</p>
-        <p><strong>📝 Açıklama:</strong><br>${teklif.aciklama}</p>
-        ${teklif.referans && teklif.referans.trim() !== "" ? `<p><strong>👥 Referans:</strong> ${teklif.referans}</p>` : ""}
-      </div>
-      <div class="pdf-footer">
-        <p>Bu teklif <strong>${teklif.bugun}</strong> tarihinde hazırlanmıştır.</p>
-        <p>Fotoğrafçı: <strong>PASOVART</strong> | Tüm hakları saklıdır.</p>
+    document.getElementById("output").innerHTML = `
+      <div style="padding: 20px; border: 2px solid #28a745; border-radius: 10px; background: #f8fff8;">
+        <h3 style="color: #28a745; text-align: center; margin-bottom: 20px;">SÖZLEŞME DETAYI</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div><strong>Müşteri:</strong> ${sozlesme.ad}</div>
+          <div><strong>Paket:</strong> ${sozlesme.paket}</div>
+          <div><strong>Etkinlik Yeri:</strong> ${sozlesme.yer}</div>
+          <div><strong>Tarih:</strong> ${sozlesme.tarih}</div>
+          <div><strong>Fiyat:</strong> ${sozlesme.fiyat} TL</div>
+          <div><strong>Sözleşme Tarihi:</strong> ${sozlesme.bugun}</div>
+        </div>
+        <div style="margin-top: 15px;">
+          <div><strong>Çekim Türü:</strong></div>
+          <div style="margin-left: 10px;">${sozlesme.cekim}</div>
+        </div>
+        <div style="margin-top: 15px;">
+          <div><strong>Açıklama:</strong></div>
+          <div style="margin-left: 10px;">${sozlesme.aciklama}</div>
+        </div>
+        ${sozlesme.referans ? `<div style="margin-top: 15px;"><strong>Referans:</strong> ${sozlesme.referans}</div>` : ''}
       </div>
     `;
-
-    // PDF'i göster ve yazdır menüsünü aç
-    pdfContent.style.display = "block";
-    
-    // Kısa bir süre bekle ki içerik yüklensin
-    setTimeout(() => {
-      window.print();
-      
-      // Yazdırdıktan sonra WhatsApp paylaşımını sor
-      setTimeout(() => {
-        pdfContent.style.display = "none";
-        
-        if (confirm("PDF kaydedildi! Şimdi WhatsApp'ta paylaşmak ister misiniz?")) {
-          whatsappPaylas(id);
-        }
-      }, 1000);
-    }, 500);
   }
 
-  function whatsappPaylas(id) {
+  function teklifiDuzenle(id) {
     const teklif = teklifler.find(t => t.id === id);
-    if (!teklif) return alert("Teklif bulunamadı.");
-    
-    // WhatsApp mesaj metni hazırlama
-    let mesaj = `📸 Fotoğrafçılık Hizmet Teklifi\n\n`;
-    mesaj += `Müşteri: ${teklif.ad}\n`;
-    mesaj += `Çekim Türü: ${teklif.cekim.replace(/<br>/g, ', ').replace(/- /g,'')}\n`;
-    mesaj += `Paket: ${teklif.paket}\n`;
-    mesaj += `Etkinlik Yeri: ${teklif.yer}\n`;
-    mesaj += `Tarih: ${teklif.tarih}\n`;
-    mesaj += `Fiyat: ${teklif.fiyat} TL\n`;
-    mesaj += `Açıklama: ${teklif.aciklama.replace(/<br>/g, '\n')}\n`;
-    if (teklif.referans && teklif.referans.trim() !== "") {
-      mesaj += `Referans: ${teklif.referans}\n`;
-    }
-    mesaj += `\n📄 Detaylı teklif PDF'i ekte gönderilmiştir.\n\nFotoğrafçı: Ferdi Kabalı`;
-
-    const url = `https://wa.me/?text=${encodeURIComponent(mesaj)}`;
-    window.open(url, '_blank');
-  }
-
-function teklifiDuzenle(id) {
-    const teklif = teklifler.find(t => t.id === id);
-    if(!teklif) return alert("Teklif bulunamadı.");
+    if (!teklif) return;
 
     duzenlenenTeklifId = id;
 
-    // Açık panel varsa kapat (opsiyonel)
-    document.getElementById("output").innerHTML = "";
-
-    // Düzenleme formunu göster ve alanları doldur
+    // Formu doldur
     document.getElementById("editAd").value = teklif.ad;
-    document.getElementById("editCekim").value = teklif.cekim.replace(/- /g, '').replace(/<br>/g, ', ');
+    document.getElementById("editCekim").value = teklif.cekim.replace(/<br>/g, '\n').replace(/- /g, '');
     document.getElementById("editPaket").value = teklif.paket.toLowerCase();
     document.getElementById("editYer").value = teklif.yer;
     document.getElementById("editTarih").value = teklif.tarih;
@@ -707,471 +878,238 @@ function teklifiDuzenle(id) {
     document.getElementById("editAciklama").value = teklif.aciklama.replace(/<br>/g, '\n');
     document.getElementById("editReferans").value = teklif.referans || '';
 
+    // Formu göster
     document.getElementById("editForm").style.display = "block";
-    window.scrollTo({top: 0, behavior: 'smooth'});
-}
+    document.getElementById("editForm").scrollIntoView({ behavior: 'smooth' });
+  }
 
-async function kaydetDuzenleme() {
-    if(duzenlenenTeklifId === null) return;
+  async function kaydetDuzenleme() {
+    if (!duzenlenenTeklifId) return;
 
     const ad = document.getElementById("editAd").value.trim();
     if (!ad) {
-        alert("Müşteri adı boş bırakılamaz!");
-        return;
+      alert("Müşteri adı boş bırakılamaz!");
+      return;
     }
 
-    const cekim = document.getElementById("editCekim").value.trim();
-    const paket = document.getElementById("editPaket").value;
-    const yer = document.getElementById("editYer").value.trim();
+    const cekim = document.getElementById("editCekim").value
+      .split('\n')
+      .map(c => c.trim())
+      .filter(Boolean)
+      .map(c => `- ${c}`)
+      .join('<br>');
+    const paket = document.getElementById("editPaket").value.toUpperCase();
+    const yer = document.getElementById("editYer").value;
     const tarih = document.getElementById("editTarih").value;
-    const fiyat = document.getElementById("editFiyat").value.trim();
-    const aciklama = document.getElementById("editAciklama").value.trim();
-    const referans = document.getElementById("editReferans").value.trim();
+    const fiyat = document.getElementById("editFiyat").value;
+    const aciklama = document.getElementById("editAciklama").value.replace(/\n/g, '<br>');
+    const referans = document.getElementById("editReferans").value;
 
-    // Gerekli alanları kontrol et
-    if (!cekim || !paket || !yer || !tarih || !fiyat) {
-        alert("Lütfen tüm gerekli alanları doldurun!");
-        return;
-    }
+    try {
+      // Firebase'de güncelle
+      if (firebaseConnected) {
+        await db.collection('teklifler').doc(duzenlenenTeklifId).update({
+          ad, cekim, paket, yer, tarih, fiyat, aciklama, referans
+        });
+      }
 
-    // Fiyat formatını kontrol et
-    if (isNaN(fiyat) || parseFloat(fiyat) <= 0) {
-        alert("Lütfen geçerli bir fiyat girin!");
-        return;
-    }
+      // Yerel listede güncelle
+      const index = teklifler.findIndex(t => t.id === duzenlenenTeklifId);
+      if (index !== -1) {
+        teklifler[index] = { ...teklifler[index], ad, cekim, paket, yer, tarih, fiyat, aciklama, referans };
+        filtreliTeklifler = [...teklifler];
+        renderTeklifler();
+      }
 
-    // Çekim listesini formatla
-    const cekimFormatli = cekim.split(',')
-        .map(item => item.trim())
-        .filter(item => item)
-        .map(item => `- ${item}`)
-        .join('<br>');
-
-    // Açıklamayı formatla
-    const aciklamaFormatli = aciklama.replace(/\n/g, '<br>');
-
-    // Teklifi güncelle
-    const teklifIndex = teklifler.findIndex(t => t.id === duzenlenenTeklifId);
-    if (teklifIndex !== -1) {
-        teklifler[teklifIndex] = {
-            ...teklifler[teklifIndex],
-            ad: ad,
-            cekim: cekimFormatli,
-            paket: paket,
-            yer: yer,
-            tarih: tarih,
-            fiyat: parseFloat(fiyat),
-            aciklama: aciklamaFormatli,
-            referans: referans
-        };
-
-        // Yerel depolamaya kaydet (eğer kullanılıyorsa)
-        try {
-            localStorage.setItem('teklifler', JSON.stringify(teklifler));
-        } catch (error) {
-            console.warn('Yerel depolamaya kaydedilemedi:', error);
-        }
-
-        alert("Teklif başarıyla güncellendi!");
-        
-        // Formu temizle ve gizle
-        duzenlemeIptal();
-        
-        // Teklif listesini yeniden yükle (eğer bir liste görünümü varsa)
-        if (typeof teklifleriListele === 'function') {
-            teklifleriListele();
-        }
-    } else {
-        alert("Teklif güncellenirken bir hata oluştu!");
-    }
-}
-
-function duzenlemeIptal() {
-    // Formu gizle
-    document.getElementById("editForm").style.display = "none";
-    
-    // Form alanlarını temizle
-    document.getElementById("editAd").value = "";
-    document.getElementById("editCekim").value = "";
-    document.getElementById("editPaket").value = "";
-    document.getElementById("editYer").value = "";
-    document.getElementById("editTarih").value = "";
-    document.getElementById("editFiyat").value = "";
-    document.getElementById("editAciklama").value = "";
-    document.getElementById("editReferans").value = "";
-    
-    // Düzenlenen teklif ID'sini sıfırla
-    duzenlenenTeklifId = null;
-}
-
-// Teklif silme fonksiyonu
-function teklifiSil(id) {
-    if (!confirm("Bu teklifi silmek istediğinizden emin misiniz?")) {
-        return;
-    }
-
-    const teklifIndex = teklifler.findIndex(t => t.id === id);
-    if (teklifIndex !== -1) {
-        teklifler.splice(teklifIndex, 1);
-        
-        // Yerel depolamayı güncelle
-        try {
-            localStorage.setItem('teklifler', JSON.stringify(teklifler));
-        } catch (error) {
-            console.warn('Yerel depolamaya kaydedilemedi:', error);
-        }
-
-        alert("Teklif başarıyla silindi!");
-        
-        // Teklif listesini yeniden yükle
-        if (typeof teklifleriListele === 'function') {
-            teklifleriListele();
-        }
-    } else {
-        alert("Teklif silinirken bir hata oluştu!");
-    }
-}
-
-// Teklif görüntüleme fonksiyonu
-function teklifiGoruntule(id) {
-    const teklif = teklifler.find(t => t.id === id);
-    if (!teklif) {
-        alert("Teklif bulunamadı.");
-        return;
-    }
-
-    const outputDiv = document.getElementById("output");
-    
-    const html = `
-        <div class="teklif-detay">
-            <h3>Teklif Detayı</h3>
-            <div class="teklif-bilgi">
-                <p><strong>Müşteri Adı:</strong> ${teklif.ad}</p>
-                <p><strong>Çekim Türü:</strong></p>
-                <div class="cekim-listesi">${teklif.cekim}</div>
-                <p><strong>Paket:</strong> ${teklif.paket.toUpperCase()}</p>
-                <p><strong>Mekan:</strong> ${teklif.yer}</p>
-                <p><strong>Tarih:</strong> ${teklif.tarih}</p>
-                <p><strong>Fiyat:</strong> ${teklif.fiyat} TL</p>
-                ${teklif.aciklama ? `<p><strong>Açıklama:</strong></p><div class="aciklama">${teklif.aciklama}</div>` : ''}
-                ${teklif.referans ? `<p><strong>Referans:</strong> ${teklif.referans}</p>` : ''}
-            </div>
-            <div class="teklif-aksiyonlar">
-                <button onclick="teklifiDuzenle(${teklif.id})" class="btn-duzenle">Düzenle</button>
-                <button onclick="teklifiSil(${teklif.id})" class="btn-sil">Sil</button>
-                <button onclick="teklifiKopyala(${teklif.id})" class="btn-kopyala">Kopyala</button>
-                <button onclick="teklifiPDF(${teklif.id})" class="btn-pdf">PDF İndir</button>
-            </div>
+      document.getElementById("output").innerHTML = `
+        <div style="color: green; padding: 10px; border: 1px solid green; border-radius: 5px;">
+          ✅ Teklif başarıyla güncellendi!
         </div>
-    `;
-    
-    outputDiv.innerHTML = html;
-    outputDiv.scrollIntoView({ behavior: 'smooth' });
-}
+      `;
 
-// Teklif kopyalama fonksiyonu
-function teklifiKopyala(id) {
+      iptalDuzenleme();
+
+    } catch (error) {
+      console.error("Güncelleme hatası:", error);
+      document.getElementById("output").innerHTML = `
+        <div style="color: red; padding: 10px; border: 1px solid red; border-radius: 5px;">
+          ❌ Güncelleme hatası: ${error.message}
+        </div>
+      `;
+    }
+  }
+
+  function iptalDuzenleme() {
+    document.getElementById("editForm").style.display = "none";
+    duzenlenenTeklifId = null;
+  }
+
+  async function teklifiKabulEt(id) {
     const teklif = teklifler.find(t => t.id === id);
-    if (!teklif) {
-        alert("Teklif bulunamadı.");
-        return;
+    if (!teklif) return;
+
+    if (!confirm(`${teklif.ad} müşterisinin teklifini sözleşmeye dönüştürmek istediğinizden emin misiniz?`)) {
+      return;
     }
 
-    // Yeni ID oluştur
-    const yeniId = Math.max(...teklifler.map(t => t.id)) + 1;
-    
-    // Teklifi kopyala
-    const yeniTeklif = {
+    try {
+      const sozlesme = {
         ...teklif,
-        id: yeniId,
-        ad: teklif.ad + " (Kopya)",
-        tarih: new Date().toISOString().split('T')[0] // Bugünün tarihi
-    };
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      delete sozlesme.id;
 
-    teklifler.push(yeniTeklif);
+      if (firebaseConnected) {
+        const docRef = await db.collection('sozlesmeler').add(sozlesme);
+        sozlesme.id = docRef.id;
+      } else {
+        sozlesme.id = Date.now().toString();
+      }
 
-    // Yerel depolamayı güncelle
-    try {
-        localStorage.setItem('teklifler', JSON.stringify(teklifler));
+      sozlesmeler.unshift(sozlesme);
+      filtreliSozlesmeler = [...sozlesmeler];
+      renderSozlesmeler();
+
+      document.getElementById("output").innerHTML = `
+        <div style="color: green; padding: 10px; border: 1px solid green; border-radius: 5px;">
+          ✅ Teklif başarıyla sözleşmeye dönüştürüldü!
+        </div>
+      `;
+
     } catch (error) {
-        console.warn('Yerel depolamaya kaydedilemedi:', error);
+      console.error("Sözleşme oluşturma hatası:", error);
+      document.getElementById("output").innerHTML = `
+        <div style="color: red; padding: 10px; border: 1px solid red; border-radius: 5px;">
+          ❌ Sözleşme oluşturulurken hata: ${error.message}
+        </div>
+      `;
+    }
+  }
+
+  async function sozlesmeSil(id) {
+    const sozlesme = sozlesmeler.find(s => s.id === id);
+    if (!sozlesme) return;
+
+    if (!confirm(`${sozlesme.ad} müşterisinin sözleşmesini silmek istediğinizden emin misiniz?`)) {
+      return;
     }
 
-    alert("Teklif başarıyla kopyalandı!");
-    
-    // Teklif listesini yenile
-    if (typeof teklifleriListele === 'function') {
-        teklifleriListele();
-    }
-}
+    try {
+      if (firebaseConnected) {
+        await db.collection('sozlesmeler').doc(id).delete();
+      }
 
-// Teklif PDF çıktısı fonksiyonu
-function teklifiPDF(id) {
+      sozlesmeler = sozlesmeler.filter(s => s.id !== id);
+      filtreliSozlesmeler = [...sozlesmeler];
+      renderSozlesmeler();
+
+      document.getElementById("output").innerHTML = `
+        <div style="color: green; padding: 10px; border: 1px solid green; border-radius: 5px;">
+          ✅ Sözleşme başarıyla silindi!
+        </div>
+      `;
+
+    } catch (error) {
+      console.error("Silme hatası:", error);
+      document.getElementById("output").innerHTML = `
+        <div style="color: red; padding: 10px; border: 1px solid red; border-radius: 5px;">
+          ❌ Silme hatası: ${error.message}
+        </div>
+      `;
+    }
+  }
+
+  function pdfOlusturVePaylas(id) {
     const teklif = teklifler.find(t => t.id === id);
-    if (!teklif) {
-        alert("Teklif bulunamadı.");
-        return;
-    }
+    if (!teklif) return;
 
-    // Basit PDF içeriği oluştur (window.print kullanarak)
-    const pdfWindow = window.open('', '_blank');
-    const pdfContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Teklif - ${teklif.ad}</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                .header { text-align: center; margin-bottom: 30px; }
-                .teklif-info { margin-bottom: 20px; }
-                .teklif-info p { margin: 5px 0; }
-                .cekim-listesi { margin-left: 20px; }
-                .fiyat { font-size: 18px; font-weight: bold; color: #2c5530; }
-                @media print { button { display: none; } }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h1>Fotoğraf Çekim Teklifi</h1>
-                <hr>
-            </div>
-            <div class="teklif-info">
-                <p><strong>Müşteri Adı:</strong> ${teklif.ad}</p>
-                <p><strong>Çekim Türü:</strong></p>
-                <div class="cekim-listesi">${teklif.cekim}</div>
-                <p><strong>Paket:</strong> ${teklif.paket.toUpperCase()}</p>
-                <p><strong>Mekan:</strong> ${teklif.yer}</p>
-                <p><strong>Tarih:</strong> ${teklif.tarih}</p>
-                <p class="fiyat"><strong>Fiyat:</strong> ${teklif.fiyat} TL</p>
-                ${teklif.aciklama ? `<p><strong>Açıklama:</strong></p><div>${teklif.aciklama}</div>` : ''}
-                ${teklif.referans ? `<p><strong>Referans:</strong> ${teklif.referans}</p>` : ''}
-            </div>
-            <div style="margin-top: 50px;">
-                <p><strong>Tarih:</strong> ${new Date().toLocaleDateString('tr-TR')}</p>
-                <p><strong>İmza:</strong> _________________</p>
-            </div>
-            <button onclick="window.print()" style="margin-top: 20px; padding: 10px 20px;">Yazdır</button>
-        </body>
-        </html>
+    const pdfContent = document.getElementById('pdfContent');
+    pdfContent.innerHTML = `
+      <div class="pdf-header">
+        <img src="https://i.hizliresim.com/eqyhuxx.png" alt="Logo" />
+        <h1 class="pdf-title">TEKLİF FORMU</h1>
+      </div>
+      
+      <div class="pdf-body">
+        <p><strong>Müşteri Adı:</strong> ${teklif.ad}</p>
+        <p><strong>Çekim Türü:</strong></p>
+        <div style="margin-left: 20px;">${teklif.cekim}</div>
+        <p><strong>Paket:</strong> ${teklif.paket}</p>
+        <p><strong>Etkinlik Yeri:</strong> ${teklif.yer}</p>
+        <p><strong>Tarih:</strong> ${teklif.tarih}</p>
+        <p><strong>Fiyat:</strong> ${teklif.fiyat} TL</p>
+        <p><strong>Açıklama:</strong></p>
+        <div style="margin-left: 20px;">${teklif.aciklama}</div>
+        ${teklif.referans ? `<p><strong>Referans:</strong> ${teklif.referans}</p>` : ''}
+      </div>
+      
+      <div class="pdf-footer">
+        <p>Teklif Tarihi: ${teklif.bugun}</p>
+        <p>Bu teklif 30 gün geçerlidir.</p>
+      </div>
     `;
 
-    pdfWindow.document.write(pdfContent);
-    pdfWindow.document.close();
-}
+    // PDF'i göster ve yazdır
+    pdfContent.style.display = 'block';
+    window.print();
+    pdfContent.style.display = 'none';
+  }
 
-// Teklif arama fonksiyonu
-function teklifAra(aramaMetni) {
-    if (!aramaMetni.trim()) {
-        return teklifler;
-    }
+  function sozlesmePdfOlustur(id) {
+    const sozlesme = sozlesmeler.find(s => s.id === id);
+    if (!sozlesme) return;
 
-    const aramaTerimi = aramaMetni.toLowerCase();
-    return teklifler.filter(teklif => 
-        teklif.ad.toLowerCase().includes(aramaTerimi) ||
-        teklif.yer.toLowerCase().includes(aramaTerimi) ||
-        teklif.paket.toLowerCase().includes(aramaTerimi) ||
-        teklif.cekim.toLowerCase().includes(aramaTerimi) ||
-        (teklif.aciklama && teklif.aciklama.toLowerCase().includes(aramaTerimi)) ||
-        (teklif.referans && teklif.referans.toLowerCase().includes(aramaTerimi))
-    );
-}
+    const pdfContent = document.getElementById('pdfContent');
+    pdfContent.innerHTML = `
+      <div class="pdf-header">
+        <img src="https://i.hizliresim.com/eqyhuxx.png" alt="Logo" />
+        <h1 class="pdf-title">SÖZLEŞME</h1>
+      </div>
+      
+      <div class="pdf-body">
+        <p><strong>Müşteri Adı:</strong> ${sozlesme.ad}</p>
+        <p><strong>Çekim Türü:</strong></p>
+        <div style="margin-left: 20px;">${sozlesme.cekim}</div>
+        <p><strong>Paket:</strong> ${sozlesme.paket}</p>
+        <p><strong>Etkinlik Yeri:</strong> ${sozlesme.yer}</p>
+        <p><strong>Tarih:</strong> ${sozlesme.tarih}</p>
+        <p><strong>Ücret:</strong> ${sozlesme.fiyat} TL</p>
+        <p><strong>Hizmet Detayları:</strong></p>
+        <div style="margin-left: 20px;">${sozlesme.aciklama}</div>
+        ${sozlesme.referans ? `<p><strong>Referans:</strong> ${sozlesme.referans}</p>` : ''}
+        
+        <div style="margin-top: 40px;">
+          <p><strong>Sözleşme Şartları:</strong></p>
+          <ul style="margin-left: 20px;">
+            <li>Ücretin %50'si peşin, %50'si çekim günü ödenecektir.</li>
+            <li>Hava koşulları nedeniyle erteleme durumunda ek ücret alınmaz.</li>
+            <li>Fotoğraflar 2 hafta içinde teslim edilecektir.</li>
+            <li>İptal durumunda peşin ödenen tutar iade edilmeyecektir.</li>
+          </ul>
+        </div>
+        
+        <div style="margin-top: 60px; display: flex; justify-content: space-between;">
+          <div style="text-align: center;">
+            <div style="border-bottom: 1px solid #000; width: 200px; margin-bottom: 5px;"></div>
+            <strong>Müşteri İmzası</strong>
+          </div>
+          <div style="text-align: center;">
+            <div style="border-bottom: 1px solid #000; width: 200px; margin-bottom: 5px;"></div>
+            <strong>Fotoğrafçı İmzası</strong>
+          </div>
+        </div>
+      </div>
+      
+      <div class="pdf-footer">
+        <p>Sözleşme Tarihi: ${sozlesme.bugun}</p>
+      </div>
+    `;
 
-// Teklifleri sıralama fonksiyonu
-function teklifleriSirala(siralama) {
-    switch(siralama) {
-        case 'ad':
-            return [...teklifler].sort((a, b) => a.ad.localeCompare(b.ad));
-        case 'tarih':
-            return [...teklifler].sort((a, b) => new Date(b.tarih) - new Date(a.tarih));
-        case 'fiyat':
-            return [...teklifler].sort((a, b) => b.fiyat - a.fiyat);
-        case 'paket':
-            return [...teklifler].sort((a, b) => a.paket.localeCompare(b.paket));
-        default:
-            return teklifler;
-    }
-}
-
-// Yerel depolamadan teklifleri yükle
-function teklifleriYukle() {
-    try {
-        const kaydedilmisler = localStorage.getItem('teklifler');
-        if (kaydedilmisler) {
-            teklifler = JSON.parse(kaydedilmisler);
-        }
-    } catch (error) {
-        console.error('Teklifler yüklenirken hata:', error);
-        teklifler = [];
-    }
-}
-
-// Teklifleri listele fonksiyonu
-function teklifleriListele() {
-    const liste = document.getElementById('teklifListesi');
-    if (!liste) return;
-
-    if (teklifler.length === 0) {
-        liste.innerHTML = '<p>Henüz teklif bulunmuyor.</p>';
-        return;
-    }
-
-    let html = '<div class="teklif-liste">';
-    teklifler.forEach(teklif => {
-        html += `
-            <div class="teklif-kart" data-id="${teklif.id}">
-                <div class="teklif-baslik">
-                    <h4>${teklif.ad}</h4>
-                    <span class="fiyat">${teklif.fiyat} TL</span>
-                </div>
-                <div class="teklif-ozet">
-                    <p><strong>Paket:</strong> ${teklif.paket.toUpperCase()}</p>
-                    <p><strong>Mekan:</strong> ${teklif.yer}</p>
-                    <p><strong>Tarih:</strong> ${teklif.tarih}</p>
-                </div>
-                <div class="teklif-aksiyonlar">
-                    <button onclick="teklifiGoruntule(${teklif.id})" class="btn btn-info">Görüntüle</button>
-                    <button onclick="teklifiDuzenle(${teklif.id})" class="btn btn-warning">Düzenle</button>
-                    <button onclick="teklifiSil(${teklif.id})" class="btn btn-danger">Sil</button>
-                </div>
-            </div>
-        `;
-    });
-    html += '</div>';
-    
-    liste.innerHTML = html;
-}
-
-// Sözleşmeleri render etme fonksiyonu (hata düzeltmesi için)
-function renderSozlesmeler() {
-    // Bu fonksiyon başka bir modülde tanımlı olabilir
-    // Şimdilik teklifleri listele
-    teklifleriListele();
-}
-
-// Yeni teklif ekleme fonksiyonu
-function yeniTeklifEkle(teklifData) {
-    // Yeni ID oluştur
-    const yeniId = teklifler.length > 0 ? Math.max(...teklifler.map(t => t.id)) + 1 : 1;
-    
-    const yeniTeklif = {
-        id: yeniId,
-        ad: teklifData.ad,
-        cekim: teklifData.cekim,
-        paket: teklifData.paket,
-        yer: teklifData.yer,
-        tarih: teklifData.tarih,
-        fiyat: parseFloat(teklifData.fiyat),
-        aciklama: teklifData.aciklama || '',
-        referans: teklifData.referans || '',
-        olusturmaTarihi: new Date().toISOString()
-    };
-
-    teklifler.push(yeniTeklif);
-
-    // Yerel depolamaya kaydet
-    try {
-        localStorage.setItem('teklifler', JSON.stringify(teklifler));
-    } catch (error) {
-        console.warn('Yerel depolamaya kaydedilemedi:', error);
-    }
-
-    // Listeyi güncelle
-    teklifleriListele();
-    
-    return yeniTeklif;
-}
-
-// Arama fonksiyonunu kullanma
-function aramaYap() {
-    const aramaInput = document.getElementById('aramaInput');
-    if (!aramaInput) return;
-
-    const aramaMetni = aramaInput.value.trim();
-    const sonuclar = teklifAra(aramaMetni);
-    
-    // Geçici olarak sonuçları göster
-    const eskiTeklifler = [...teklifler];
-    teklifler.length = 0;
-    teklifler.push(...sonuclar);
-    
-    teklifleriListele();
-    
-    // Orijinal listeyi geri yükle
-    setTimeout(() => {
-        teklifler.length = 0;
-        teklifler.push(...eskiTeklifler);
-    }, 100);
-}
-
-// Sıralama fonksiyonunu kullanma
-function siralamaYap(tur) {
-    const siraliTeklifler = teklifleriSirala(tur);
-    const eskiTeklifler = [...teklifler];
-    
-    teklifler.length = 0;
-    teklifler.push(...siraliTeklifler);
-    
-    teklifleriListele();
-}
-
-// Verileri dışa aktarma
-function verileriDısaAktar() {
-    const dataStr = JSON.stringify(teklifler, null, 2);
-    const dataBlob = new Blob([dataStr], {type: 'application/json'});
-    
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(dataBlob);
-    link.download = `teklifler_${new Date().toISOString().split('T')[0]}.json`;
-    link.click();
-}
-
-// Verileri içe aktarma
-function verileriIceAktar(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const data = JSON.parse(e.target.result);
-            if (Array.isArray(data)) {
-                teklifler.length = 0;
-                teklifler.push(...data);
-                
-                localStorage.setItem('teklifler', JSON.stringify(teklifler));
-                teklifleriListele();
-                alert('Veriler başarıyla içe aktarıldı!');
-            } else {
-                alert('Geçersiz dosya formatı!');
-            }
-        } catch (error) {
-            alert('Dosya okuma hatası: ' + error.message);
-        }
-    };
-    reader.readAsText(file);
-}
-
-// Global değişkenleri başlat
-if (typeof teklifler === 'undefined') {
-    window.teklifler = [];
-}
-if (typeof duzenlenenTeklifId === 'undefined') {
-    window.duzenlenenTeklifId = null;
-}
-
-// Sayfa yüklendiğinde teklifleri yükle
-document.addEventListener('DOMContentLoaded', function() {
-    teklifleriYukle();
-    teklifleriListele();
-    
-    // Arama input'u varsa event listener ekle
-    const aramaInput = document.getElementById('aramaInput');
-    if (aramaInput) {
-        aramaInput.addEventListener('input', aramaYap);
-    }
-});
-
+    // PDF'i göster ve yazdır
+    pdfContent.style.display = 'block';
+    window.print();
+    pdfContent.style.display = 'none';
+  }
 </script>
-
 </body>
 </html>
