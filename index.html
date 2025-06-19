@@ -1,2076 +1,1150 @@
-
-
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PASOV/ART </title>
-    <style>
-/* Genel gövde ayarları */
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
-}
-
-/* Şirket logosu için stil */
-.logo-container {
-    text-align: center; /* Logoyu ortala */
-    padding-top: 20px;  /* Menülerden önce biraz boşluk bırak */
-}
-
-/* Logo genişliği */
-.logo {
-    width: 150px; /* Logonun genişliği */
-}
-
-/* Menü stilini ayarlama */
-ul.menu {
-    list-style-type: none; /* Noktalı listeyi kaldır */
-    padding: 0;
-    margin: 0;
-    width: 100%; /* Menü genişliği %100 olarak ayarlandı */
-    max-width: 1000px; /* Menü genişliği 1000px'yi aşmaz */
-    background-color: #333;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    margin-top: 10px; /* Menü ile logo arasında biraz boşluk bırak */
-    margin-left: auto;
-    margin-right: auto; /* Menü genişliğini merkeze hizala */
-}
-
-/* Menü öğeleri */
-ul.menu li {
-    background-color: #444;
-    color: white;
-    padding: 15px;
-    text-align: center;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.3s;
-    border-radius: 5px;
-    margin: 5px 0;
-    font-family: 'Poppins', sans-serif; /* Modern yazı tipi */
-    font-size: 18px; /* Yazı boyutu */
-    font-weight: 500; /* Orta ağırlık */
-    letter-spacing: 1px; /* Harfler arası mesafe */
-}
-
-/* Menü öğesi üzerine gelince */
-ul.menu li:hover {
-    background-color: #555; /* Hover efekti */
-    transform: scale(1.05); /* Hafif büyütme efekti */
-}
-
-/* Google Fonts'tan 'Poppins' yazı tipini ekleyin */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap');
-
-/* Menü öğelerine hover efekti */
-ul.menu li:hover {
-    background-color: #555;
-    transform: scale(1.05); /* Buton büyümesi */
-}
-
-
-/* Alt menü (drop-down) gizli */
-ul.menu li ul {
-    display: none; /* Başlangıçta gizli */
-    list-style-type: none;
-    padding: 10px 0; /* Dikey boşluk */
-    margin: 0;
-    background: linear-gradient(135deg, #444, #666); /* Modern degrade */
-    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2); /* Hafif gölge efekti */
-    opacity: 0; /* Saydam yap */
-    transform: translateY(-10px) scale(0.95); /* Hafif yukarıda ve küçültülmüş */
-    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* Daha yumuşak animasyon */
-    border-radius: 12px; /* Köşeleri yuvarla */
-}
-
-/* Alt menü öğeleri */
-ul.menu li ul li {
-    padding: 12px 20px; /* İç boşluk */
-    text-align: left;
-    color: #fff; /* Yazı rengi */
-    font-size: 14px; /* Yazı boyutu */
-    font-family: 'Arial', sans-serif;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s; /* Renk animasyonu */
-}
-
-/* Alt menü öğeleri üzerine gelince */
-ul.menu li ul li:hover {
-    background: linear-gradient(135deg, #777, #999); /* Üzerine gelince renk geçişi */
-    color: #ffecb3; /* Yazı renginde kontrast */
-}
-
-/* Menü öğesinin üzerine tıklandığında alt menüyü göster */
-ul.menu li.active > ul {
-    display: block;
-    opacity: 1; /* Görünürlük */
-    transform: translateY(0) scale(1); /* Tam boyuta büyüt ve yerine getir */
-}
-
-/* Menü öğelerinin kenarlıkları */
-ul.menu li ul li + li {
-    border-top: 1px solid rgba(255, 255, 255, 0.2); /* İnce bir ayraç */
-}
-
-/* Alt menülerin alt menüsü */
-ul.menu li ul li ul {
-    display: none; /* Başlangıçta gizli */
-    background: #333; /* Farklı arka plan rengi */
-    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15); /* Daha küçük bir gölge */
-    opacity: 0; /* Saydam yap */
-    transform: translateY(-10px) scale(0.9); /* Hafif küçültme ve yukarıda */
-    transition: all 0.3s ease; /* Daha hızlı ve yumuşak animasyon */
-    border-radius: 8px; /* Küçük yuvarlatılmış köşeler */
-}
-
-/* Alt menülerin alt menü öğeleri */
-ul.menu li ul li ul li {
-    padding: 10px 18px; /* Daha küçük iç boşluk */
-    font-size: 13px; /* Küçük yazı boyutu */
-    color: #fff; /* Beyaz yazı rengi */
-}
-
-/* Alt menülerin alt menüsü üzerine gelince */
-ul.menu li ul li ul li:hover {
-    background: #444; /* Daha koyu arka plan */
-    color: #ffcc00; /* Sarı renk */
-}
-
-/* Alt menülerin alt menüsünün görünür olması */
-ul.menu li ul li.active > ul {
-    display: block;
-    opacity: 1; /* Görünürlük */
-    transform: translateY(0) scale(1); /* Tam boyuta büyüt */
-}
-
-
-    /* DIŞ ÇEKİM için görsel kolaj stili */
-ul.menu li ul li .photo-box {
-    width: 160px; /* Genişliği biraz artırdım */
-    height: 160px; /* Yüksekliği de artırdım */
-    background: linear-gradient(135deg, #f5f5f5, #dcdcdc); /* Daha yumuşak geçişler */
-    margin: 12px;
-    overflow: hidden; /* Görsellerin kutudan taşmasını engelle */
-    border-radius: 20px; /* Yuvarlak köşeler için artırdım */
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Daha belirgin gölge */
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    background-color: #fff; /* Kutunun arka planı */
-    padding: 10px; /* İçerideki boşluk */
-}
-
-/* Görselin stilini güncelledim */
-ul.menu li ul li .photo-box img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Görselin kutuya düzgün oturmasını sağlar */
-    border-radius: 15px; /* Görsele yuvarlak köşeler */
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    position: absolute; /* Görseli kutunun altına yerleştir */
-    top: 0; /* Üstten sıfır mesafe */
-    left: 0; /* Soldan sıfır mesafe */
-    z-index: 0; /* Görselin alt katmanda olmasını sağla */
-}
-
-/* Hover efektinde görselin daha belirgin büyümesi */
-ul.menu li ul li .photo-box:hover {
-    transform: scale(1.1); /* Görseli biraz büyüt */
-    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3); /* Hover sırasında daha belirgin gölge */
-}
-
-/* Hover durumunda görselin kaymasını sağla */
-ul.menu li ul li .photo-box:hover img {
-    transform: scale(1.1) translateY(-10%); /* Görseli hafif yukarı kaydır */
-    opacity: 0.8; /* Görselin opaklığını azaltarak daha etkileyici hale getirme */
-}
-
-/* Overlay kısmını güncelledim */
-ul.menu li ul li .photo-box .overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 50%;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.5)); /* Daha yumuşak geçiş */
-    color: #fff;
-    padding: 12px;
-    box-sizing: border-box;
-    text-align: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-/* Hover durumunda overlay'in görünür olması */
-ul.menu li ul li .photo-box:hover .overlay {
-    opacity: 1;
-}
-
-/* Overlay başlık ve açıklama stilini düzenleme */
-ul.menu li ul li .photo-box .overlay h3 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Daha belirgin metin */
-}
-
-ul.menu li ul li .photo-box .overlay p {
-    margin: 5px 0 0;
-    font-size: 14px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-/* Fotoğraf kutularını düzgün hizalamak için flex düzeni */
-ul.menu li ul li {
-    display: flex;
-    justify-content: start;
-    flex-wrap: wrap;
-}
-
-/* Fotoğraf kutusuna hover efekti */
-ul.menu li ul li .photo-box:hover {
-    transform: scale(1.05);
-}
-
-/* Yazının stilini ayarlama */
-ul.menu li ul li .photo-box .photo-text {
-    background-color: rgba(0, 0, 0, 0.6);
-    color: white;
-    padding: 12px;
-    text-align: center;
-    width: 100%;
-    border-radius: 0 0 10px 10px; /* Köşeleri yuvarlat */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Yazının etrafında hafif gölge */
-    z-index: 1; /* Yazı her zaman görselin üstünde kalacak */
-}
-
-/* iframe için stil */
-iframe {
-    width: 100%;
-    height: 500px;
-    border: none;
-    border-radius: 5px;
-}
-
-/* Diğer menülerdeki bağlantılarda alt çizgiyi kaldırmak için */
-ul.menu li ul li a {
-    text-decoration: none; /* Alt çizgiyi kaldır */
-}
-
-/* Mobile uyumlu stil */
-@media (max-width: 768px) {
-    ul.menu {
-        width: 350px; /* Menü genişliği sabit kalacak */
+  <meta charset="UTF-8" />
+  <title>Teklif Oluştur ve Yönet</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f7fa;
+      margin: 0; padding: 20px;
     }
-}
-
-
-        /* İletişim kutusu için stil */
-        .contact-container {
-            display: flex;
-            justify-content: center;
-            gap: -5px;
-            margin: 30px 0;
-            padding: 10px 0;
-            background-color: #333;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .contact-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: white;
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: bold;
-            transition: transform 0.3s, background-color 0.3s;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .contact-item:hover {
-            transform: scale(1.05);
-            background-color: #555;
-        }
-
-        .contact-icon {
-            width: 20px;
-            height: 20px;
-        }
-        
-        /* Teklif Al menüsü için checkbox düzenlemeleri */
-.checkbox-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-/* Normalde kutucuk boş olacak */
-.checkbox-container input {
-    display: none; /* Gerçek checkbox'ı gizle */
-}
-
-/* Kutucuk tasarımı */
-.checkbox-custom {
-    width: 18px;
-    height: 18px;
-    border: 2px solid #444;
-    border-radius: 3px;
-    position: relative;
-    background-color: #fff;
-    transition: background-color 0.3s, border-color 0.3s;
-}
-
-/* Tıklandığında kutucuk işaretlenmiş olacak */
-.checkbox-container input:checked + .checkbox-custom {
-    background-color: #4CAF50;
-    border-color: #4CAF50;
-}
-
-/* Tik işareti */
-.checkbox-container input:checked + .checkbox-custom::after {
-    content: '✓';
-    position: absolute;
-    top: 2px;
-    left: 5px;
-    color: white;
-    font-size: 12px;
-}
-
-/* Yazı kısmı */
-.checkbox-text {
-    font-size: 14px;
-    color: #0;
-}
-
-/* Randevu saatleri için checkbox'ları yan yana iki adet olacak şekilde düzenle */
-ul.menu li ul li {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-/* Her checkbox öğesinin hizalanması için */
-.checkbox-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    cursor: pointer;
-    flex: 1 1 45%; /* Yüzde 45 genişlik ile iki eleman yan yana */
-}
-
-/* Mobile uyumlu stil */
-@media (max-width: 768px) {
-    /* Küçük ekranlarda checkbox'lar alt alta gelecek */
-    .checkbox-container {
-        flex: 1 1 100%;
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
     }
-}
+    .logo {text-align:center; margin-bottom:20px;}
+    .logo img {width: 150px;}
+    h2 {text-align:center; color:#333; margin-bottom:30px;}
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover:not(:disabled) {
+      background-color: #0056b3;
+    }
+    button:disabled {
+      background-color: #999;
+      cursor: not-allowed;
+    }
+    #output {
+      margin-top: 30px;
+      min-height: 180px;
+    }
 
-/* İsim Soyad kutucuğu stil */
-.contact-form input, .contact-form textarea {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-}
+    /* Loading spinner */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #007bff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .loading-text {
+      color: #666;
+      font-style: italic;
+      text-align: center;
+      padding: 20px;
+    }
 
-/* Açıklama kutusu, textarea için stil */
-.contact-form textarea {
-    height: 150px;
-    resize: vertical;
-}
+    /* Firebase bağlantı durumu */
+    .firebase-status {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: bold;
+      z-index: 1000;
+    }
+    .firebase-connected {
+      background-color: #28a745;
+      color: white;
+    }
+    .firebase-disconnected {
+      background-color: #dc3545;
+      color: white;
+    }
 
-.checkbox-group {
-    display: flex;
-    flex-wrap: wrap;
-}
+    /* Yeni Liste Tasarımı */
+    .search-container {
+      margin: 20px 0;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .search-input {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid #007bff;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    .search-btn {
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: auto;
+    }
+    .clear-btn {
+      padding: 10px 15px;
+      background: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: auto;
+    }
 
-.checkbox-container {
-    width: 25%; /* 4 öğe için her biri %25 genişlik alır */
-    box-sizing: border-box;
-}
+    .list-container {
+      background: #f8f9fa;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 15px;
+    }
+    .list-header {
+      background: #007bff;
+      color: white;
+      padding: 15px;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr 150px;
+      gap: 10px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .list-item {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e9ecef;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr 150px;
+      gap: 10px;
+      align-items: center;
+      background: white;
+      transition: background-color 0.2s;
+      font-size: 14px;
+    }
+    .list-item:hover {
+      background-color: #f8f9fa;
+    }
+    .list-item:last-child {
+      border-bottom: none;
+    }
+    .list-actions {
+      display: flex;
+      gap: 5px;
+    }
+    .list-actions button {
+      padding: 4px 8px;
+      font-size: 12px;
+      border-radius: 3px;
+      width: auto;
+      margin: 0;
+    }
+    .btn-view { background: #17a2b8; }
+    .btn-edit { background: #ffc107; color: #212529; }
+    .btn-delete { background: #dc3545; }
+    .btn-contract { background: #28a745; }
+    .btn-pdf { background: #6c757d; }
 
-.photo-text {
-        font-size: 10px; /* Yazı tipi boyutunu buradan ayarlayabilirsiniz */
-        font-family: Arial, sans-serif; /* Yazı tipini buradan değiştirebilirsiniz */
-        color: #333; /* Yazı rengini buradan ayarlayabilirsiniz */
-        text-align: center; /* Yazıyı merkeze hizalamak için */
-        margin-top: 10px; /* Yukarıdan boşluk */
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #6c757d;
+      font-style: italic;
+    }
+
+    /* Accordion Menü */
+    .accordion {
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      padding: 15px 20px;
+      width: 100%;
+      border: none;
+      text-align: left;
+      outline: none;
+      font-size: 18px;
+      border-radius: 8px;
+      margin-top: 25px;
+      user-select: none;
+      transition: background-color 0.3s ease;
+    }
+    .accordion:hover {
+      background-color: #0056b3;
+    }
+    .accordion.active {
+      background-color: #00408d;
+    }
+    .panel {
+      padding: 0;
+      display: none;
+      background-color: white;
+      overflow: hidden;
+      border: 1px solid #007bff;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+    }
+
+    /* Edit form styles */
+    #editForm {
+      background: #eef5ff;
+      border: 2px solid #0056b3;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    #editForm label {
+      font-weight: bold;
+      margin-top: 5px;
+    }
+    #editForm button {
+      width: 48%;
+      margin-top: 10px;
+    }
+    #editForm .btn-cancel {
+      background-color: #dc3545;
+    }
+    #editForm .btn-cancel:hover {
+      background-color: #a71d2a;
+    }
+
+    /* PDF için özel stiller */
+    .pdf-content {
+      background: white;
+      padding: 40px;
+      margin: 20px;
+      border: 1px solid #ddd;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
     }
     
+    .pdf-header {
+      text-align: center
+      
+      margin-bottom: 30px;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 20px;
+    }
     
-    #datePicker {
-    margin-left: 10px;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-.checkbox-group label {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 14px;
-}
-
-
-/* Modal Stil */
-.modal {
-    display: none; /* Başlangıçta gizli */
-    position: fixed; /* Ekranın üst kısmında sabit olmasını sağlar */
-    z-index: 1000; /* Üstte görünmesi için */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.4); /* Arka plan rengi */
-    overflow: auto; /* Eğer içerik fazla ise kaydırma çubuğu */
-}
-
-/* Modal içerik */
-.modal-content {
-    background-color: #fff;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 60%;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    position: relative;
-}
-
-/* Fotoğraf alanı */
-.modal-photo img {
-    width: 100%;
-    max-width: 200px;
-    border-radius: 50%;
-    margin-bottom: 15px;
-}
-
-/* Kapatma butonu */
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-
-/* Menü stili */
-        ul.menu {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            width: 100%;
-            max-width: 1000px;
-            background-color: #333;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            margin: 10px auto;
-        }
-
-        ul.menu li {
-            background-color: #444;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.3s;
-            border-radius: 5px;
-            margin: 5px 0;
-            font-family: 'Poppins', sans-serif;
-            font-size: 18px;
-            font-weight: 500;
-        }
-
-        ul.menu li:hover {
-            background-color: #555;
-            transform: scale(1.05);
-        }
-
-        ul.menu li ul {
-            display: none;
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            background-color: #444;
-            border-radius: 5px;
-        }
-
-        ul.menu li.active > ul {
-            display: block;
-        }
-
-        ul.menu li ul li {
-            padding: 12px;
-            text-align: left;
-            color: #fff;
-            font-size: 14px;
-        }
-
-        ul.menu li ul li:hover {
-            background-color: #555;
-        }
-
-        /* Form ve admin paneli */
-        .form-container, .admin-panel {
-            display: none;
-            margin: 20px auto;
-            padding: 15px;
-            width: 90%;
-            max-width: 400px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .form-container h2, .admin-panel h2 {
-            text-align: center;
-        }
-
-        .form-container input, .admin-panel input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        .form-container button, .admin-panel button {
-            width: 100%;
-            padding: 10px;
-            background-color: #444;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .form-container button:hover, .admin-panel button:hover {
-            background-color: #555;
-        }
-
-        .error-message {
-            color: red;
-            display: none;
-        }
-        
-        
-         /* Tüm <a> etiketlerini beyaz yap ve alt çizgisini kaldır */
-    li a {
-        color: white;
-        text-decoration: none;
+    .pdf-header img {
+      max-height: 80px;
+      margin-bottom: 15px;
+    }
+    
+    .pdf-title {
+      color: #007bff;
+      font-size: 24px;
+      font-weight: bold;
+      margin: 0;
+    }
+    
+    .pdf-body {
+      font-size: 16px;
+    }
+    
+    .pdf-body p {
+      margin: 12px 0;
+    }
+    
+    .pdf-body strong {
+      color: #007bff;
+    }
+    
+    .pdf-footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+      border-top: 1px solid #ddd;
+      padding-top: 20px;
     }
 
-    /* Üzerine gelindiğinde de beyaz kalsın */
-    li a:hover {
-        color: white;
-        text-decoration: underline; /* İstersen underline kaldırabilirsin */
+    /* Responsive */
+    @media (max-width: 768px) {
+      .list-header, .list-item {
+        grid-template-columns: 1fr;
+        gap: 5px;
+      }
+      .list-header {
+        display: none;
+      }
+      .list-item {
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+      .search-container {
+        flex-direction: column;
+      }
     }
 
-    </style>
-    
-     <!-- Firebase SDK'ları -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    
+    /* Yazdır için gizle */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      .pdf-content, .pdf-content * {
+        visibility: visible;
+      }
+      .pdf-content {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
+  <!-- Firebase bağlantı durumu -->
+  <div id="firebaseStatus" class="firebase-status firebase-disconnected">
+    🔴 Firebase Bağlanıyor...
+  </div>
 
-    <!-- Şirket logosu -->
-    <div class="logo-container">
-        <img src="https://i.hizliresim.com/jjdp9b3.png" alt="Şirket Logosu" class="logo">
+  <div class="container">
+    <div class="logo">
+      <img src="https://i.hizliresim.com/eqyhuxx.png" alt="Logo" />
     </div>
+    <h2>TEKLİF OLUŞTUR</h2>
 
-<ul class="menu">
-    <li onclick="toggleMenu(event)">📍 OFİS / DÜKKAN (KONUM)
-        <ul>
-            <li onclick="window.open('https://www.google.com/maps/place/PasovART+%C3%87orlu/@41.1554651,27.7925095,17z/data=!3m1!4b1!4m6!3m5!1s0x14b4e795a942e17f:0x5dedf296769e3bff!8m2!3d41.1554651!4d27.7925095!16s%2Fg%2F11f5nxt7nl?hl=tr&entry=ttu&g_ep=EgoyMDI1MDEwOC4wIKXMDSoASAFQAw%3D%3D')" style="color: white; cursor: pointer;">
-                📍 ÇORLU
-            </li>
-            <li onclick="window.open('https://www.google.com/maps/place/PasovART+Ergene/@41.192116,27.7697926,17z/data=!3m1!4b1!4m6!3m5!1s0x14b4e7f1cc594327:0xdeef75b79e604aaa!8m2!3d41.192116!4d27.7697926!16s%2Fg%2F11kjzgmd2y?hl=tr&entry=ttu&g_ep=EgoyMDI1MDEwOC4wIKXMDSoASAFQAw%3D%3D')" style="color: white; cursor: pointer;">
-                📍 ERGENE
+    <label>Müşteri Adı</label>
+    <input type="text" id="ad" />
 
-            </li>
-        </ul>
-    </li>
-<li onclick="toggleMenu(event)">EVLİLİK
-    <ul>
-        <li>SÖZ & NİŞAN
-            <ul>
-                <li>VİDEO</li>
-                <li>FOTOĞRAF</li>
-                <li>KLİP</li>
-            </ul>
-        </li>
-        <li>NİKAH
-            <ul>
-                <li>VİDEO</li>
-                <li>FOTOĞRAF</li>
-                <li>KLİP</li>
-            </ul>
-        </li>
-        <li>KINA
-            <ul>
-                <li>VİDEO</li>
-                <li>FOTOĞRAF</li>
-                <li>KLİP</li>
-            </ul>
-        </li>
-        <li>DÜĞÜN
-            <ul>
-                <li>VİDEO</li>
-                <li>FOTOĞRAF</li>
-                <li>KLİP</li>
-            </ul>
-        </li>
-    </ul>
-</li>
-        <li onclick="toggleMenu(event)">DIŞ ÇEKİM
-            <ul>
-                <li>
-<a href="https://novasta.com.tr/nvstkatalog/catalog/musteri/psv/20956PSV03960-1-++.html">
-    <div class="photo-box">
-        <img src="https://i.hizliresim.com/fdyht3e.jpg" alt="Çekim 1" 
-             style="width: 105%; height: auto; 
-                    transform: scale(1.1) translateX(0%) translateY(20%); 
-                    position: relative; 
-                    left: 0;">
-        <div class="photo-text">KIYIKÖY</div>
-    </div>
-</a>
+    <label>Çekim Türü</label>
+    <input type="text" id="cekim" placeholder="Örn: Düğün, Save the Date, Ürün" />
 
-<a href="https://www.example.com/corlu">
-    <div class="photo-box">
-        <img src="https://i.hizliresim.com/ri9m24n.jpg" alt="Çekim 2" 
-             style="width: 105%; height: auto; 
-                    transform: scale(1.1) translateX(0%) translateY(20%); 
-                    position: relative; 
-                    left: 0;">
-        <div class="photo-text">ÇORLU</div>
-    </div>
-</a>
+    <label>Paket Seçimi</label>
+    <select id="paket" onchange="paketBilgisiYukle()">
+      <option value="">-- Paket Seçin --</option>
+      <option value="Standart Ekip">Standart Ekip</option>
+      <option value="Profesyonel Ekip">Profesyonel Ekip</option>
+   
+    </select>
 
-<a href="https://www.example.com/istanbul-plato">
-    <div class="photo-box">
-        <img src="https://i.hizliresim.com/kp108ri.jpg" alt="Çekim 3" 
-             style="width: 105%; height: auto; 
-                    transform: scale(1.1) translateX(0%) translateY(20%); 
-                    position: relative; 
-                    left: 0;">
-        <div class="photo-text">İSTANBUL PLATO</div>
-    </div>
-</a>
+    <label>Etkinlik Yeri</label>
+    <input type="text" id="yer" placeholder="Örn: İstanbul, Kemerburgaz Ormanı" />
 
+    <label>Tarih</label>
+    <input type="date" id="tarih" />
 
-                        
-<a href="https://novasta.com.tr/nvstkatalog/catalog/musteri/psv/20956PSV03960-1-++.html">
-    <div class="photo-box">
-        <img src="https://i.pinimg.com/originals/59/eb/68/59eb6840611bbe0e1a985479365d8fa6.gif" 
-             style="width: 201%; height: auto; 
-                    transform: scale(1.1) translateX(-5%) translateY(20%); 
-                    position: relative; 
-                    left: 0;">
-        <div class="photo-text">KLİP</div>
-    </div>
-</a>
-                    </a>
-                </li>
-            </ul>
-        </li>
-<li onclick="showMaintenanceMessage('ETKİNLİK')">ETKİNLİK</li>
-<li onclick="toggleMenu(event)">OKUL
-<ul>
-    <li><a href="https://drive.google.com/drive/folders/1hm5JmXwPMtUOVXZ6NraqDPKOUsKf3_T1?usp=drive_link">MEZUNİYET</a></li>
-    <li><a href="https://drive.google.com/drive/folders/1neYo56GCMVBicAW1ZdKn-9ETHgTHSOK0?usp=drive_link">ÖĞRENCİ ÇEKİMLERİ</a></li>
-    <li><a href="https://drive.google.com/drive/folders/1S0fK3rAOBRadzza38znvMlNSTgU_ffw8?usp=drive_link">ETKİNLİK ÇEKİMLERİ</a></li>
-</ul>
-<li onclick="showMaintenanceMessage('KURUMSAL')">KURUMSAL</li>
-<li onclick="showMaintenanceMessage('STUDYO')">STUDYO</li>
-        <li onclick="toggleMenu(event)">ORGANİZASYON
-            <ul>
-                <li>
-                    <iframe src="https://www.shopier.com/ShowProductNew/storefront.php?shop=Organizasyon59&sid=aFAxRGcyaFhqUjlXRDFZTDBfLTFfT1JHQU5JWkFTWU9OXyA=#ORGANIZASYON" title="Organizasyon Sayfası"></iframe>
-                </li>
-            </ul>
-        </li>
-       <li onclick="toggleMenu(event)">HAKKIMIZDA
-    <ul>
-        <li>EKİP
-            <ul>
-                <li onclick="showMemberInfo('MUHARREM PASOV')">MUHARREM PASOV</li>
-                <li onclick="showMemberInfo('EREN PASOV')">EREN PASOV</li>
-                <li onclick="showMemberInfo('FERDİ KABALI')">FERDİ KABALI</li>
-            </ul>
-        </li>
-        <li>ÇEKİM ARKASI
-            <ul>
-                <!-- Diğer alt menüler buraya eklenebilir -->
-            </ul>
-        </li>
-    </ul>
-</li>
+    <label>Fiyat (TL)</label>
+    <input type="number" id="fiyat" />
 
-<!-- Modal (Açılır pencere) -->
-<div id="memberModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <div id="modalPhoto" class="modal-photo">
-            <img src="" alt="Üye Fotoğrafı" id="memberPhoto">
-        </div>
-        <div id="modalDescription" class="modal-description">
-            <p id="memberDescription"></p>
-        </div>
-    </div>
-</div>
-<!-- TEKLİF AL Menüsüne eklenen Bize Ulaşın butonu -->
-<li onclick="toggleMenu(event)">TEKLİF AL
-    <ul>
-        <li>
-            <label class="checkbox-container">
-                <input type="checkbox" id="serviceA">
-                <span class="checkbox-custom"></span>
-                <span class="checkbox-text">FOTOĞRAF</span>
-            </label>
-        </li>
-        <li>
-            <label class="checkbox-container">
-                <input type="checkbox" id="serviceB">
-                <span class="checkbox-custom"></span>
-                <span class="checkbox-text">KAMERA</span>
-            </label>
-        </li>
-        <li>
-            <label class="checkbox-container">
-                <input type="checkbox" id="serviceC">
-                <span class="checkbox-custom"></span>
-                <span class="checkbox-text">DRONE</span>
-            </label>
-        </li>
+    <label>Açıklama</label>
+    <textarea id="aciklama" rows="3" placeholder="Detaylar..."></textarea>
+
+    <label>Referans Kişi</label>
+    <input type="text" id="referans" placeholder="Seni öneren kişi (isteğe bağlı)" />
+
+    <button onclick="teklifHazirla()" id="teklifBtn">TEKLİFİ OLUŞTUR</button>
+
+    <div id="output"></div>
+
+    <button class="accordion">Teklifler</button>
+    <div class="panel" id="tekliflerPanel">
+      <div class="search-container">
+        <input type="text" id="teklifArama" class="search-input" placeholder="Müşteri adı, paket, yer ile arayın...">
+        <button onclick="teklifAra()" class="search-btn">🔍 Ara</button>
+        <button onclick="aramaTemizle('teklif')" class="clear-btn">Temizle</button>
         
-        <li>
-
-
-        <!-- Tarih Seçimi (gün-ay-yıl formatı) -->
-        <li>
-            <label for="selectDate">Etkinlik Tarihi Seçiniz:</label>
-            <input type="date" id="selectDate" name="selectDate">
-        </li>
-        
-        <!-- Bize Ulaşın butonu ekleniyor -->
-        <li>
-            <a href="#" class="contact-item" onclick="sendWhatsAppMessage()">
-                <img src="https://i.hizliresim.com/4u2m8c3.png" alt="WhatsApp" class="contact-icon">
-                <span>Teklif Al</span>
-            </a>
-        </li>
-    </ul>
-</li>
-
-
-<li onclick="toggleMenu(event)">RANDEVU AL
-    <ul>
-        <!-- Saat Seçenekleri -->
-        <li>
-            <div class="checkbox-group">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour9">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">09:00</span>
-                </label>
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour930">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">09:30</span>
-                </label>
-            </div>
-            <div class="checkbox-group">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour10">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">10:00</span>
-                </label>
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour1030">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">10:30</span>
-                </label>
-            </div>
-        </li>
-        <li>
-            <div class="checkbox-group">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour11">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">11:00</span>
-                </label>
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour1130">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">11:30</span>
-                </label>
-            </div>
-            <div class="checkbox-group">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour12">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">12:00</span>
-                </label>
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour1230">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">12:30</span>
-                </label>
-            </div>
-        </li>
-        <li>
-            <div class="checkbox-group">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour13">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">13:00</span>
-                </label>
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour1330">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">13:30</span>
-                </label>
-            </div>
-            <div class="checkbox-group">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour14">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">14:00</span>
-                </label>
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour1430">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">14:30</span>
-                </label>
-            </div>
-        </li>
-        <li>
-            <div class="checkbox-group">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour15">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">15:00</span>
-                </label>
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour1530">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">15:30</span>
-                </label>
-            </div>
-            <div class="checkbox-group">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour16">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">16:00</span>
-                </label>
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour1630">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">16:30</span>
-                </label>
-            </div>
-        </li>
-        <li>
-            <div class="checkbox-group">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour17">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">17:00</span>
-                </label>
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour1730">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">17:30</span>
-                </label>
-            </div>
-            <div class="checkbox-group">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour18">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">18:00</span>
-                </label>
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour1830">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">18:30</span>
-                </label>
-            </div>
-        </li>
-        <li>
-            <div class="checkbox-group">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="hour19">
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">19:00</span>
-                </label>
-                
-                      <label>
-                        <input type="radio" name="dayOption" id="todayOption" value="today" checked>
-                        Bugün
-                    </label>
-                    <label>
-                        <input type="radio" name="dayOption" id="otherDateOption" value="other">
-                        Tarih Seç
-                        <input type="date" id="datePicker" style="display: none;" />
-                    </label>
-                </span>
-            </div>
-        </li>
-
-</li>
-
-
-
-        <!-- İsim Soyad ve Açıklama Kutuları -->
-        <div class="contact-form">
-            <label for="fullName">Ad Soyad:</label>
-            <input type="text" id="fullName" placeholder="Ad ve Soyadınızı girin" required>
-
-            <label for="description">Açıklama:</label>
-            <textarea id="description" placeholder="Açıklamanızı buraya yazın" required></textarea>
-
-            <button id="sendMessageButton" onclick="sendWhatsAppMessagee(event)">Gönder</button>
-        </div>
-    </ul>
-</li>
-
-<ul class="menu">
-    <li onclick="toggleAccessMenu()">ERİŞİM</li>
-    <li onclick="toggleAdmin()">ADMIN</li>
-</ul>
-<div class="form-container" id="form-container">
-    <h2>Numara Sorgu</h2>
-    <input type="text" id="phoneNumber" placeholder="Telefon numarasını girin">
-    <button onclick="openLink()">Sorgula</button>
-    <p id="error-message" class="error-message">Bu numara kayıtlı değil!</p>
-</div>
-<div class="admin-panel" id="admin-panel">
-    <h2>Admin Paneli</h2>
-    <input type="text" id="adminPhone" placeholder="Telefon numarası">
-    <input type="url" id="adminLink" placeholder="Bağlantı URL'si">
-    <button onclick="addEntry()">Ekle</button>
-
-    <h2>Borç Ekle</h2>
-    <input type="text" id="debtName" placeholder="İsim Soyisim">
-    <input type="date" id="debtDate">
-    <input type="text" id="debtPhone" placeholder="Telefon Numarası">
-    <input type="number" id="debtAmount" placeholder="Borç Miktarı">
-    <input type="text" id="debtDescription" placeholder="Açıklama">
-    <button onclick="addDebt()">Borç Ekle</button>
-
-    <h2>Borç Sorgula</h2>
-    <input type="text" id="searchPhoneOrName" placeholder="Telefon numarası veya isim soyisim">
-    <button onclick="searchDebt()">Sorgula</button>
-    <button onclick="showAllDebts()">Hepsi</button>
-    <div id="debtResults"></div>
-    <h3 id="totalDebt" style="color: red; font-size: 20px; font-weight: bold;"></h3>
-    
-
-    <h2>Ürün Sorgula</h2>
-    <input type="text" id="searchProduct" placeholder="Ürün adı veya açıklama">
-    <button onclick="searchProduct()">Sorgula</button>
-    <button onclick="showAllProducts()">Tüm Ürünler</button>
-    <div id="productResults"></div>
-    
-
-
-
-        
-    </ul>
-
-   <!-- İletişim bölümü -->
-<div class="contact-container">
-      <a href="https://www.youtube.com/@Organizasyon59" target="_blank" class="contact-item">
-        <img src="https://i.hizliresim.com/lpz1q4m.png" alt="YouTube" class="contact-icon">
-        <span>YouTube</span>
-    </a>
-    
-    <a href="https://www.instagram.com/pasovart" target="_blank" class="contact-item">
-        <img src="https://i.hizliresim.com/see2qs4.png" alt="Instagram" class="contact-icon">
-        <span>@pasovart</span>
-    </a>
-    <a href="https://wa.me/905550950059" target="_blank" class="contact-item">
-        <img src="https://i.hizliresim.com/4u2m8c3.png" alt="WhatsApp" class="contact-icon">
-        <span>Bize Ulaşın</span>
-    </a>
-    
-    
-  
-
-
+      </div>
+      <div id="tekliflerListesi" class="list-container"></div>
     </div>
 
- <script>
- 
- 
- 
- 
- 
- 
-// Firebase yapılandırma bilgileri
-        const firebaseConfig = {
-            apiKey: "AIzaSyDMMpU1l8zabgaw7bfSHKCOxLbz-RhNT7I",
-            authDomain: "databasepsv-dc1b7.firebaseapp.com",
-            databaseURL: "https://databasepsv-dc1b7-default-rtdb.firebaseio.com",
-            projectId: "databasepsv-dc1b7",
-            storageBucket: "databasepsv-dc1b7.firebasestorage.app",
-            messagingSenderId: "106474799557",
-            appId: "1:106474799557:web:8f7cff2b7ef8466ab08bac",
-            measurementId: "G-BKKE9YZS1T"
-        };
+    <button class="accordion">Sözleşmeler</button>
+    <div class="panel" id="sozlesmelerPanel">
+      <div class="search-container">
+        <input type="text" id="sozlesmeArama" class="search-input" placeholder="Müşteri adı, paket, yer ile arayın...">
+        <button onclick="sozlesmeAra()" class="search-btn">🔍 Ara</button>
+        <button onclick="aramaTemizle('sozlesme')" class="clear-btn">Temizle</button>
+      </div>
+      <div id="sozlesmelerListesi" class="list-container"></div>
+    </div>
 
-        // Firebase başlatma
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+    <!-- Düzenleme Formu (gizli) -->
+    <div id="editForm" style="display:none;">
+      <h3>Teklifi Düzenle</h3>
+      <label>Müşteri Adı</label>
+      <input type="text" id="editAd" />
 
-        // Veri kaydetme fonksiyonu
-        async function saveData(newData) {
-            try {
-                const docRef = db.collection('links').doc('data');
-                const existingData = await fetchData();
-                const updatedData = { ...existingData, ...newData };
+      <label>Çekim Türü</label>
+      <input type="text" id="editCekim" placeholder="Örn: Düğün, Save the Date, Ürün" />
 
-                await docRef.set(updatedData);  // Firebase'e veri kaydetme
-                alert("Veriler başarıyla kaydedildi!");
-            } catch (error) {
-                console.error("Veri kaydetme hatası:", error);
-            }
-        }
+      <label>Paket Seçimi</label>
+      <select id="editPaket" onchange="editPaketBilgisiYukle()">
+        <option value="">-- Paket Seçin --</option>
+        <option value="StandartEkip">Standart Ekip</option>
+        <option value="ProfesyonelEkip">Profesyonel Ekip</option>
+       
+      </select>
 
-        // Veri alma fonksiyonu
-        async function fetchData() {
-            try {
-                const docRef = db.collection('links').doc('data');
-                const docSnap = await docRef.get();
-                if (docSnap.exists) {
-                    console.log("Veriler:", docSnap.data());
-                    return docSnap.data();
-                } else {
-                    console.error("Veri bulunamadı!");
-                    return {};  // Veri bulunamadığında boş bir nesne döner
-                }
-            } catch (error) {
-                console.error("Veri alma hatası:", error);
-            }
-        }
+      <label>Etkinlik Yeri</label>
+      <input type="text" id="editYer" placeholder="Örn: İstanbul, Kemerburgaz Ormanı" />
 
-        // Link açma fonksiyonu
-        async function openLink() {
-            const phoneNumber = document.getElementById("phoneNumber").value.trim();
-            const errorMessage = document.getElementById("error-message");
-            errorMessage.style.display = "none";
-            const data = await fetchData();
+      <label>Tarih</label>
+      <input type="date" id="editTarih" />
 
-            if (phoneNumber && data[phoneNumber]) {
-                window.open(data[phoneNumber], "_blank");
-            } else {
-                errorMessage.style.display = "block";
-            }
-        }
+      <label>Fiyat (TL)</label>
+      <input type="number" id="editFiyat" />
 
-        // Yeni giriş ekleme fonksiyonu
-        async function addEntry() {
-            const adminPhone = document.getElementById("adminPhone").value.trim();
-            const adminLink = document.getElementById("adminLink").value.trim();
+      <label>Açıklama</label>
+      <textarea id="editAciklama" rows="3" placeholder="Detaylar..."></textarea>
 
-            if (adminPhone && adminLink) {
-                const newData = { [adminPhone]: adminLink };
-                await saveData(newData);
-                document.getElementById("adminPhone").value = "";
-                document.getElementById("adminLink").value = "";
-            } else {
-                alert("Lütfen tüm alanları doldurun!");
-            }
-        }
+      <label>Referans Kişi</label>
+      <input type="text" id="editReferans" placeholder="Seni öneren kişi (isteğe bağlı)" />
 
-        // Menü işlevi
-        function toggleAccessMenu() {
-            const formContainer = document.getElementById('form-container');
-            formContainer.style.display = formContainer.style.display === 'none' || formContainer.style.display === '' ? 'block' : 'none';
-        }
+      <button onclick="kaydetDuzenleme()">Kaydet</button>
+      <button class="btn-cancel" onclick="iptalDuzenleme()">İptal</button>
+    </div>
+  </div>
 
-        // Admin paneli işlevi
-        function toggleAdmin() {
-            const adminPanel = document.getElementById('admin-panel');
-            const password = prompt("Admin şifrenizi girin:");
-            if (password === 'admin123') {
-                adminPanel.style.display = 'block';
-            } else {
-                alert('Yanlış şifre!');
-            }
-        }
+  <!-- PDF içeriği için gizli div -->
+  <div id="pdfContent" class="pdf-content" style="display:none;">
+    <!-- PDF içeriği buraya dinamik olarak eklenecek -->
+  </div>
 
-        // Link açma işlevi
-        async function openLink() {
-    const phoneNumber = document.getElementById("phoneNumber").value.trim();
-    const errorMessage = document.getElementById("error-message");
-    errorMessage.style.display = "none";
+  <!-- Firebase SDK -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
+
+<script>
+  // Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDMMpU1l8zabgaw7bfSHKCOxLbz-RhNT7I",
+    authDomain: "databasepsv-dc1b7.firebaseapp.com",
+    databaseURL: "https://databasepsv-dc1b7-default-rtdb.firebaseio.com",
+    projectId: "databasepsv-dc1b7",
+    storageBucket: "databasepsv-dc1b7.firebasestorage.app",
+    messagingSenderId: "106474799557",
+    appId: "1:106474799557:web:8f7cff2b7ef8466ab08bac",
+    measurementId: "G-BKKE9YZS1T"
+  };
+
+  // Firebase'i başlat
+  let db;
+  let firebaseConnected = false;
+
+  try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    firebaseConnected = true;
+    updateFirebaseStatus(true);
+    console.log("Firebase başarıyla bağlandı!");
+  } catch (error) {
+    console.error("Firebase bağlantı hatası:", error);
+    updateFirebaseStatus(false);
+    alert("Firebase bağlantısı kurulamadı. Veriler geçici olarak tarayıcıda saklanacak.");
+  }
+
+  function updateFirebaseStatus(connected) {
+    const statusEl = document.getElementById('firebaseStatus');
+    if (connected) {
+      statusEl.textContent = '🟢 Firebase Bağlı';
+      statusEl.className = 'firebase-status firebase-connected';
+    } else {
+      statusEl.textContent = '🔴 Firebase Bağlantısız';
+      statusEl.className = 'firebase-status firebase-disconnected';
+    }
+  }
+
+  const paketler = {
+    StandartEkip: {
+      fiyat: 3000,
+      aciklama: "2 saat çekim, 30 düzenlenmiş fotoğraf, 1 dakikalık reels"
+    },
+    ProfesyonelEkip: {
+      fiyat: 5000,
+      aciklama: "4 saat çekim, 60 düzenlenmiş fotoğraf, 2 dakikalık klip"
+    },
+
+  };
+
+  let teklifler = [];
+  let sozlesmeler = [];
+  let duzenlenenTeklifId = null;
+  let filtreliTeklifler = [];
+  let filtreliSozlesmeler = [];
+
+  // Sayfa yüklendiğinde verileri çek
+  window.addEventListener('load', async () => {
+    await veriCek();
+  });
+
+  // Firebase'den verileri çek
+  async function veriCek() {
+    if (!firebaseConnected) {
+      console.log("Firebase bağlantısı yok, yerel veriler kullanılıyor.");
+      return;
+    }
 
     try {
-        const data = await fetchData();
+      showLoading("tekliflerListesi");
+      showLoading("sozlesmelerListesi");
 
-        // Data'nın doğru şekilde yüklendiğini kontrol et
-        if (data && phoneNumber && data[phoneNumber]) {
-            window.open(data[phoneNumber], "_blank");
-        } else {
-            errorMessage.style.display = "block"; // Veritabanında numara bulunamadığında
-        }
+      // Teklifleri çek
+      const teklifSnapshot = await db.collection('teklifler').orderBy('createdAt', 'desc').get();
+      teklifler = [];
+      teklifSnapshot.forEach(doc => {
+        teklifler.push({
+          id: doc.id,
+          ...doc.data()
+        });
+      });
+
+      // Sözleşmeleri çek
+      const sozlesmeSnapshot = await db.collection('sozlesmeler').orderBy('createdAt', 'desc').get();
+      sozlesmeler = [];
+      sozlesmeSnapshot.forEach(doc => {
+        sozlesmeler.push({
+          id: doc.id,
+          ...doc.data()
+        });
+      });
+
+      filtreliTeklifler = [...teklifler];
+      filtreliSozlesmeler = [...sozlesmeler];
+      renderTeklifler();
+      renderSozlesmeler();
     } catch (error) {
-        console.error("Veri alma hatası:", error);
-        errorMessage.style.display = "block"; // Veri alma hatası durumunda
+      console.error("Veri çekme hatası:", error);
+      document.getElementById('output').innerHTML = `
+        <div style="color: red; padding: 10px; border: 1px solid red; border-radius: 5px;">
+          ❌ Veriler yüklenirken hata oluştu: ${error.message}
+        </div>
+      `;
     }
-}
-        // Yeni giriş ekleme işlevi
-        async function addEntry() {
-            const adminPhone = document.getElementById("adminPhone").value.trim();
-            const adminLink = document.getElementById("adminLink").value.trim();
-            if (adminPhone && adminLink) {
-                const newData = { [adminPhone]: adminLink };
-                await saveData(newData);
-                document.getElementById("adminPhone").value = "";
-                document.getElementById("adminLink").value = "";
-            } else {
-                alert("Lütfen tüm alanları doldurun!");
-            }
-        }
+  }
 
-        // Global olarak fonksiyonları erişilebilir hale getirme
-        window.toggleAccessMenu = toggleAccessMenu;
-        window.toggleAdmin = toggleAdmin;
-        window.openLink = openLink;
-        window.addEntry = addEntry;
-        
-        
-function showMaintenanceMessage(menu) {
-    alert(menu + " menüsünde çalışma yapılmaktadır. Lütfen daha sonra tekrar deneyin.");
-}
+  function showLoading(containerId) {
+    document.getElementById(containerId).innerHTML = `
+      <div class="loading-text">
+        <div class="loading"></div>
+        Veriler yükleniyor...
+      </div>
+    `;
+  }
 
-function showMemberInfo(memberName) {
-    var photoSrc = '';
-    var description = '';
+  // Accordion aç/kapa
+  document.querySelectorAll(".accordion").forEach(button => {
+    button.addEventListener("click", () => {
+      button.classList.toggle("active");
+      const panel = button.nextElementSibling;
+      if(panel.style.display === "block") {
+        panel.style.display = "none";
+      } else {
+        panel.style.display = "block";
+      }
+    });
+  });
 
-    // Üye bilgilerini kişiye göre ayarlama
-    if (memberName === 'MUHARREM PASOV') {
-        photoSrc = 'https://i.hizliresim.com/se495ix.jpg'; // Buraya fotoğrafın yolunu ekleyin
-        description = 'Muharrem Pasov, Drone Pilotluğu ve Videographerlık alanlarında uzmanlaşmış bir profesyoneldir. Gelişmiş drone teknolojileri ve sinematik çekim tekniklerine dair derin bilgi ve deneyime sahip olan Pasov, projelerin her aşamasında yüksek kaliteli görseller ve videolar sunmaktadır. Müşteri ihtiyaçlarını anlayarak, yaratıcı ve etkili görsel içerikler üretmekte, sektördeki en son yenilikleri takip ederek çözümlerini sürekli geliştirmektedir.';
-    } else if (memberName === 'EREN PASOV') {
-        photoSrc = 'https://i.hizliresim.com/pywfxg3.jpg'; // Buraya fotoğrafın yolunu ekleyin
-        description = 'Eren Pasov, özellikle düğün fotoğrafçılığı ve dış mekan çekimleri konusunda uzmanlaşmış bir profesyoneldir. Çiftlerin özel günlerinde en anlamlı anları yakalayarak, hem iç mekan hem de dış mekan çekimlerinde estetik ve doğal bir bakış açısı sunmaktadır. Dış çekimlerde, doğanın ve mekanın sunduğu güzellikleri, çiftin samimi anlarıyla birleştirerek özgün ve zarif fotoğraflar ortaya çıkarmaktadır. Her bir düğün ve dış mekan çekimi, Eren Pasov’un yaratıcı bakış açısı ile kişiye özel hale gelmektedir. Ayrıca, fotoğraf düzenleme konusundaki uzmanlığıyla, her çekimi profesyonelce işleyerek, müşterilerine mükemmel sonuçlar sunmaktadır.';
-    } else if (memberName === 'FERDİ KABALI') {
-        photoSrc = 'https://i.hizliresim.com/k2j42h1.jpg'; // Buraya fotoğrafın yolunu ekleyin
-        description = 'Ferdi Kabalı, hem fotoğrafçılık hem de videography alanlarında klip çekimleri yapmanın yanı sıra, kurgu ve After Effects editörlüğü konularında da uzmanlaşmıştır. Yaratıcı bakış açısı ve teknik bilgisiyle, çekimlerin ardından etkileyici kurgu ve animasyonlar hazırlayarak, her projeye profesyonel bir dokunuş katmaktadır. Hem fotoğraf hem de video içeriği üzerinde çalışarak, görsel anlatımı güçlendirir ve müşterilerine sinematik deneyimler sunar. Ferdi Kabalı, her adımda yüksek kaliteyi ve sanatsal mükemmeliyeti hedeflemektedir.';
+  function paketBilgisiYukle() {
+    const secilen = document.getElementById("paket").value;
+    if (paketler[secilen]) {
+      document.getElementById("fiyat").value = paketler[secilen].fiyat;
+      document.getElementById("aciklama").value = paketler[secilen].aciklama;
+    }
+  }
+
+  function editPaketBilgisiYukle() {
+    const secilen = document.getElementById("editPaket").value;
+    if (paketler[secilen]) {
+      document.getElementById("editFiyat").value = paketler[secilen].fiyat;
+      document.getElementById("editAciklama").value = paketler[secilen].aciklama;
+    }
+  }
+
+  async function teklifHazirla() {
+    const ad = document.getElementById("ad").value.trim();
+    if (!ad) {
+      alert("Müşteri adı boş bırakılamaz!");
+      return;
     }
 
-    // Modal içeriklerini güncelle
-    document.getElementById('memberPhoto').src = photoSrc;
-    document.getElementById('memberDescription').innerText = description;
+    const btn = document.getElementById("teklifBtn");
+    btn.disabled = true;
+    btn.innerHTML = '<div class="loading"></div> Teklif Oluşturuluyor...';
 
-    // Modal'ı göster
-    var modal = document.getElementById('memberModal');
-    modal.style.display = "block";
-}
+    const cekim = document.getElementById("cekim").value
+      .split(',')
+      .map(c => c.trim())
+      .filter(Boolean)
+      .map(c => `- ${c}`)
+      .join('<br>');
+    const paket = document.getElementById("paket").value.toUpperCase();
+    const yer = document.getElementById("yer").value;
+    const tarih = document.getElementById("tarih").value;
+    const fiyat = document.getElementById("fiyat").value;
+    const aciklama = document.getElementById("aciklama").value.replace(/\n/g, '<br>');
+    const referans = document.getElementById("referans").value;
+    const bugun = new Date().toLocaleDateString('tr-TR');
 
-// Modal'ı kapatma fonksiyonu
-function closeModal() {
-    var modal = document.getElementById('memberModal');
-    modal.style.display = "none";
-}
+    const teklif = {
+      ad, cekim, paket, yer, tarih, fiyat, aciklama, referans, bugun,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
 
+    try {
+      if (firebaseConnected) {
+        const docRef = await db.collection('teklifler').add(teklif);
+        teklif.id = docRef.id;
+      } else {
+        teklif.id = Date.now().toString();
+      }
+      
+      teklifler.unshift(teklif);
+      filtreliTeklifler = [...teklifler];
+      renderTeklifler();
 
-document.addEventListener("DOMContentLoaded", () => {
-    const todayOption = document.getElementById("todayOption");
-    const otherDateOption = document.getElementById("otherDateOption");
-    const datePicker = document.getElementById("datePicker");
+      document.getElementById("output").innerHTML = `
+        <div style="color: green; padding: 10px; border: 1px solid green; border-radius: 5px;">
+          ✅ Teklif başarıyla oluşturuldu!
+        </div>
+      `;
 
-    otherDateOption.addEventListener("change", () => {
-        if (otherDateOption.checked) {
-            datePicker.style.display = "inline-block"; // Takvimi göster
-        }
+      // Formu temizle
+      ["ad", "cekim", "paket", "yer", "tarih", "fiyat", "aciklama", "referans"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
+
+    } catch (error) {
+      console.error("Teklif kaydetme hatası:", error);
+      document.getElementById("output").innerHTML = `
+        <div style="color: red; padding: 10px; border: 1px solid red; border-radius: 5px;">
+          ❌ Teklif kaydedilirken hata oluştu: ${error.message}
+        </div>
+      `;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'TEKLİFİ OLUŞTUR';
+    }
+  }
+
+  // Yeni liste tasarımıyla teklifleri render et
+  function renderTeklifler() {
+    const container = document.getElementById("tekliflerListesi");
+    
+    if (filtreliTeklifler.length === 0) {
+      container.innerHTML = '<div class="empty-state">Henüz teklif bulunmamaktadır.</div>';
+      return;
+    }
+
+    let html = `
+      <div class="list-header">
+        <div>Müşteri / Çekim</div>
+        <div>Paket</div>
+        <div>Yer</div>
+        <div>Tarih</div>
+        <div>Fiyat</div>
+        <div>İşlemler</div>
+      </div>
+    `;
+
+    filtreliTeklifler.forEach(teklif => {
+      const cekimKisa = teklif.cekim.replace(/<br>/g, ', ').replace(/- /g, '').substring(0, 30) + '...';
+      html += `
+        <div class="list-item">
+          <div>
+            <strong>${teklif.ad}</strong><br>
+            <small style="color: #666;">${cekimKisa}</small>
+          </div>
+          <div>${teklif.paket}</div>
+          <div>${teklif.yer}</div>
+          <div>${teklif.tarih}</div>
+          <div><strong>${teklif.fiyat} TL</strong></div>
+          <div class="list-actions">
+            <button onclick="teklifiGoster('${teklif.id}')" class="btn-view" title="Görüntüle">👁</button>
+            <button onclick="pdfOlusturVePaylas('${teklif.id}')" class="btn-pdf" title="PDF">📄</button>
+            <button onclick="teklifiDuzenle('${teklif.id}')" class="btn-edit" title="Düzenle">✏</button>
+            <button onclick="teklifiKabulEt('${teklif.id}')" class="btn-contract" title="Sözleşme">📋</button>
+			<button onclick="teklifiSil('${teklif.id}')" class="btn-delete" title="Sil">🗑</button>
+
+          </div>
+        </div>
+      `;
     });
 
-    todayOption.addEventListener("change", () => {
-        if (todayOption.checked) {
-            datePicker.style.display = "none"; // Takvimi gizle
-        }
-    });
-});
+    container.innerHTML = html;
+  }
 
-function sendWhatsAppMessagee(event) {
-    // Kullanıcıdan alınan bilgiler
-    const fullName = document.getElementById('fullName').value.trim();
-    const description = document.getElementById('description').value.trim();
-
-    // Saat bilgileri (tam ve yarım saatleri kontrol et)
-    const selectedHours = [];
-    for (let i = 9; i <= 19; i++) {
-        // Tam saat
-        const hour = document.getElementById(`hour${i}`);
-        if (hour && hour.checked) selectedHours.push(`${i}:00`);
-
-        // Yarım saat
-        const halfHour = document.getElementById(`hour${i}30`);
-        if (halfHour && halfHour.checked) selectedHours.push(`${i}:30`);
+  // Yeni liste tasarımıyla sözleşmeleri render et
+  function renderSozlesmeler() {
+    const container = document.getElementById("sozlesmelerListesi");
+    
+    if (filtreliSozlesmeler.length === 0) {
+      container.innerHTML = '<div class="empty-state">Henüz sözleşme bulunmamaktadır.</div>';
+      return;
     }
 
-    // Tarih bilgisi
-    const todayOption = document.getElementById("todayOption")?.checked;
-    const selectedDate = document.getElementById("datePicker")?.value;
+    let html = `
+      <div class="list-header">
+        <div>Müşteri / Çekim</div>
+        <div>Paket</div>
+        <div>Yer</div>
+        <div>Tarih</div>
+        <div>Fiyat</div>
+        <div>İşlemler</div>
+      </div>
+    `;
 
-    // Tarih bilgisi metni
-    let dateMessage = "";
-    if (todayOption) {
-        const today = new Date();
-        const formattedToday = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1)
-            .toString()
-            .padStart(2, '0')}/${today.getFullYear()}`;
-        dateMessage = `*TARİH*: Bugün (${formattedToday})`;
-    } else if (selectedDate) {
-        const dateParts = selectedDate.split("-"); // "YYYY-MM-DD" formatını parçala
-        const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`; // "GG/AA/YYYY" olarak yeniden düzenle
-        dateMessage = `*TARİH*: ${formattedDate}`;
+    filtreliSozlesmeler.forEach(sozlesme => {
+      const cekimKisa = sozlesme.cekim.replace(/<br>/g, ', ').replace(/- /g, '').substring(0, 30) + '...';
+      html += `
+        <div class="list-item">
+          <div>
+            <strong>${sozlesme.ad}</strong><br>
+            <small style="color: #666;">${cekimKisa}</small>
+          </div>
+          <div>${sozlesme.paket}</div>
+          <div>${sozlesme.yer}</div>
+          <div>${sozlesme.tarih}</div>
+          <div><strong>${sozlesme.fiyat} TL</strong></div>
+          <div class="list-actions">
+            <button onclick="sozlesmeGoster('${sozlesme.id}')" class="btn-view" title="Görüntüle">👁</button>
+            <button onclick="sozlesmePdfOlustur('${sozlesme.id}')" class="btn-pdf" title="PDF">📄</button>
+            <button onclick="sozlesmeSil('${sozlesme.id}')" class="btn-delete" title="Sil">🗑</button>
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+  }
+
+  // Arama fonksiyonları
+  function teklifAra() {
+    const arama = document.getElementById('teklifArama').value.toLowerCase().trim();
+    
+    if (!arama) {
+      filtreliTeklifler = [...teklifler];
     } else {
-        alert('Lütfen bir tarih seçin.');
-        event.preventDefault(); // Form gönderimini engelle
-        return;
-    }
-
-    // Boş alan kontrolü
-    if (!fullName || !description) {
-        alert('Ad Soyad ve Açıklama alanlarını doldurduğunuzdan emin olun.');
-        event.preventDefault(); // Form gönderimini engelle
-        return;
-    }
-
-    // En az bir saat seçildi mi kontrolü
-    if (selectedHours.length === 0) {
-        alert('En az bir hizmet saati seçmeniz gerekiyor.');
-        event.preventDefault(); // Form gönderimini engelle
-        return;
-    }
-
-    // Saatleri string olarak birleştir
-    const hoursMessage = `*RANDEVU SAATİ*: ${selectedHours.join(', ')}`;
-
-    // WhatsApp mesaj bağlantısını oluştur
-    const message = `*Ad Soyad*: ${fullName}\n*Açıklama*: ${description}\n${dateMessage}\n${hoursMessage}`;
-    const phoneNumber = `https://wa.me/905550950059?text=${encodeURIComponent(message)}`;
-
-    // WhatsApp'a yönlendirme
-    window.location.href = phoneNumber;
-}
-
-
-
-
-// Menü dışındaki bir alana tıklanması durumunda menüyü kapatmak için
-document.addEventListener('click', function(event) {
-    var menu = document.querySelector('.menu'); // Menü elemanını seç
-    var inputElements = menu.querySelectorAll('input, textarea'); // Menüdeki input ve textarea elemanlarını seç
-    
-    // Eğer tıklanan eleman bir input ya da textarea ise, menü kapanmasın
-    if ([...inputElements].includes(event.target)) {
-        return;
-    }
-
-    // Eğer menü dışında bir alana tıklanmışsa, menüyü kapat
-    if (!menu.contains(event.target)) {
-        var activeMenus = document.querySelectorAll('.menu li.active');
-        activeMenus.forEach(function(menuItem) {
-            menuItem.classList.remove('active'); // Tüm aktif menüler kapanır
-        });
-    }
-});
-
-// Menüye tıklanarak alt menülerin açılmasını sağlayan fonksiyon
-function toggleMenu(event) {
-    var li = event.target.closest('li');
-    
-    // Eğer tıklanan eleman bir input ya da textarea ise, menü kapanmasın
-    if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') {
-        return;
-    }
-
-    // Alt menü öğesinin olup olmadığını kontrol et
-    if (li && li.querySelector('ul')) {
-        li.classList.toggle('active');  // Alt menüyü aç/kapat
-    }
-
-    // Alt menülerin kapanması için tüm aktif menüleri kontrol et
-    var allActiveMenus = document.querySelectorAll('.menu li.active');
-    allActiveMenus.forEach(function(menu) {
-        if (menu !== li && !menu.contains(event.target)) {
-            menu.classList.remove('active');  // Tıklanmayan diğer menüler kapanır
-        }
-    });
-
-}
-
-function sendWhatsAppMessage() {
-    var selectedServices = [];
-    // Checkbox'lar kontrol edilerek seçilen hizmetler ekleniyor
-
-    if (document.getElementById('serviceA') && document.getElementById('serviceA').checked) {
-        selectedServices.push('FOTOĞRAF');
-    }
-    if (document.getElementById('serviceB') && document.getElementById('serviceB').checked) {
-        selectedServices.push('KAMERA');
-    }
-    if (document.getElementById('serviceC') && document.getElementById('serviceC').checked) {
-        selectedServices.push('DRONE');
-    }
-
-    // Tarih seçimi alınması (isteğe bağlı)
-    var selectedDate = document.getElementById('selectDate').value;
-
-    // Seçilen hizmetlerin boş olup olmadığının kontrolü
-    if (selectedServices.length === 0) {
-        alert('Lütfen en az bir hizmet seçin.');
-        return;
-    }
-
-    // Tarih formatını gün-ay-yıl şeklinde düzenle
-    var formattedDate = 'Tarih seçilmedi';
-    if (selectedDate) {
-        var dateParts = selectedDate.split('-');
-        formattedDate = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];  // Gün-Ay-Yıl formatı
-    }
-
-    // Seçilen hizmetleri ve tarihi mesajda birleştir
-    var message = 'Merhaba, aşağıdaki hizmetleri talep ediyorum:\n' + selectedServices.join(', ') + '.\n*Tarih*: ' + formattedDate;
-    
-    // WhatsApp URL'sini oluştur
-    var whatsappUrl = 'https://wa.me/905550950059?text=' + encodeURIComponent(message);
-    
-    // WhatsApp linkini yeni sekmede aç
-    window.open(whatsappUrl, '_blank');
-}
-
-
-
- 
- 
- 
- 
-
-const CORS_PROXY_URL = 'https://cors-anywhere.dfprod.dataplusfeminism.mit.edu/';
-const SHOPIER_API_URL = 'https://api.shopier.com/v1/products';
-const SHOPIER_API_KEY = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJmNmZhN2ZiNWE4NjhmODI1YTMwZTYzYThlMTU3YmE4NiIsImp0aSI6IjRkYTBhYzI0YjNmNGY0ZGFkZWYxNmE3YmZmNjEwMDhkZjE0MTgxZGJjOGU2NDI1Y2ZkZTI4YmUxNDExMWMxOTc2NzFmYTdjNjBhMjQ3ODc3YTlmNjJiODlkM2EyNzQ4YTNjNjJlZjcwNjkzNDc5ZTM2MjM1YmU5ZjcyMTVkNjA2ZTZhMjgwNWFmNTAzMmU2NGU2NTFhMjM3NzMxNzRmOGQiLCJpYXQiOjE3NDE2OTk4NzgsIm5iZiI6MTc0MTY5OTg3OCwiZXhwIjoxODk5NDg0NjM4LCJzdWIiOiIzNjU5OTUiLCJzY29wZXMiOlsib3JkZXJzOnJlYWQiLCJvcmRlcnM6d3JpdGUiLCJwcm9kdWN0czpyZWFkIiwicHJvZHVjdHM6d3JpdGUiLCJzaGlwcGluZ3M6cmVhZCIsInNoaXBwaW5nczp3cml0ZSIsImRpc2NvdW50czpyZWFkIiwiZGlzY291bnRzOndyaXRlIiwicGF5b3V0czpyZWFkIiwicmVmdW5kczpyZWFkIiwicmVmdW5kczp3cml0ZSIsInNob3A6cmVhZCIsInNob3A6d3JpdGUiXX0.kpyQwSmbldkIe-M2mKX3R-9XSWHquaAHh4879lR0weEA5EfamW6BZiQL6oGR1Pic9_tkWNoZkQpi6jSt_gzs_x5-VJSbzBiGHXut9jgw9XztLBey6Fb8xJgpkwG3UrPBBsx94-S5hHaraDci2fizS4F7xZ-jgbgm1dWhiOhmpZv88UoCCtfbSP-SHDCSX3IkZwYxY0u5ECGdIimMZ28EosTEKih3UiQTAeUOt-29LBZdC_JoNPY6hFIimoeyg6ZAS2X9e2jaVP05jiGbFe-6yI_gq46v9IAKdaWTVVnHdaL3foVxLc2QPWa9MU2dP89SqroWt8tRZeqcFTmyYRt3Xw';
-
-
-
-
-function fetchProductsFromShopier() {
-    // Başlangıçta yükleniyor mesajı göster
-    document.getElementById('productResults').innerHTML = "<p>Ürünler yükleniyor...</p>";
-    
-    // Tüm ürünleri içerecek dizi
-    let allProducts = [];
-    
-    // İlerleme durumunu takip etmek için sayaçlar
-    let totalPages = 37; // Toplam sayfa sayısını biliyoruz
-    let completedPages = 0;
-    let failedPages = 0;
-    
-    // İlerleme durumunu güncelleyen fonksiyon
-    function updateProgress() {
-        const percentage = Math.round((completedPages / totalPages) * 100);
-        document.getElementById('productResults').innerHTML = 
-            `<p>Ürünler yükleniyor... %${percentage} tamamlandı (${completedPages}/${totalPages} sayfa)</p>
-             <div style="width: 100%; background-color: #ddd; border-radius: 5px;">
-                <div style="width: ${percentage}%; background-color: #4CAF50; height: 20px; border-radius: 5px;"></div>
-             </div>`;
+      filtreliTeklifler = teklifler.filter(teklif => 
+        teklif.ad.toLowerCase().includes(arama) ||
+        teklif.cekim.toLowerCase().includes(arama) ||
+        teklif.paket.toLowerCase().includes(arama) ||
+        teklif.yer.toLowerCase().includes(arama)
+      );
     }
     
-    // Tek bir sayfayı çeken fonksiyon
-    function fetchSinglePage(page) {
-        const apiUrl = `${SHOPIER_API_URL}?page=${page}&limit=50`;
-        
-        return fetch(CORS_PROXY_URL + apiUrl, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${SHOPIER_API_KEY}`,
-            },
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(err => {
-                    throw new Error(`Sayfa ${page} - API Hatası: ${err.message || response.statusText}`);
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log(`Shopier'den sayfa ${page} ürün verisi alındı`);
-            
-            // Veri yapısını kontrol et ve düzenle
-            let products = [];
-            if (data.products) {
-                products = data.products;
-            } else if (Array.isArray(data)) {
-                products = data;
-            } else if (data.data && Array.isArray(data.data)) {
-                products = data.data;
-            } else {
-                products = [data]; // Tek bir ürün olabilir
-            }
-            
-            return products;
-        });
-    }
-    
-    // Paralel isteklerle tüm sayfaları çeken ana fonksiyon
-    async function fetchAllPages() {
-        // Kaç sayfa paralel çekilecek
-        const CONCURRENT_REQUESTS = 10; // Aynı anda çekilecek sayfa sayısı
-        
-        // Tüm sayfaları çekmek için
-        for (let i = 0; i < totalPages; i += CONCURRENT_REQUESTS) {
-            // Bu döngüde çekilecek sayfa numaraları
-            const pagePromises = [];
-            
-            // Paralel istekler oluştur
-            for (let j = 0; j < CONCURRENT_REQUESTS && (i + j) < totalPages; j++) {
-                const pageNum = i + j + 1; // Sayfa numarası 1'den başlar
-                pagePromises.push(
-                    fetchSinglePage(pageNum)
-                    .then(products => {
-                        completedPages++;
-                        updateProgress();
-                        return products;
-                    })
-                    .catch(error => {
-                        console.error(`Sayfa ${pageNum} verileri çekilirken hata oluştu:`, error);
-                        failedPages++;
-                        completedPages++;
-                        updateProgress();
-                        return []; // Hata durumunda boş dizi döndür
-                    })
-                );
-            }
-            
-            // Bu gruptaki tüm sayfaları bekle
-            const pagesResults = await Promise.all(pagePromises);
-            
-            // Sonuçları ana diziye ekle
-            for (const products of pagesResults) {
-                allProducts = allProducts.concat(products);
-            }
-            
-            // API rate limit'e takılmamak için gruplar arası kısa bir bekleme süresi
-            if (i + CONCURRENT_REQUESTS < totalPages) {
-                await new Promise(resolve => setTimeout(resolve, 300));
-            }
-        }
-        
-        // Tüm işlemler tamamlandı, sonuçları kaydet ve göster
-        console.log("Toplam çekilen ürün sayısı:", allProducts.length);
-        localStorage.setItem('products', JSON.stringify(allProducts));
-        
-        // Bitirme mesajı
-        let message = `<p>Toplam ${allProducts.length} ürün yüklendi. Arama yapmak için yukarıdaki kutucuğu kullanabilirsiniz.</p>`;
-        
-        if (failedPages > 0) {
-            message += `<p>Not: ${failedPages} sayfada hata oluştu, bazı ürünler eksik olabilir.</p>`;
-        }
-        
-        document.getElementById('productResults').innerHTML = message;
-    }
-    
-    // Çekme işlemini başlat
-    fetchAllPages().catch(error => {
-        console.error("Veri çekme işlemi sırasında kritik hata:", error);
-        document.getElementById('productResults').innerHTML = 
-            `<p>Veriler yüklenirken bir hata oluştu: ${error.message}</p>
-             <p>Lütfen daha sonra tekrar deneyin veya API anahtarınızı kontrol edin.</p>`;
-    });
-}
+    renderTeklifler();
+  }
 
-// Ürünleri arama fonksiyonu - özel format için güncellenmiş
-function searchProduct() {
-    const query = document.getElementById('searchProduct').value.trim().toLowerCase();
-    const products = JSON.parse(localStorage.getItem('products')) || [];
+  function sozlesmeAra() {
+    const arama = document.getElementById('sozlesmeArama').value.toLowerCase().trim();
     
-    if (!query) {
-        document.getElementById('productResults').innerHTML = 
-            "<p>Lütfen bir ürün adı veya açıklama girin.</p>";
-        return;
+    if (!arama) {
+      filtreliSozlesmeler = [...sozlesmeler];
+    } else {
+      filtreliSozlesmeler = sozlesmeler.filter(sozlesme => 
+        sozlesme.ad.toLowerCase().includes(arama) ||
+        sozlesme.cekim.toLowerCase().includes(arama) ||
+        sozlesme.paket.toLowerCase().includes(arama) ||
+        sozlesme.yer.toLowerCase().includes(arama)
+      );
     }
     
-    // ** ile başlayan ve ** ile biten özel kod formatını kontrol et
-    if (query.startsWith('**') && query.endsWith('**')) {
-        // Özel sorgu modu - tüm detayları göster
-        const searchCode = query.slice(2, -2); // ** işaretlerini kaldır
-        const foundProduct = products.find(product => {
-            // Ürün kodunu bul - title, id, code veya sku içinde olabilir
-            return Object.entries(product).some(([key, value]) => {
-                if (typeof value === 'string') {
-                    return value.toLowerCase() === searchCode.toLowerCase();
-                } else if (typeof value === 'number') {
-                    return value.toString() === searchCode;
-                }
-                return false;
-            });
-        });
-        
-        if (foundProduct) {
-            displayDetailedProduct(foundProduct);
-        } else {
-            document.getElementById('productResults').innerHTML = "<p>Bu kodla eşleşen ürün bulunamadı.</p>";
-        }
-        return;
+    renderSozlesmeler();
+  }
+
+  function aramaTemizle(tip) {
+    if (tip === 'teklif') {
+      document.getElementById('teklifArama').value = '';
+      filtreliTeklifler = [...teklifler];
+      renderTeklifler();
+    } else {
+      document.getElementById('sozlesmeArama').value = '';
+      filtreliSozlesmeler = [...sozlesmeler];
+      renderSozlesmeler();
     }
-    
-    // Normal arama modu - geliştirilmiş arama yeteneği
-    const filteredProducts = products.filter(product => {
-        // Her alana bakarak arama yap
-        return Object.entries(product).some(([key, value]) => {
-            if (typeof value === 'string') {
-                return value.toLowerCase().includes(query);
-            }
-            return false;
-        });
+  }
+
+ // Enter tuşu ile arama - devam eden kısım
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('teklifArama').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        teklifAra();
+      }
     });
     
-    displayProducts(filteredProducts);
-}
+    document.getElementById('sozlesmeArama').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sozlesmeAra();
+      }
+    });
+  });
 
-// Tüm ürünleri gösterme fonksiyonu - artık sayfa yüklendiğinde otomatik çağrılmıyor
-function showAllProducts() {
-    const products = JSON.parse(localStorage.getItem('products')) || [];
-    displayProducts(products);
-}
+  function teklifiGoster(id) {
+    const teklif = teklifler.find(t => t.id === id);
+    if (!teklif) return;
 
-// Ürünleri görüntüleme fonksiyonu (farklı alan isimleri için güncellendi)
-function displayProducts(products) {
-    const resultsDiv = document.getElementById('productResults');
-    resultsDiv.innerHTML = ""; // Önce temizle
-    
-    if (products.length === 0) {
-        resultsDiv.innerHTML = "<p>Ürün bulunamadı.</p>";
-        return;
+    document.getElementById("output").innerHTML = `
+      <div style="padding: 20px; border: 2px solid #007bff; border-radius: 10px; background: #f8f9fa;">
+        <h3 style="color: #007bff; text-align: center; margin-bottom: 20px;">TEKLİF DETAYI</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div><strong>Müşteri:</strong> ${teklif.ad}</div>
+          <div><strong>Paket:</strong> ${teklif.paket}</div>
+          <div><strong>Etkinlik Yeri:</strong> ${teklif.yer}</div>
+          <div><strong>Tarih:</strong> ${teklif.tarih}</div>
+          <div><strong>Fiyat:</strong> ${teklif.fiyat} TL</div>
+          <div><strong>Teklif Tarihi:</strong> ${teklif.bugun}</div>
+        </div>
+        <div style="margin-top: 15px;">
+          <div><strong>Çekim Türü:</strong></div>
+          <div style="margin-left: 10px;">${teklif.cekim}</div>
+        </div>
+        <div style="margin-top: 15px;">
+          <div><strong>Açıklama:</strong></div>
+          <div style="margin-left: 10px;">${teklif.aciklama}</div>
+        </div>
+        ${teklif.referans ? `<div style="margin-top: 15px;"><strong>Referans:</strong> ${teklif.referans}</div>` : ''}
+      </div>
+    `;
+  }
+
+
+async function teklifiSil(id) {
+  const teklif = teklifler.find(t => t.id === id);
+  if (!teklif) return;
+
+  if (!confirm(`${teklif.ad} müşterisinin teklifini silmek istediğinizden emin misiniz?`)) {
+    return;
+  }
+
+  try {
+    if (firebaseConnected) {
+      await db.collection('teklifler').doc(id).delete();
     }
-    
-    const countInfo = document.createElement('p');
-    countInfo.innerHTML = `<strong>${products.length} adet ürün bulundu</strong>`;
-    resultsDiv.appendChild(countInfo);
-    
-    const list = document.createElement('ul');
-    list.style.listStyleType = "none";
-    list.style.padding = "0";
-    
-    products.forEach(product => {
-        const item = document.createElement('li');
-        item.style.margin = "10px 0";
-        item.style.padding = "10px";
-        item.style.border = "1px solid #ddd";
-        item.style.borderRadius = "5px";
-        item.style.display = "flex";
-        item.style.alignItems = "center";
-        
-        // Ürün görseli
-        let productImage = product.media && product.media.length > 0 ? product.media[0].url : "";
-        if (productImage) {
-            const img = document.createElement('img');
-            img.src = productImage;
-            img.alt = product.name || product.title || "Ürün görseli";
-            img.style.width = "100px";
-            img.style.height = "100px";
-            img.style.marginRight = "10px";
-            item.appendChild(img);
-        }
-        
-        const details = document.createElement('div');
-        
-        // Ürün adı
-        const productName = product.name || product.title || "İsimsiz Ürün";
-        const productUrl = product.url || product.link || "";
-        
-        let html = '';
-        if (productUrl) {
-            html += `<a href="${productUrl}" target="_blank" style="text-decoration:none;color:#007bff">🛒 <strong>${productName}</strong></a>`;
-        } else {
-            html += `🛒 <strong>${productName}</strong>`;
-        }
-        
-        // Ürün fiyatı
-        let productPrice = product.priceData ? product.priceData.price : "Bilinmiyor";
-        html += ` - 💰 ${productPrice} TL`;
-        
-        details.innerHTML = html;
-        item.appendChild(details);
-        
-        list.appendChild(item);
-    });
-    
-    resultsDiv.appendChild(list);
+
+    teklifler = teklifler.filter(t => t.id !== id);
+    filtreliTeklifler = [...teklifler];
+    renderTeklifler();
+
+    document.getElementById("output").innerHTML = `
+      <div style="color: green; padding: 10px; border: 1px solid green; border-radius: 5px;">
+        ✅ Teklif başarıyla silindi!
+      </div>
+    `;
+  } catch (error) {
+    console.error("Silme hatası:", error);
+    document.getElementById("output").innerHTML = `
+      <div style="color: red; padding: 10px; border: 1px solid red; border-radius: 5px;">
+        ❌ Teklif silinirken hata oluştu: ${error.message}
+      </div>
+    `;
+  }
 }
 
-// Detaylı ürün görüntüleme fonksiyonu (** kod ** araması için)
-function displayDetailedProduct(product) {
-    const resultsDiv = document.getElementById('productResults');
-    resultsDiv.innerHTML = "";
-    
-    const detailCard = document.createElement('div');
-    detailCard.style.padding = "20px";
-    detailCard.style.border = "1px solid #ddd";
-    detailCard.style.borderRadius = "8px";
-    detailCard.style.backgroundColor = "#f9f9f9";
-    
-    // Başlık
-    const title = document.createElement('h2');
-    title.textContent = product.name || product.title || "İsimsiz Ürün";
-    detailCard.appendChild(title);
-    
-    // Tüm ürün detaylarını görüntüle
-    const detailsList = document.createElement('dl');
-    detailsList.style.display = "grid";
-    detailsList.style.gridTemplateColumns = "auto 1fr";
-    detailsList.style.gap = "8px";
-    
-    // Önemli verileri en üste koy
-    const importantFields = ['price', 'amount', 'stock', 'quantity', 'branch', 'store', 'description', 'desc'];
-    
-    // Önce önemli alanları ekle
-    importantFields.forEach(field => {
-        if (product[field]) {
-            const dt = document.createElement('dt');
-            dt.style.fontWeight = "bold";
-            dt.textContent = fieldToTurkish(field) + ":";
-            
-            const dd = document.createElement('dd');
-            dd.style.margin = "0";
-            dd.textContent = product[field];
-            
-            detailsList.appendChild(dt);
-            detailsList.appendChild(dd);
-        }
-    });
-    
-    // Sonra diğer tüm alanları ekle
-    Object.entries(product).forEach(([key, value]) => {
-        // Önemli alanları tekrar ekleme
-        if (importantFields.includes(key)) return;
-        
-        // Nesne veya dizi tipindeki değerleri JSON olarak göster
-        if (typeof value === 'object' && value !== null) {
-            value = JSON.stringify(value);
-        }
-        
-        const dt = document.createElement('dt');
-        dt.style.fontWeight = "bold";
-        dt.textContent = fieldToTurkish(key) + ":";
-        
-        const dd = document.createElement('dd');
-        dd.style.margin = "0";
-        dd.textContent = value;
-        
-        detailsList.appendChild(dt);
-        detailsList.appendChild(dd);
-    });
-    
-    detailCard.appendChild(detailsList);
-    
-    // Geri dönüş butonu
-    const backButton = document.createElement('button');
-    backButton.textContent = "Arama Sonuçlarına Dön";
-    backButton.style.marginTop = "20px";
-    backButton.style.padding = "5px 10px";
-    backButton.style.backgroundColor = "#007bff";
-    backButton.style.color = "white";
-    backButton.style.border = "none";
-    backButton.style.borderRadius = "5px";
-    backButton.style.cursor = "pointer";
-    backButton.onclick = function() {
-        searchProduct(); // Son aramayı tekrarla
-    };
-    
-    detailCard.appendChild(backButton);
-    resultsDiv.appendChild(detailCard);
-}
 
-// Alan adlarını Türkçeye çevir
-function fieldToTurkish(field) {
-    const translations = {
-        'name': 'Ürün Adı',
-        'title': 'Başlık',
-        'price': 'Fiyat',
-        'amount': 'Tutar',
-        'stock': 'Stok',
-        'quantity': 'Miktar',
-        'branch': 'Şube',
-        'store': 'Mağaza',
-        'shop': 'Dükkan',
-        'description': 'Açıklama',
-        'desc': 'Açıklama',
-        'id': 'Ürün ID',
-        'code': 'Ürün Kodu',
-        'sku': 'Stok Kodu',
-        'url': 'Ürün Bağlantısı',
-        'link': 'Bağlantı',
-        'image': 'Görsel',
-        'category': 'Kategori',
-        'brand': 'Marka'
-    };
-    
-    return translations[field] || field;
-}
+  function sozlesmeGoster(id) {
+    const sozlesme = sozlesmeler.find(s => s.id === id);
+    if (!sozlesme) return;
 
-// HTML'inize eklenecek arama butonuna olay dinleyicisi
-document.addEventListener('DOMContentLoaded', function() {
-    const searchButton = document.getElementById('searchButton');
-    if (searchButton) {
-        searchButton.addEventListener('click', searchProduct);
+    document.getElementById("output").innerHTML = `
+      <div style="padding: 20px; border: 2px solid #28a745; border-radius: 10px; background: #f8fff8;">
+        <h3 style="color: #28a745; text-align: center; margin-bottom: 20px;">SÖZLEŞME DETAYI</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div><strong>Müşteri:</strong> ${sozlesme.ad}</div>
+          <div><strong>Paket:</strong> ${sozlesme.paket}</div>
+          <div><strong>Etkinlik Yeri:</strong> ${sozlesme.yer}</div>
+          <div><strong>Tarih:</strong> ${sozlesme.tarih}</div>
+          <div><strong>Fiyat:</strong> ${sozlesme.fiyat} TL</div>
+          <div><strong>Sözleşme Tarihi:</strong> ${sozlesme.bugun}</div>
+        </div>
+        <div style="margin-top: 15px;">
+          <div><strong>Çekim Türü:</strong></div>
+          <div style="margin-left: 10px;">${sozlesme.cekim}</div>
+        </div>
+        <div style="margin-top: 15px;">
+          <div><strong>Açıklama:</strong></div>
+          <div style="margin-left: 10px;">${sozlesme.aciklama}</div>
+        </div>
+        ${sozlesme.referans ? `<div style="margin-top: 15px;"><strong>Referans:</strong> ${sozlesme.referans}</div>` : ''}
+      </div>
+    `;
+  }
+
+  function teklifiDuzenle(id) {
+    const teklif = teklifler.find(t => t.id === id);
+    if (!teklif) return;
+
+    duzenlenenTeklifId = id;
+
+    // Formu doldur
+    document.getElementById("editAd").value = teklif.ad;
+    document.getElementById("editCekim").value = teklif.cekim.replace(/<br>/g, '\n').replace(/- /g, '');
+    document.getElementById("editPaket").value = teklif.paket.toLowerCase();
+    document.getElementById("editYer").value = teklif.yer;
+    document.getElementById("editTarih").value = teklif.tarih;
+    document.getElementById("editFiyat").value = teklif.fiyat;
+    document.getElementById("editAciklama").value = teklif.aciklama.replace(/<br>/g, '\n');
+    document.getElementById("editReferans").value = teklif.referans || '';
+
+    // Formu göster
+    document.getElementById("editForm").style.display = "block";
+    document.getElementById("editForm").scrollIntoView({ behavior: 'smooth' });
+  }
+
+  async function kaydetDuzenleme() {
+    if (!duzenlenenTeklifId) return;
+
+    const ad = document.getElementById("editAd").value.trim();
+    if (!ad) {
+      alert("Müşteri adı boş bırakılamaz!");
+      return;
     }
-    
-    // Enter tuşuna basıldığında arama yapma
-    const searchInput = document.getElementById('searchProduct');
-    if (searchInput) {
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                searchProduct();
-            }
+
+    const cekim = document.getElementById("editCekim").value
+      .split('\n')
+      .map(c => c.trim())
+      .filter(Boolean)
+      .map(c => `- ${c}`)
+      .join('<br>');
+    const paket = document.getElementById("editPaket").value.toUpperCase();
+    const yer = document.getElementById("editYer").value;
+    const tarih = document.getElementById("editTarih").value;
+    const fiyat = document.getElementById("editFiyat").value;
+    const aciklama = document.getElementById("editAciklama").value.replace(/\n/g, '<br>');
+    const referans = document.getElementById("editReferans").value;
+
+    try {
+      // Firebase'de güncelle
+      if (firebaseConnected) {
+        await db.collection('teklifler').doc(duzenlenenTeklifId).update({
+          ad, cekim, paket, yer, tarih, fiyat, aciklama, referans
         });
-    }
-    
-    // Sayfa yüklendiğinde ürünleri çek
-    fetchProductsFromShopier();
-});
- 
- 
- 
- 
- 
- /**
- * Shopier'e yeni ürün ekleyen fonksiyon
- * @param {Object} product - Eklenecek ürün bilgileri
- * @returns {Promise} - İşlem sonucu
- */
-function addProductToShopier(product) {
-    // Sonuç mesajını göstermek için elementi seç (varsa)
-    const resultElement = document.getElementById('addProductResult');
-    
-    // İsteğin gösterileceği bir elementi güncelleme işlevi
-    function updateStatus(message) {
-        if (resultElement) {
-            resultElement.innerHTML = message;
-        }
-        console.log(message);
-    }
-    
-    // Başlangıç durumunu göster
-    updateStatus("Ürün ekleniyor...");
-    
-    // Shopier API endpoint'i
-    const apiUrl = `${SHOPIER_API_URL}/products`; // Shopier'in ürün ekleme endpoint'i
-    
-    // API isteği gönder
-    return fetch(CORS_PROXY_URL + apiUrl, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${SHOPIER_API_KEY}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(product)
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(err => {
-                throw new Error(`API Hatası: ${err.message || response.statusText}`);
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log("Shopier'e ürün başarıyla eklendi:", data);
-        updateStatus(`<p class="success">Ürün başarıyla eklendi! Ürün ID: ${data.id || 'Bilinmiyor'}</p>`);
-        return data;
-    })
-    .catch(error => {
-        console.error("Ürün eklenirken hata oluştu:", error);
-        updateStatus(`<p class="error">Ürün eklenirken hata oluştu: ${error.message}</p>`);
-        throw error;
-    });
-}
+      }
 
-/**
- * Ürün ekleme formu submit olduğunda
- */
-document.getElementById('addProductForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    // Form verilerini al
-    const formData = new FormData(this);
-    
-    // Ürün nesnesini oluştur
-    const product = {
-        title: formData.get('title'),
-        description: formData.get('description'),
-        price: parseFloat(formData.get('price')),
-        stock: parseInt(formData.get('stock'), 10),
-        sku: formData.get('sku') || null,
-        // Shopier'in ürün şemasına göre diğer alanları ekleyin
-        category_id: parseInt(formData.get('category_id'), 10),
-        images: formData.get('images') ? formData.get('images').split(',').map(url => url.trim()) : [],
-        variants: [], // Varyantları ekleme işlemi ayrı bir fonksiyonda yapılabilir
-        status: formData.get('status') === 'on' ? 'active' : 'draft',
-        tax_rate: parseFloat(formData.get('tax_rate') || 0),
-        // Diğer ürün özellikleri...
-    };
-    
-    // Ürünü ekle
-    addProductToShopier(product)
-        .then(addedProduct => {
-            // Eklenen ürün ile başka işlemler yapabilirsiniz
-            // Örneğin, yerel veritabanınıza da kaydedebilirsiniz
-            console.log("Eklenen ürün bilgileri:", addedProduct);
-            
-            // Formu sıfırla
-            document.getElementById('addProductForm').reset();
-        })
-        .catch(err => {
-            // Hata durumunda ek işlemler
-        });
-});
+      // Yerel listede güncelle
+      const index = teklifler.findIndex(t => t.id === duzenlenenTeklifId);
+      if (index !== -1) {
+        teklifler[index] = { ...teklifler[index], ad, cekim, paket, yer, tarih, fiyat, aciklama, referans };
+        filtreliTeklifler = [...teklifler];
+        renderTeklifler();
+      }
 
-/**
- * Toplu ürün ekleme fonksiyonu
- * @param {Array} products - Eklenecek ürünlerin listesi
- */
-async function bulkAddProductsToShopier(products) {
-    const resultElement = document.getElementById('bulkAddResult');
-    
-    if (resultElement) {
-        resultElement.innerHTML = `<p>Toplu ürün ekleme başlatıldı. Toplam: ${products.length} ürün</p>
-                                 <div id="bulkProgress"></div>
-                                 <div id="bulkStatus"></div>`;
-    }
-    
-    const successProducts = [];
-    const failedProducts = [];
-    
-    // Her ürünü sırayla ekle
-    for (let i = 0; i < products.length; i++) {
-        try {
-            // İlerleme durumunu güncelle
-            const progress = Math.round(((i + 1) / products.length) * 100);
-            if (document.getElementById('bulkProgress')) {
-                document.getElementById('bulkProgress').innerHTML = 
-                    `<p>İşleniyor: ${i + 1}/${products.length} (%${progress})</p>
-                     <div style="width: 100%; background-color: #ddd; border-radius: 5px;">
-                        <div style="width: ${progress}%; background-color: #4CAF50; height: 20px; border-radius: 5px;"></div>
-                     </div>`;
-            }
-            
-            // Rate limit'e takılmamak için kısa bir bekleme
-            if (i > 0) {
-                await new Promise(resolve => setTimeout(resolve, 300));
-            }
-            
-            // Ürünü ekle
-            const result = await addProductToShopier(products[i]);
-            successProducts.push({
-                original: products[i],
-                result: result
-            });
-            
-            if (document.getElementById('bulkStatus')) {
-                document.getElementById('bulkStatus').innerHTML = 
-                    `<p>Başarılı: ${successProducts.length}, Başarısız: ${failedProducts.length}</p>`;
-            }
-        } catch (error) {
-            failedProducts.push({
-                product: products[i],
-                error: error.message
-            });
-            
-            if (document.getElementById('bulkStatus')) {
-                document.getElementById('bulkStatus').innerHTML = 
-                    `<p>Başarılı: ${successProducts.length}, Başarısız: ${failedProducts.length}</p>`;
-            }
-        }
-    }
-    
-    // İşlem tamamlandığında sonucu göster
-    if (resultElement) {
-        resultElement.innerHTML += `
-            <p>İşlem tamamlandı.</p>
-            <p>Başarıyla eklenen: ${successProducts.length}</p>
-            <p>Eklenemeyenler: ${failedProducts.length}</p>
-        `;
-    }
-    
-    return {
-        success: successProducts,
-        failed: failedProducts
-    };
-}
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('tr-TR');
-}
+      document.getElementById("output").innerHTML = `
+        <div style="color: green; padding: 10px; border: 1px solid green; border-radius: 5px;">
+          ✅ Teklif başarıyla güncellendi!
+        </div>
+      `;
 
-function addDebt() {
-    const name = document.getElementById("debtName").value;
-    const date = document.getElementById("debtDate").value;
-    const phone = formatPhoneNumber(document.getElementById("debtPhone").value); // Telefon numarasını normalize et
-    const amount = document.getElementById("debtAmount").value;
-    const description = document.getElementById("debtDescription").value;
+      iptalDuzenleme();
 
-    if (!name || !date || !phone || !amount || !description) {
-        alert("Lütfen tüm alanları doldurun");
-        return;
+    } catch (error) {
+      console.error("Güncelleme hatası:", error);
+      document.getElementById("output").innerHTML = `
+        <div style="color: red; padding: 10px; border: 1px solid red; border-radius: 5px;">
+          ❌ Güncelleme hatası: ${error.message}
+        </div>
+      `;
+    }
+  }
+
+  function iptalDuzenleme() {
+    document.getElementById("editForm").style.display = "none";
+    duzenlenenTeklifId = null;
+  }
+
+  async function teklifiKabulEt(id) {
+    const teklif = teklifler.find(t => t.id === id);
+    if (!teklif) return;
+
+    if (!confirm(`${teklif.ad} müşterisinin teklifini sözleşmeye dönüştürmek istediğinizden emin misiniz?`)) {
+      return;
     }
 
-    db.collection("debts").add({
-        name: name,
-        date: formatDate(date),
-        phone: phone,  // Normalized telefon numarasını kaydet
-        amount: parseFloat(amount),
-        description: description
-    }).then(() => {
-        alert("Borç başarıyla eklendi");
-    }).catch(error => {
-        console.error("Hata: ", error);
-    });
-}
+    try {
+      const sozlesme = {
+        ...teklif,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      delete sozlesme.id;
 
-// Telefon numarasını normalize etme
-function formatPhoneNumber(phone) {
-    return phone.replace(/\D/g, ''); // Sadece rakamları bırak
-}
+      if (firebaseConnected) {
+        const docRef = await db.collection('sozlesmeler').add(sozlesme);
+        sozlesme.id = docRef.id;
+      } else {
+        sozlesme.id = Date.now().toString();
+      }
 
-function searchDebt() {
-    const searchInput = document.getElementById("searchPhoneOrName").value.trim(); // Kullanıcı girişi
-    const resultsDiv = document.getElementById("debtResults");
-    const totalDebtElement = document.getElementById("totalDebt");
-    resultsDiv.innerHTML = "";
-    let totalDebt = 0;
+      sozlesmeler.unshift(sozlesme);
+      filtreliSozlesmeler = [...sozlesmeler];
+      renderSozlesmeler();
 
-    // Telefon numarası formatını kontrol et
-    const isPhone = /^\d{10,15}$/.test(searchInput.replace(/\D/g, '')); // Telefon numarası kontrolü
-    const searchPhone = isPhone ? formatPhoneNumber(searchInput) : null; // Telefon numarasını normalize et
-    const searchName = !isPhone ? searchInput.toLowerCase() : null; // İsim kontrolü
+      document.getElementById("output").innerHTML = `
+        <div style="color: green; padding: 10px; border: 1px solid green; border-radius: 5px;">
+          ✅ Teklif başarıyla sözleşmeye dönüştürüldü!
+        </div>
+      `;
 
-    let query = db.collection("debts");
+    } catch (error) {
+      console.error("Sözleşme oluşturma hatası:", error);
+      document.getElementById("output").innerHTML = `
+        <div style="color: red; padding: 10px; border: 1px solid red; border-radius: 5px;">
+          ❌ Sözleşme oluşturulurken hata: ${error.message}
+        </div>
+      `;
+    }
+  }
 
-    // Eğer telefon numarası girildiyse sorgu, isim girildiyse sorgu
-    if (searchPhone) {
-        query = query.where("phone", "==", searchPhone); // Telefon ile sorgula
-    } else if (searchName) {
-        query = query.where("name", "==", searchName); // İsimle sorgula
+  async function sozlesmeSil(id) {
+    const sozlesme = sozlesmeler.find(s => s.id === id);
+    if (!sozlesme) return;
+
+    if (!confirm(`${sozlesme.ad} müşterisinin sözleşmesini silmek istediğinizden emin misiniz?`)) {
+      return;
     }
 
-    query.get()
-        .then(querySnapshot => {
-            if (querySnapshot.empty) {
-                resultsDiv.innerHTML = "Bu numara ya da isim ile ilgili borç kaydı bulunamadı.";
-                totalDebtElement.innerText = "";
-            } else {
-                querySnapshot.forEach(doc => {
-                    const data = doc.data();
-                    totalDebt += data.amount;
-                    resultsDiv.innerHTML += `<p>${data.name} - ${data.date} - ${data.description} - <strong style="color: red;">${data.amount} TL</strong> <button onclick="deleteDebt('${doc.id}')">Sil</button></p>`;
-                });
-                totalDebtElement.innerText = `Toplam Borç: ${totalDebt} TL`;
-            }
-        })
-        .catch(error => {
-            console.error("Hata: ", error);
-        });
-}
+    try {
+      if (firebaseConnected) {
+        await db.collection('sozlesmeler').doc(id).delete();
+      }
 
-function deleteDebt(debtId) {
-    if (confirm("Bu borcu silmek istediğinize emin misiniz?")) {
-        db.collection("debts").doc(debtId).delete()
-            .then(() => {
-                alert("Borç başarıyla silindi");
-                searchDebt();  // Borç silindiğinde tekrar sorgula
-            })
-            .catch(error => {
-                console.error("Hata: ", error);
-            });
+      sozlesmeler = sozlesmeler.filter(s => s.id !== id);
+      filtreliSozlesmeler = [...sozlesmeler];
+      renderSozlesmeler();
+
+      document.getElementById("output").innerHTML = `
+        <div style="color: green; padding: 10px; border: 1px solid green; border-radius: 5px;">
+          ✅ Sözleşme başarıyla silindi!
+        </div>
+      `;
+
+    } catch (error) {
+      console.error("Silme hatası:", error);
+      document.getElementById("output").innerHTML = `
+        <div style="color: red; padding: 10px; border: 1px solid red; border-radius: 5px;">
+          ❌ Silme hatası: ${error.message}
+        </div>
+      `;
     }
-}
+  }
 
-// Tüm borçları görüntüleme (hepsi kısmı)
-function showAllDebts() {
-    const resultsDiv = document.getElementById("debtResults");
-    const totalDebtElement = document.getElementById("totalDebt");
-    resultsDiv.innerHTML = "";
-    let totalDebt = 0;
+  function pdfOlusturVePaylas(id) {
+    const teklif = teklifler.find(t => t.id === id);
+    if (!teklif) return;
 
-    db.collection("debts").get()
-        .then(querySnapshot => {
-            if (querySnapshot.empty) {
-                resultsDiv.innerHTML = "Herhangi bir borç kaydı bulunmamaktadır.";
-                totalDebtElement.innerText = "";
-            } else {
-                querySnapshot.forEach(doc => {
-                    const data = doc.data();
-                    totalDebt += data.amount;
-                    resultsDiv.innerHTML += `<p>${data.name} - ${data.date} - ${data.description} - <strong style="color: red;">${data.amount} TL</strong> <button onclick="deleteDebt('${doc.id}')">Sil</button></p>`;
-                });
-                totalDebtElement.innerText = `Toplam Borç: ${totalDebt} TL`;
-            }
-        })
-        .catch(error => {
-            console.error("Hata: ", error);
-        });
-}
+    const pdfContent = document.getElementById('pdfContent');
+    pdfContent.innerHTML = `
+      <div class="pdf-header">
+        <img src="https://i.hizliresim.com/eqyhuxx.png" alt="Logo" />
+        <h1 class="pdf-title">TEKLİF FORMU</h1>
+      </div>
+      
+      <div class="pdf-body">
+        <p><strong>Müşteri Adı:</strong> ${teklif.ad}</p>
+        <p><strong>Çekim Türü:</strong></p>
+        <div style="margin-left: 20px;">${teklif.cekim}</div>
+        <p><strong>Paket:</strong> ${teklif.paket}</p>
+        <p><strong>Etkinlik Yeri:</strong> ${teklif.yer}</p>
+        <p><strong>Tarih:</strong> ${teklif.tarih}</p>
+        <p><strong>Fiyat:</strong> ${teklif.fiyat} TL</p>
+        <p><strong>Açıklama:</strong></p>
+        <div style="margin-left: 20px;">${teklif.aciklama}</div>
+        ${teklif.referans ? `<p><strong>Referans:</strong> ${teklif.referans}</p>` : ''}
+      </div>
+      
+      <div class="pdf-footer">
+        <p>Teklif Tarihi: ${teklif.bugun}</p>
+        <p>Bu teklif 30 gün geçerlidir.</p>
+      </div>
+    `;
 
-// Bize Ulaşın butonuna tıklanınca mesaj gönder
-document.getElementById('whatsappLink').addEventListener('click', function(e) {
-    e.preventDefault(); // Normal link davranışını engelle
-    sendWhatsAppMessage(); // Mesaj gönderme fonksiyonunu çalıştır
-});
- 
+    // PDF'i göster ve yazdır
+    pdfContent.style.display = 'block';
+    window.print();
+    pdfContent.style.display = 'none';
+  }
 
+  function sozlesmePdfOlustur(id) {
+    const sozlesme = sozlesmeler.find(s => s.id === id);
+    if (!sozlesme) return;
+
+    const pdfContent = document.getElementById('pdfContent');
+    pdfContent.innerHTML = `
+      <div class="pdf-header">
+        <img src="https://i.hizliresim.com/eqyhuxx.png" alt="Logo" />
+        <h1 class="pdf-title">SÖZLEŞME</h1>
+      </div>
+      
+      <div class="pdf-body">
+        <p><strong>Müşteri Adı:</strong> ${sozlesme.ad}</p>
+        <p><strong>Çekim Türü:</strong></p>
+        <div style="margin-left: 20px;">${sozlesme.cekim}</div>
+        <p><strong>Paket:</strong> ${sozlesme.paket}</p>
+        <p><strong>Etkinlik Yeri:</strong> ${sozlesme.yer}</p>
+        <p><strong>Tarih:</strong> ${sozlesme.tarih}</p>
+        <p><strong>Ücret:</strong> ${sozlesme.fiyat} TL</p>
+        <p><strong>Hizmet Detayları:</strong></p>
+        <div style="margin-left: 20px;">${sozlesme.aciklama}</div>
+        ${sozlesme.referans ? `<p><strong>Referans:</strong> ${sozlesme.referans}</p>` : ''}
+        
+        <div style="margin-top: 40px;">
+          <p><strong>Sözleşme Şartları:</strong></p>
+          <ul style="margin-left: 20px;">
+            <li>Ücretin %50'si peşin, %50'si çekim günü ödenecektir.</li>
+            <li>Hava koşulları nedeniyle erteleme durumunda ek ücret alınmaz.</li>
+            <li>Fotoğraflar 2 hafta içinde teslim edilecektir.</li>
+            <li>İptal durumunda peşin ödenen tutar iade edilmeyecektir.</li>
+          </ul>
+        </div>
+        
+        <div style="margin-top: 60px; display: flex; justify-content: space-between;">
+          <div style="text-align: center;">
+            <div style="border-bottom: 1px solid #000; width: 200px; margin-bottom: 5px;"></div>
+            <strong>Müşteri İmzası</strong>
+          </div>
+          <div style="text-align: center;">
+            <div style="border-bottom: 1px solid #000; width: 200px; margin-bottom: 5px;"></div>
+            <strong>Fotoğrafçı İmzası</strong>
+          </div>
+        </div>
+      </div>
+      
+      <div class="pdf-footer">
+        <p>Sözleşme Tarihi: ${sozlesme.bugun}</p>
+      </div>
+    `;
+
+    // PDF'i göster ve yazdır
+    pdfContent.style.display = 'block';
+    window.print();
+    pdfContent.style.display = 'none';
+  }
 </script>
-
 </body>
 </html>
