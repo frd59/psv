@@ -609,24 +609,17 @@
   }
 
   // Google Calendar'a etkinlik ekleme fonksiyonu
-  async function addToGoogleCalendar(teklif) {
-    if (!isCalendarAuthorized) {
-      console.log("Google Calendar yetkilendirmesi yapılmamış");
-      return;
-    }
+ async function addToGoogleCalendar(teklif) {
+  if (!isCalendarAuthorized) {
+    console.log("Google Calendar yetkilendirmesi yapılmamış");
+    return;
+  }
 
-    try {
-      const etkinlikTarihi = new Date(teklif.tarih);
-      const baslangicTarihi = new Date(etkinlikTarihi);
-      baslangicTarihi.setHours(10, 0, 0, 0); // Sabah 10:00
-      
-      const bitisTarihi = new Date(etkinlikTarihi);
-      bitisTarihi.setHours(18, 0, 0, 0); // Akşam 18:00
-
-      const event = {
-        'summary': `📸 ${teklif.ad} - ${teklif.cekim.replace(/<br>/g, ', ').replace(/- /g, '')}`,
-        'location': teklif.yer,
-        'description': `
+  try {
+    const event = {
+      'summary': `📸 ${teklif.ad} - ${teklif.cekim.replace(/<br>/g, ', ').replace(/- /g, '')}`,
+      'location': teklif.yer,
+      'description': `
 🎯 Çekim Türü: ${teklif.cekim.replace(/<br>/g, '\n')}
 📦 Paket: ${teklif.paket}
 📍 Yer: ${teklif.yer}
@@ -634,38 +627,37 @@
 📝 Açıklama: ${teklif.aciklama.replace(/<br>/g, '\n')}
 ${teklif.referans ? `👤 Referans: ${teklif.referans}` : ''}
 📅 Teklif Tarihi: ${teklif.bugun}
-        `.trim(),
-        'start': {
-          'dateTime': baslangicTarihi.toISOString(),
-          'timeZone': 'Europe/Istanbul'
-        },
-        'end': {
-          'dateTime': bitisTarihi.toISOString(),
-          'timeZone': 'Europe/Istanbul'
-        },
-        'colorId': '7', // Mavi renk
-        'reminders': {
-          'useDefault': false,
-          'overrides': [
-            {'method': 'email', 'minutes': 24 * 60}, // 1 gün önce
-            {'method': 'popup', 'minutes': 60} // 1 saat önce
-          ]
-        }
-      };
+      `.trim(),
+      'start': {
+        'date': teklif.tarih // YYYY-MM-DD
+      },
+      'end': {
+        'date': getNextDate(teklif.tarih) // Ertesi gün
+      },
+      'colorId': '7', // Mavi renk
+      'reminders': {
+        'useDefault': false,
+        'overrides': [
+          { 'method': 'email', 'minutes': 24 * 60 }, // 1 gün önce
+          { 'method': 'popup', 'minutes': 60 }       // 1 saat önce
+        ]
+      }
+    };
 
-      const request = gapi.client.calendar.events.insert({
-        'calendarId': 'primary',
-        'resource': event
-      });
+    const request = gapi.client.calendar.events.insert({
+      'calendarId': 'primary',
+      'resource': event
+    });
 
-      const response = await request;
-      console.log('Google Calendar etkinliği oluşturuldu:', response.result);
-      return response.result;
-    } catch (error) {
-      console.error('Google Calendar etkinliği oluşturulamadı:', error);
-      throw error;
-    }
+    const response = await request;
+    console.log('Google Calendar etkinliği oluşturuldu:', response.result);
+    return response.result;
+  } catch (error) {
+    console.error('Google Calendar etkinliği oluşturulamadı:', error);
+    throw error;
   }
+}
+
 
   const paketler = {
     "Standart Ekip": {
