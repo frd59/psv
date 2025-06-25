@@ -1296,12 +1296,14 @@ ${sozlesme.referans ? `👤 Referans: ${sozlesme.referans}` : ''}
     }
 
     try {
-      const sozlesmeVerisi = {
-        ...teklif,
-        sozlesmeTarihi: new Date().toLocaleDateString('tr-TR'),
-        createdAt: new Date(),
-        tip: 'sozlesme'
-      };
+     const sozlesmeVerisi = {
+  ...teklif,
+  sozlesmeTarihi: new Date().toLocaleDateString('tr-TR'),
+  createdAt: teklif.createdAt ? teklif.createdAt : new Date(),
+  tip: 'sozlesme',
+  calendarEventId: teklif.calendarEventId || null  // 🔥 Etkinlik ID'sini sözleşmeye aktar
+};
+
       
       delete sozlesmeVerisi.id; // Eski ID'yi kaldır
 
