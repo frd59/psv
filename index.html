@@ -539,9 +539,11 @@ async function addToGoogleCalendar(item, tip) {
       summary: `${tip === 'teklif' ? '📋 TEKLİF' : '📄 SÖZLEŞME'}: ${item.ad}`,
       location: item.yer || '',
       description: `
-📦 Paket: ${item.paket || ''}
-📍 Yer: ${item.yer || ''}
-💰 Fiyat: ${item.fiyat || ''} TL
+👤 Müşteri: ${item.ad}
+📞 Telefon: ${item.telefon || 'Belirtilmemiş'}
+📦 Paket: ${item.paket || 'Belirtilmemiş'}
+📍 Yer: ${item.yer || 'Belirtilmemiş'}
+💰 Fiyat: ${item.fiyat || 'Belirtilmemiş'} TL
 🎯 Çekim Türü: ${(item.cekim || '').replace(/<br>/g, '\n')}
 📝 Açıklama: ${(item.aciklama || '').replace(/<br>/g, '\n')}
 ${item.referans ? `👤 Referans: ${item.referans}` : ''}
@@ -575,6 +577,7 @@ ${item.referans ? `👤 Referans: ${item.referans}` : ''}
     alert('Google Calendar\'a eklenirken hata oluştu: ' + error.message);
   }
 }
+
 
 
   let teklifler = [];
