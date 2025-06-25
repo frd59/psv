@@ -780,11 +780,16 @@ async function teklifTakvimeEkle(teklifId) {
 
   const event = await addToGoogleCalendar(teklif, 'teklif');
 
-  // Firestore'a etkinlik ID'sini kaydet
   if (firebaseConnected && event) {
     await db.collection('teklifler').doc(teklifId).update({
-      calendarEventId: event.id
+      calendarEventId: event.id  // 🔥 ID'yi kaydet
     });
+
+    // Teklifi yerel listeye de güncelle
+    const index = teklifler.findIndex(t => t.id === teklifId);
+    if (index !== -1) {
+      teklifler[index].calendarEventId = event.id;
+    }
   }
 
   alert('Teklif Google Calendar\'a eklendi!');
@@ -812,7 +817,7 @@ async function sozlesmeTakvimeEkle(sozlesmeId) {
   const calendarEventId = sozlesme.calendarEventId;
 
   if (!calendarEventId) {
-    alert('Bu sözleşmenin takvimde bağlı etkinliği bulunamadı.');
+    alert('❌ Bu sözleşmenin takvimde bağlı etkinliği bulunamadı.');
     return;
   }
 
@@ -850,6 +855,7 @@ ${sozlesme.referans ? `👤 Referans: ${sozlesme.referans}` : ''}
     alert('Google Calendar güncellenirken hata oluştu: ' + error.message);
   }
 }
+
 
 
   // Arama fonksiyonları
@@ -1296,7 +1302,7 @@ ${sozlesme.referans ? `👤 Referans: ${sozlesme.referans}` : ''}
     }
 
     try {
-     const sozlesmeVerisi = {
+const sozlesmeVerisi = {
   ...teklif,
   sozlesmeTarihi: new Date().toLocaleDateString('tr-TR'),
   createdAt: teklif.createdAt ? teklif.createdAt : new Date(),
