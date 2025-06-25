@@ -724,6 +724,7 @@ ${item.referans ? `👤 Referans: ${item.referans}` : ''}
     let html = `
       <div class="list-header sozlesme">
         <div>Müşteri</div>
+		<div>Telefon</div>
         <div>Paket</div>
         <div>Tarih</div>
         <div>Fiyat</div>
@@ -739,13 +740,14 @@ ${item.referans ? `👤 Referans: ${item.referans}` : ''}
       html += `
         <div class="list-item">
           <div><strong>${sozlesme.ad}</strong><br><small>${sozlesme.yer || 'Yer belirtilmemiş'}</small></div>
+		  <div>${sozlesme.telefon || 'Belirtilmemiş'}</div>
           <div>${sozlesme.paket || 'Belirtilmemiş'}</div>
           <div>${tarihFormatli}</div>
           <div>${fiyatFormatli}</div>
           <div><span style="color: #4caf50;">✅ Aktif</span></div>
           <div class="list-actions">
             <button class="btn-view" onclick="sozlesmeGoster('${sozlesme.id}')">👁️</button>
-            <button class="btn-edit" onclick="teklifDuzenle('${teklif.id}')">✏️</button>
+            <button class="btn-edit" onclick="sozlesmeDuzenle('${sozlesme.id}')">✏️</button>
             <button class="btn-delete" onclick="sozlesmeSil('${sozlesme.id}')">🗑️</button>
             <button class="btn-pdf" onclick="sozlesmePdfOlustur('${sozlesme.id}')">📄</button>
             <button class="btn-calendar" onclick="sozlesmeTakvimeEkle('${sozlesme.id}')" ${!isCalendarAuthorized ? 'disabled' : ''}>📅</button>
@@ -1036,6 +1038,10 @@ ${item.referans ? `👤 Referans: ${item.referans}` : ''}
             <label style="display: block; margin-bottom: 5px; font-weight: bold;">👤 Müşteri Adı:</label>
             <input type="text" id="sozlesmeDuzenleAd" value="${sozlesme.ad}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
           </div>
+		  <div>
+  <label style="display: block; margin-bottom: 5px; font-weight: bold;">📞 Telefon:</label>
+  <input type="text" id="sozlesmeDuzenleTelefon" value="${sozlesme.telefon || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+</div>
           <div>
             <label style="display: block; margin-bottom: 5px; font-weight: bold;">📦 Paket:</label>
             <input type="text" id="sozlesmeDuzenlePaket" value="${sozlesme.paket || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
@@ -1077,6 +1083,7 @@ ${item.referans ? `👤 Referans: ${item.referans}` : ''}
   // Sözleşme güncelleme
   async function sozlesmeGuncelle(sozlesmeId) {
     const ad = document.getElementById('sozlesmeDuzenleAd').value.trim();
+	const telefon = document.getElementById('sozlesmeDuzenleTelefon').value.trim();
     const paket = document.getElementById('sozlesmeDuzenlePaket').value.trim();
     const tarih = document.getElementById('sozlesmeDuzenleTarih').value;
     const fiyat = document.getElementById('sozlesmeDuzenleFiyat').value;
@@ -1092,6 +1099,7 @@ ${item.referans ? `👤 Referans: ${item.referans}` : ''}
 
     const guncellenmisSozlesme = {
       ad: ad,
+	  telefon: telefon,
       paket: paket,
       tarih: tarih,
       fiyat: fiyat ? parseFloat(fiyat) : null,
@@ -1145,6 +1153,7 @@ ${item.referans ? `👤 Referans: ${item.referans}` : ''}
         <h3 style="color: #dc3545; margin-top: 0;">📄 Sözleşme Detayları</h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
           <div><strong>👤 Müşteri:</strong> ${sozlesme.ad}</div>
+		  <div><strong>📞 Telefon:</strong> ${sozlesme.telefon || 'Belirtilmemiş'}</div>
           <div><strong>📦 Paket:</strong> ${sozlesme.paket || 'Belirtilmemiş'}</div>
           <div><strong>📅 Tarih:</strong> ${sozlesme.tarih ? new Date(sozlesme.tarih).toLocaleDateString('tr-TR') : 'Belirtilmemiş'}</div>
           <div><strong>💰 Fiyat:</strong> ${sozlesme.fiyat ? sozlesme.fiyat + ' TL' : 'Belirtilmemiş'}</div>
@@ -1231,6 +1240,7 @@ ${item.referans ? `👤 Referans: ${item.referans}` : ''}
       alert('Teklif bulunamadı!');
       return;
     }
+	console.log("Sözleşmeye çevrilecek teklif:", teklif);
 
     if (!confirm('Bu teklifi sözleşmeye çevirmek istediğinizden emin misiniz?')) {
       return;
