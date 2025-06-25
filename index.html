@@ -572,6 +572,8 @@ ${item.referans ? `👤 Referans: ${item.referans}` : ''}
 
     console.log('Takvime başarıyla eklendi:', response.result);
     alert('Etkinlik Google Calendar\'a başarıyla eklendi!');
+	
+	return response.result;
   } catch (error) {
     console.error('Takvim ekleme hatası:', error);
     alert('Google Calendar\'a eklenirken hata oluştu: ' + error.message);
