@@ -771,25 +771,14 @@ ${item.referans ? `👤 Referans: ${item.referans}` : ''}
   }
 
   // Teklifi takvime ekleme
-async function teklifTakvimeEkle(teklifId) {
+ async function teklifTakvimeEkle(teklifId) {
   const teklif = teklifler.find(t => t.id === teklifId);
   if (!teklif) {
     alert('Teklif bulunamadı!');
     return;
   }
-
-  const event = await addToGoogleCalendar(teklif, 'teklif');
-
-  // Firestore'a etkinlik ID'sini kaydet
-  if (firebaseConnected && event) {
-    await db.collection('teklifler').doc(teklifId).update({
-      calendarEventId: event.id
-    });
-  }
-
-  alert('Teklif Google Calendar\'a eklendi!');
+  await addToGoogleCalendar(teklif, 'teklif');
 }
-
 
 async function sozlesmeTakvimeEkle(sozlesmeId) {
   const sozlesme = sozlesmeler.find(s => s.id === sozlesmeId);
@@ -803,54 +792,25 @@ async function sozlesmeTakvimeEkle(sozlesmeId) {
 
   // Sözleşmeyi takvime ekleme
   async function sozlesmeTakvimeEkle(sozlesmeId) {
-  const sozlesme = sozlesmeler.find(s => s.id === sozlesmeId);
-  if (!sozlesme) {
-    alert('Sözleşme bulunamadı!');
-    return;
+    if (!isCalendarAuthorized) {
+      alert('Google Calendar yetkilendirmesi gerekiyor!');
+      return;
+    }
+
+    const sozlesme = sozlesmeler.find(s => s.id === sozlesmeId);
+    if (!sozlesme) {
+      alert('Sözleşme bulunamadı!');
+      return;
+    }
+
+    try {
+      await addToGoogleCalendar(sozlesme, 'sozlesme');
+      alert('Sözleşme Google Calendar\'a eklendi!');
+    } catch (error) {
+     alert('Calendar ekleme hatası:', error);
+      alert('Google Calendar\'a eklenirken hata oluştu: ' + error.message);
+    }
   }
-
-  const calendarEventId = sozlesme.calendarEventId;
-
-  if (!calendarEventId) {
-    alert('Bu sözleşmenin takvimde bağlı etkinliği bulunamadı.');
-    return;
-  }
-
-  try {
-    const etkinlik = await gapi.client.calendar.events.get({
-      calendarId: 'primary',
-      eventId: calendarEventId
-    });
-
-    const updatedEvent = etkinlik.result;
-    updatedEvent.summary = `📄 SÖZLEŞME: ${sozlesme.ad}`;
-    updatedEvent.description = `
-👤 Müşteri: ${sozlesme.ad}
-📞 Telefon: ${sozlesme.telefon || 'Belirtilmemiş'}
-📦 Paket: ${sozlesme.paket || 'Belirtilmemiş'}
-📍 Yer: ${sozlesme.yer || 'Belirtilmemiş'}
-💰 Fiyat: ${sozlesme.fiyat || 'Belirtilmemiş'} TL
-🎯 Çekim Türü: ${(sozlesme.cekim || '').replace(/<br>/g, '\n')}
-📝 Açıklama: ${(sozlesme.aciklama || '').replace(/<br>/g, '\n')}
-${sozlesme.referans ? `👤 Referans: ${sozlesme.referans}` : ''}
-`.trim();
-
-    updatedEvent.colorId = '11'; // 🔴 Kırmızı
-
-    const response = await gapi.client.calendar.events.update({
-      calendarId: 'primary',
-      eventId: calendarEventId,
-      resource: updatedEvent
-    });
-
-    console.log('Etkinlik güncellendi:', response.result);
-    alert('Sözleşme takvimde güncellendi ve rengi kırmızı yapıldı!');
-  } catch (error) {
-    console.error('Takvim güncelleme hatası:', error);
-    alert('Google Calendar güncellenirken hata oluştu: ' + error.message);
-  }
-}
-
 
   // Arama fonksiyonları
   function teklifAra() {
