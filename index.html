@@ -514,61 +514,68 @@
   }
 
   // Google Calendar'a etkinlik ekleme fonksiyonu (Tüm gün etkinliği)
-  async function addToGoogleCalendar(item, tip) {
-    if (!isCalendarAuthorized) {
-      console.log("Google Calendar yetkilendirmesi yapılmamış");
+async function addToGoogleCalendar(item, tip) {
+  try {
+    if (!gapi.client || !gapi.client.calendar) {
+      console.error('Google API yüklenmemiş!');
+      alert('Google API henüz yüklenmedi. Lütfen sayfayı yenileyip tekrar deneyin.');
       return;
     }
 
-    try {
-      const etkinlikTarihi = new Date(item.tarih);
-      const tarihStr = etkinlikTarihi.toISOString().split('T')[0]; // YYYY-MM-DD formatı
-
-      const event = {
-        'summary': tip === 'teklif' ? 
-          `📋 TEKLİF: ${item.ad} - ${item.cekim.replace(/<br>/g, ', ').replace(/- /g, '')}` :
-          `📄 SÖZLEŞME: ${item.ad} - ${item.cekim.replace(/<br>/g, ', ').replace(/- /g, '')}`,
-        'location': item.yer,
-        'description': `
-🎯 Çekim Türü: ${item.cekim.replace(/<br>/g, '\n')}
-📦 Paket: ${item.paket}
-📍 Yer: ${item.yer}
-💰 Fiyat: ${item.fiyat} TL
-📝 Açıklama: ${item.aciklama.replace(/<br>/g, '\n')}
-${item.referans ? `👤 Referans: ${item.referans}` : ''}
-📅 ${tip === 'teklif' ? 'Teklif' : 'Sözleşme'} Tarihi: ${item.bugun || item.sozlesmeTarihi}
-        `.trim(),
-        'start': {
-          'date': tarihStr,
-          'timeZone': 'Europe/Istanbul'
-        },
-        'end': {
-          'date': tarihStr,
-          'timeZone': 'Europe/Istanbul'
-        },
-        'colorId': tip === 'teklif' ? '1' : '11', // Mavi: 1, Kırmızı: 11
-        'reminders': {
-          'useDefault': false,
-          'overrides': [
-            {'method': 'email', 'minutes': 24 * 60}, // 1 gün önce
-            {'method': 'popup', 'minutes': 60} // 1 saat önce
-          ]
-        }
-      };
-
-      const request = gapi.client.calendar.events.insert({
-        'calendarId': 'primary',
-        'resource': event
-      });
-
-      const response = await request;
-      console.log('Google Calendar etkinliği oluşturuldu:', response.result);
-      return response.result;
-    } catch (error) {
-      console.error('Google Calendar etkinliği oluşturulamadı:', error);
-      throw error;
+    if (!isCalendarAuthorized) {
+      alert("Google Calendar bağlantısı yapılmadı. Önce yetkilendirme yapmalısınız.");
+      return;
     }
+
+    let etkinlikTarihi = item.tarih ? new Date(item.tarih) : new Date();
+    if (isNaN(etkinlikTarihi)) {
+      alert('Tarih formatı hatalı! Lütfen geçerli bir tarih girin.');
+      return;
+    }
+
+    const tarihStr = etkinlikTarihi.toISOString().split('T')[0];
+
+    const event = {
+      summary: `${tip === 'teklif' ? '📋 TEKLİF' : '📄 SÖZLEŞME'}: ${item.ad}`,
+      location: item.yer || '',
+      description: `
+📦 Paket: ${item.paket || ''}
+📍 Yer: ${item.yer || ''}
+💰 Fiyat: ${item.fiyat || ''} TL
+🎯 Çekim Türü: ${(item.cekim || '').replace(/<br>/g, '\n')}
+📝 Açıklama: ${(item.aciklama || '').replace(/<br>/g, '\n')}
+${item.referans ? `👤 Referans: ${item.referans}` : ''}
+`.trim(),
+      start: {
+        date: tarihStr,
+        timeZone: 'Europe/Istanbul'
+      },
+      end: {
+        date: tarihStr,
+        timeZone: 'Europe/Istanbul'
+      },
+      reminders: {
+        useDefault: false,
+        overrides: [
+          { method: 'email', minutes: 24 * 60 },
+          { method: 'popup', minutes: 60 }
+        ]
+      }
+    };
+
+    const response = await gapi.client.calendar.events.insert({
+      calendarId: 'primary',
+      resource: event
+    });
+
+    console.log('Takvime başarıyla eklendi:', response.result);
+    alert('Etkinlik Google Calendar\'a başarıyla eklendi!');
+  } catch (error) {
+    console.error('Takvim ekleme hatası:', error);
+    alert('Google Calendar\'a eklenirken hata oluştu: ' + error.message);
   }
+}
+
 
   let teklifler = [];
   let sozlesmeler = [];
@@ -700,7 +707,8 @@ ${item.referans ? `👤 Referans: ${item.referans}` : ''}
             <button class="btn-delete" onclick="teklifSil('${teklif.id}')">🗑️</button>
             <button class="btn-contract" onclick="sozlesmeOlustur('${teklif.id}')">📄</button>
             <button class="btn-pdf" onclick="pdfOlustur('${teklif.id}')">📄</button>
-            <button class="btn-calendar" onclick="teklifTakvimeEkle('${teklif.id}')" ${!isCalendarAuthorized ? 'disabled' : ''}>📅</button>
+            <button class="btn-calendar" onclick="teklifTakvimeEkle('${teklif.id}')">📅</button>
+
           </div>
         </div>
       `;
@@ -760,26 +768,24 @@ ${item.referans ? `👤 Referans: ${item.referans}` : ''}
   }
 
   // Teklifi takvime ekleme
-  async function teklifTakvimeEkle(teklifId) {
-    if (!isCalendarAuthorized) {
-      alert('Google Calendar yetkilendirmesi gerekiyor!');
-      return;
-    }
-
-    const teklif = teklifler.find(t => t.id === teklifId);
-    if (!teklif) {
-      alert('Teklif bulunamadı!');
-      return;
-    }
-
-    try {
-      await addToGoogleCalendar(teklif, 'teklif');
-      alert('Teklif Google Calendar\'a eklendi!');
-    } catch (error) {
-      console.error('Calendar ekleme hatası:', error);
-      alert('Google Calendar\'a eklenirken hata oluştu: ' + error.message);
-    }
+ async function teklifTakvimeEkle(teklifId) {
+  const teklif = teklifler.find(t => t.id === teklifId);
+  if (!teklif) {
+    alert('Teklif bulunamadı!');
+    return;
   }
+  await addToGoogleCalendar(teklif, 'teklif');
+}
+
+async function sozlesmeTakvimeEkle(sozlesmeId) {
+  const sozlesme = sozlesmeler.find(s => s.id === sozlesmeId);
+  if (!sozlesme) {
+    alert('Sözleşme bulunamadı!');
+    return;
+  }
+  await addToGoogleCalendar(sozlesme, 'sozlesme');
+}
+
 
   // Sözleşmeyi takvime ekleme
   async function sozlesmeTakvimeEkle(sozlesmeId) {
