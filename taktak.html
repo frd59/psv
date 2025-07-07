@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fotoğraf Portföyüm</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      animation: fadeInDown 1s ease-out;
+    }
+
+    .header h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(45deg, #ffd700, #ffb347, #ff6b6b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 15px;
+      text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      font-weight: 300;
+    }
+
+    .menu {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      animation: fadeInUp 1s ease-out 0.3s both;
+    }
+
+    .menu button {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      padding: 12px 25px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .menu button:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.6);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .menu button.active {
+      background: linear-gradient(45deg, #ffd700, #ffb347);
+      border-color: #ffd700;
+      color: #333;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+    }
+
+    .yonetim-panel {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 25px;
+      margin-bottom: 30px;
+      animation: fadeInUp 1s ease-out 0.5s both;
+    }
+
+    .foto-yukle {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      align-items: center;
+      text-align: center;
+    }
+
+    .foto-yukle h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      color: #ffd700;
+    }
+
+    .dosya-secici {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+    }
+
+    .dosya-secici input[type=file] {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+
+    .dosya-secici label {
+      background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+      color: white;
+      padding: 15px 30px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-block;
+      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    }
+
+    .dosya-secici label:hover {
+      background: linear-gradient(45deg, #ee5a52, #ff6b6b);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    }
+
+    .kategori-secici {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    .kategori-secici button {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .kategori-secici button:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .kategori-secici button.selected {
+      background: linear-gradient(45deg, #4ecdc4, #44a08d);
+      border-color: #4ecdc4;
+      color: white;
+    }
+
+    .galeri {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-top: 20px;
+      opacity: 0;
+      animation: fadeIn 0.8s ease-out 0.7s forwards;
+    }
+
+    .foto-container {
+      position: relative;
+      border-radius: 15px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      cursor: pointer;
+      aspect-ratio: 1;
+    }
+
+    .foto-container:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      z-index: 10;
+    }
+
+    .foto-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .foto-container:hover img {
+      transform: scale(1.05);
+    }
+
+    .foto-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .foto-container:hover .foto-overlay {
+      opacity: 1;
+    }
+
+    .foto-overlay .icon {
+      font-size: 2rem;
+      animation: pulse 2s infinite;
+    }
+
+    .foto-overlay .sil-btn {
+      background: rgba(255, 59, 48, 0.9);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.3s ease;
+    }
+
+    .foto-overlay .sil-btn:hover {
+      background: rgba(255, 59, 48, 1);
+      transform: scale(1.1);
+    }
+
+    .bos-galeri {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 40px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      border: 2px dashed rgba(255, 255, 255, 0.3);
+    }
+
+    .bos-galeri h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      color: #ffd700;
+    }
+
+    .bos-galeri p {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      line-height: 1.5;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .modal-content img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: #fff;
+      font-size: 35px;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 1001;
+      transition: color 0.3s;
+    }
+
+    .close:hover {
+      color: #ffd700;
+    }
+
+    .bilgi-mesaji {
+      background: rgba(76, 175, 80, 0.2);
+      border: 1px solid rgba(76, 175, 80, 0.5);
+      border-radius: 10px;
+      padding: 10px 15px;
+      margin-bottom: 15px;
+      color: #4caf50;
+      font-size: 0.9rem;
+      text-align: center;
+      animation: fadeInUp 0.5s ease;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 2.2rem;
+      }
+      
+      .menu {
+        gap: 8px;
+      }
+      
+      .menu button {
+        padding: 10px 18px;
+        font-size: 0.9rem;
+      }
+      
+      .galeri {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+      
+      .yonetim-panel {
+        padding: 20px;
+      }
+      
+      .foto-yukle h3 {
+        font-size: 1.1rem;
+      }
+      
+      .dosya-secici label {
+        padding: 12px 24px;
+        font-size: 1rem;
+      }
+      
+      .foto-overlay .icon {
+        font-size: 1.5rem;
+      }
+      
+      .foto-overlay .sil-btn {
+        padding: 4px 8px;
+        font-size: 0.7rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .galeri {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+      
+      .header h1 {
+        font-size: 1.8rem;
+      }
+      
+      .menu button {
+        padding: 8px 14px;
+        font-size: 0.8rem;
+      }
+      
+      .kategori-secici button {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📸 Fotoğraf Portföyüm</h1>
+      <p>Galerinizden fotoğrafları seçin ve muhteşem portföyünüzü oluşturun</p>
+    </div>
+    
+    <div class="yonetim-panel">
+      <div class="foto-yukle">
+        <h3>🎨 Fotoğraf Ekle</h3>
+        <div class="bilgi-mesaji">
+          ✨ Ctrl (PC) veya Cmd (Mac) ile birden fazla fotoğraf seçebilirsiniz
+        </div>
+        <div class="dosya-secici">
+          <input type="file" id="fotoInput" accept="image/*" multiple>
+          <label for="fotoInput">📱 Toplu Fotoğraf Seç</label>
+        </div>
+        <div class="kategori-secici">
+          <button onclick="kategoriSec('plato')" data-kategori="plato">🎭 Plato</button>
+          <button onclick="kategoriSec('karavanli')" data-kategori="karavanli">🚐 Karavanlı</button>
+          <button onclick="kategoriSec('tarlatan')" data-kategori="tarlatan">🌾 Tarlatan</button>
+          <button onclick="kategoriSec('discekim')" data-kategori="discekim">🌅 Dış Çekim</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="menu">
+      <button onclick="goster('plato')" data-category="plato">🎭 Plato</button>
+      <button onclick="goster('karavanli')" data-category="karavanli">🚐 Karavanlı</button>
+      <button onclick="goster('tarlatan')" data-category="tarlatan">🌾 Tarlatan</button>
+      <button onclick="goster('discekim')" data-category="discekim">🌅 Dış Çekim</button>
+    </div>
+    
+    <div id="galeri" class="galeri"></div>
+  </div>
+
+  <div id="modal" class="modal">
+    <span class="close" onclick="closeModal()">×</span>
+    <div class="modal-content">
+      <img id="modalImg" src="" alt="Fotoğraf">
+    </div>
+  </div>
+
+  <script>
+    // Fotoğraf verileri (tarayıcı belleğinde saklanır)
+    let fotograflar = {
+      plato: [],
+      karavanli: [],
+      tarlatan: [],
+      discekim: []
+    };
+
+    let secilenKategori = 'plato';
+    let aktifKategori = 'plato';
+
+    // Sayfa yüklendiğinde kayıtlı fotoğrafları yükle
+    window.addEventListener('load', function() {
+      try {
+        const kaydedilmis = localStorage.getItem('fotografPortfoyu');
+        if (kaydedilmis) {
+          fotograflar = JSON.parse(kaydedilmis);
+        }
+      } catch (e) {
+        console.log('Veri yükleme hatası:', e);
+      }
+      kategoriSec('plato');
+      goster('plato');
+    });
+
+    // Kategori seçimi
+    function kategoriSec(kategori) {
+      secilenKategori = kategori;
+      
+      // Kategori butonlarını güncelle
+      document.querySelectorAll('.kategori-secici button').forEach(btn => {
+        btn.classList.remove('selected');
+      });
+      const secilenBtn = document.querySelector(`[data-kategori="${kategori}"]`);
+      if (secilenBtn) {
+        secilenBtn.classList.add('selected');
+      }
+    }
+
+    // Fotoğraf seçimi
+    document.getElementById('fotoInput').addEventListener('change', function(e) {
+      const dosyalar = Array.from(e.target.files);
+      
+      if (dosyalar.length > 0) {
+        console.log(`${dosyalar.length} fotoğraf seçildi`);
+        
+        // Sadece resim dosyalarını filtrele
+        const resimDosyalari = dosyalar.filter(dosya => 
+          dosya.type.startsWith('image/')
+        );
+        
+        if (resimDosyalari.length === 0) {
+          alert('Lütfen geçerli resim dosyaları seçin!');
+          return;
+        }
+        
+        // Yükleme mesajı göster
+        const galeri = document.getElementById('galeri');
+        if (aktifKategori === secilenKategori) {
+          galeri.innerHTML = `
+            <div class="bos-galeri">
+              <h3>📤 Fotoğraflar yükleniyor...</h3>
+              <p>${resimDosyalari.length} fotoğraf ${secilenKategori} kategorisine ekleniyor</p>
+            </div>
+          `;
+        }
+        
+        let yuklenenSayisi = 0;
+        const toplamSayi = resimDosyalari.length;
+        
+        resimDosyalari.forEach((dosya, index) => {
+          const reader = new FileReader();
+          
+          reader.onload = function(e) {
+            const yeniFoto = {
+              id: Date.now() + Math.random() * 1000 + index,
+              data: e.target.result,
+              isim: dosya.name
+            };
+            
+            fotograflar[secilenKategori].push(yeniFoto);
+            yuklenenSayisi++;
+            
+            // Tüm fotoğraflar yüklendiğinde kaydet ve göster
+            if (yuklenenSayisi === toplamSayi) {
+              kaydet();
+              
+              // Aktif kategori aynıysa galeriyi güncelle
+              if (aktifKategori === secilenKategori) {
+                setTimeout(() => {
+                  goster(secilenKategori);
+                }, 300);
+              }
+              
+              // Başarı mesajı göster
+              setTimeout(() => {
+                if (aktifKategori === secilenKategori) {
+                  showMessage(`✅ ${toplamSayi} fotoğraf başarıyla ${secilenKategori} kategorisine eklendi!`);
+                }
+              }, 500);
+            }
+          };
+          
+          reader.onerror = function() {
+            console.error(`Dosya okuma hatası: ${dosya.name}`);
+            yuklenenSayisi++;
+            
+            if (yuklenenSayisi === toplamSayi) {
+              kaydet();
+              if (aktifKategori === secilenKategori) {
+                setTimeout(() => {
+                  goster(secilenKategori);
+                }, 300);
+              }
+            }
+          };
+          
+          reader.readAsDataURL(dosya);
+        });
+        
+        // Input'u temizle
+        e.target.value = '';
+      }
+    });
+
+    // Başarı mesajı göster
+    function showMessage(mesaj) {
+      const galeri = document.getElementById('galeri');
+      const mesajDiv = document.createElement('div');
+      mesajDiv.className = 'bilgi-mesaji';
+      mesajDiv.innerHTML = mesaj;
+      mesajDiv.style.gridColumn = '1 / -1';
+      mesajDiv.style.marginBottom = '20px';
+      
+      galeri.insertBefore(mesajDiv, galeri.firstChild);
+      
+      setTimeout(() => {
+        if (mesajDiv.parentNode) {
+          mesajDiv.remove();
+        }
+      }, 3000);
+    }
+
+    // Fotoğrafları kaydet
+    function kaydet() {
+      try {
+        localStorage.setItem('fotografPortfoyu', JSON.stringify(fotograflar));
+      } catch (e) {
+        console.error('Kaydetme hatası:', e);
+        alert('Fotoğraflar kaydedilirken bir hata oluştu!');
+      }
+    }
+
+    // Kategori göster
+    function goster(kategori) {
+      aktifKategori = kategori;
+      const galeri = document.getElementById('galeri');
+      const buttons = document.querySelectorAll('.menu button');
+      
+      // Aktif buton stilini güncelle
+      buttons.forEach(btn => btn.classList.remove('active'));
+      const aktifBtn = document.querySelector(`[data-category="${kategori}"]`);
+      if (aktifBtn) {
+        aktifBtn.classList.add('active');
+      }
+      
+      // Galeriyi temizle
+      galeri.innerHTML = '';
+      
+      // Fotoğrafları göster
+      if (fotograflar[kategori] && fotograflar[kategori].length > 0) {
+        fotograflar[kategori].forEach((foto, index) => {
+          const container = document.createElement('div');
+          container.className = 'foto-container';
+          container.style.animationDelay = `${index * 0.1}s`;
+          
+          container.innerHTML = `
+            <img src="${foto.data}" alt="${foto.isim}" onclick="openModal('${foto.data}')">
+            <div class="foto-overlay">
+              <div class="icon">🔍</div>
+              <button class="sil-btn" onclick="fotoSil('${kategori}', ${foto.id})">🗑️ Sil</button>
+            </div>
+          `;
+          
+          galeri.appendChild(container);
+        });
+      } else {
+        galeri.innerHTML = `
+          <div class="bos-galeri">
+            <h3>📷 Henüz fotoğraf yok</h3>
+            <p>Yukarıdaki "Toplu Fotoğraf Seç" butonuna tıklayarak<br>
+            ${kategori} kategorisi için fotoğraf ekleyebilirsiniz.</p>
+          </div>
+        `;
+      }
+    }
+
+    // Fotoğraf sil
+    function fotoSil(kategori, fotoId) {
+      event.stopPropagation();
+      
+      if (confirm('Bu fotoğrafı silmek istediğinizden emin misiniz?')) {
+        fotograflar[kategori] = fotograflar[kategori].filter(foto => foto.id !== fotoId);
+        kaydet();
+        goster(kategori);
+      }
+    }
+
+    // Modal fonksiyonları
+    function openModal(src) {
+      const modal = document.getElementById('modal');
+      const modalImg = document.getElementById('modalImg');
+      modal.style.display = 'block';
+      modalImg.src = src;
+    }
+
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
+
+    // ESC tuşuyla modalı kapat
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    // Modal dışına tıklayınca kapat
+    document.getElementById('modal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>
