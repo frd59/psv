@@ -240,6 +240,52 @@
             margin: 15px 0;
         }
 
+        .winners-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .winner-item {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideIn 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .winner-rank {
+            font-size: 32px;
+            font-weight: bold;
+            min-width: 50px;
+        }
+
+        .winner-username {
+            font-size: 28px;
+            font-weight: bold;
+            flex: 1;
+            text-align: left;
+        }
+
+        .winner-medal {
+            font-size: 36px;
+        }
+
         .stats {
             display: flex;
             justify-content: space-around;
@@ -330,7 +376,7 @@
                 <img src="LOGO_URL_BURAYA" alt="Logo" style="display: none;" id="logoImg">
                 <span class="logo-placeholder">🎁</span>
             </div>
-            <h1>Instagram Çekiliş</h1>
+            <h1>PASOVART Instagram Çekiliş</h1>
             <p>Katılımcıları ekleyin ve kazananı belirleyin</p>
         </div>
 
@@ -343,6 +389,13 @@
                     <button class="btn-add" onclick="addParticipant()">Ekle</button>
                 </div>
                 <div class="error" id="error"></div>
+            </div>
+
+            <div class="section">
+                <h2>🏆 Kazanan Sayısı</h2>
+                <div class="input-group">
+                    <input type="number" id="winnerCount" placeholder="Kaç kazanan olacak?" min="1" value="1">
+                </div>
             </div>
 
             <div class="section">
@@ -365,8 +418,10 @@
             </div>
 
             <div class="winner-section" id="winnerSection">
-                <h3>🎉 Kazanan</h3>
-                <div class="winner-name" id="winnerName"></div>
+                <h3 id="winnerTitle">🎉 Kazananlar</h3>
+                <div id="winnerDisplay">
+                    <div class="winner-name" id="winnerName"></div>
+                </div>
                 <button class="btn-draw" onclick="resetDraw()">Yeni Çekiliş Yap</button>
             </div>
 
@@ -460,6 +515,19 @@
         function drawWinner() {
             if (participants.length === 0) return;
 
+            const winnerCountInput = document.getElementById('winnerCount');
+            const requestedWinners = parseInt(winnerCountInput.value) || 1;
+            
+            if (requestedWinners < 1) {
+                alert('Kazanan sayısı en az 1 olmalı!');
+                return;
+            }
+
+            if (requestedWinners > participants.length) {
+                alert(`Maksimum ${participants.length} kazanan seçilebilir!`);
+                return;
+            }
+
             document.getElementById('winnerSection').classList.remove('show');
             document.getElementById('drawBtn').disabled = true;
 
@@ -471,14 +539,36 @@
                 }
             });
 
-            // Final kazananı önceden belirle
-            const finalWinnerIndex = Math.floor(Math.random() * pool.length);
-            const finalWinner = pool[finalWinnerIndex];
+            // Final kazananları önceden belirle (tekrar etmesin)
+            const finalWinners = [];
+            const usedUsernames = new Set();
+            
+            while (finalWinners.length < requestedWinners && usedUsernames.size < participants.length) {
+                const randomIndex = Math.floor(Math.random() * pool.length);
+                const winner = pool[randomIndex];
+                
+                if (!usedUsernames.has(winner)) {
+                    finalWinners.push(winner);
+                    usedUsernames.add(winner);
+                }
+            }
 
             // Animasyon parametreleri
             const totalDuration = 10000; // 10 saniye
             let elapsed = 0;
             let intervalTime = 50; // Başlangıç hızı
+
+            // Başlık güncelle
+            const winnerTitle = document.getElementById('winnerTitle');
+            winnerTitle.textContent = requestedWinners === 1 ? '🎉 Kazanan' : '🎉 Kazananlar';
+
+            // Display alanını hazırla
+            const winnerDisplay = document.getElementById('winnerDisplay');
+            if (requestedWinners === 1) {
+                winnerDisplay.innerHTML = '<div class="winner-name" id="winnerName"></div>';
+            } else {
+                winnerDisplay.innerHTML = '<div class="winners-list" id="winnersList"></div>';
+            }
 
             document.getElementById('winnerSection').classList.add('show');
 
@@ -493,16 +583,53 @@
                     intervalTime = 100;
                 }
 
-                // Son saniyede final kazananı göster
+                // Son saniyede final kazananları göster
                 if (elapsed >= totalDuration) {
                     clearInterval(interval);
-                    document.getElementById('winnerName').textContent = finalWinner;
+                    
+                    if (requestedWinners === 1) {
+                        document.getElementById('winnerName').textContent = finalWinners[0];
+                    } else {
+                        const winnersList = document.getElementById('winnersList');
+                        const medals = ['🥇', '🥈', '🥉'];
+                        winnersList.innerHTML = finalWinners.map((winner, index) => {
+                            const medal = index < 3 ? medals[index] : '🏅';
+                            return `
+                                <div class="winner-item" style="animation-delay: ${index * 0.2}s">
+                                    <div class="winner-rank">${index + 1}.</div>
+                                    <div class="winner-username">${winner}</div>
+                                    <div class="winner-medal">${medal}</div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                    
                     // Konfeti patlatma efekti
                     createConfetti();
                 } else {
                     // Rastgele isim göster
-                    const randomIndex = Math.floor(Math.random() * pool.length);
-                    document.getElementById('winnerName').textContent = pool[randomIndex];
+                    if (requestedWinners === 1) {
+                        const randomIndex = Math.floor(Math.random() * pool.length);
+                        document.getElementById('winnerName').textContent = pool[randomIndex];
+                    } else {
+                        const winnersList = document.getElementById('winnersList');
+                        const tempWinners = [];
+                        for (let i = 0; i < requestedWinners; i++) {
+                            const randomIndex = Math.floor(Math.random() * pool.length);
+                            tempWinners.push(pool[randomIndex]);
+                        }
+                        const medals = ['🥇', '🥈', '🥉'];
+                        winnersList.innerHTML = tempWinners.map((winner, index) => {
+                            const medal = index < 3 ? medals[index] : '🏅';
+                            return `
+                                <div class="winner-item">
+                                    <div class="winner-rank">${index + 1}.</div>
+                                    <div class="winner-username">${winner}</div>
+                                    <div class="winner-medal">${medal}</div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
                 }
             }, intervalTime);
         }
