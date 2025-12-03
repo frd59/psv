@@ -1,1440 +1,579 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Teklif ve Sözleşme Yönetimi</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f5f7fa;
-      margin: 0; padding: 20px;
-    }
-    .container {
-      max-width: 1200px;
-      margin: auto;
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    }
-    .logo {text-align:center; margin-bottom:20px;}
-    .logo img {width: 150px;}
-    h2 {text-align:center; color:#333; margin-bottom:30px;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Çekiliş</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    /* Loading spinner */
-    .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #007bff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .loading-text {
-      color: #666;
-      font-style: italic;
-      text-align: center;
-      padding: 20px;
-    }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
 
-    /* Firebase ve Google Calendar bağlantı durumu */
-    .status-container {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      z-index: 1000;
-    }
-    .status-item {
-      padding: 5px 10px;
-      border-radius: 5px;
-      font-size: 12px;
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-    .status-connected {
-      background-color: #28a745;
-      color: white;
-    }
-    .status-disconnected {
-      background-color: #dc3545;
-      color: white;
-    }
+        .container {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            overflow: hidden;
+        }
 
-    /* Calendar Auth Button */
-    .calendar-auth {
-      background-color: #4285f4;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-bottom: 20px;
-      font-weight: bold;
-      transition: background-color 0.3s ease;
-    }
-    .calendar-auth:hover {
-      background-color: #3367d6;
-    }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+        }
 
-    /* Liste Tasarımı */
-    .search-container {
-      margin: 20px 0;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-    .search-input {
-      flex: 1;
-      padding: 10px;
-      border: 2px solid #007bff;
-      border-radius: 5px;
-      font-size: 14px;
-    }
-    .search-btn {
-      padding: 10px 20px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      width: auto;
-    }
-    .clear-btn {
-      padding: 10px 15px;
-      background: #6c757d;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      width: auto;
-    }
+        .logo {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            border: 5px solid rgba(255,255,255,0.3);
+            overflow: hidden;
+            position: relative;
+        }
 
-    .list-container {
-      background: #f8f9fa;
-      border-radius: 8px;
-      overflow: hidden;
-      margin-top: 15px;
-    }
-    .list-header {
-      background: #007bff;
-      color: white;
-      padding: 15px;
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 170px;
-      gap: 10px;
-      font-weight: bold;
-      font-size: 14px;
-    }
-    .list-header.sozlesme {
-      background: #dc3545;
-    }
-    .list-item {
-      padding: 12px 15px;
-      border-bottom: 1px solid #e9ecef;
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr 1fr 170px;
-      gap: 10px;
-      align-items: center;
-      background: white;
-      transition: background-color 0.2s;
-      font-size: 14px;
-    }
-    .list-item:hover {
-      background-color: #f8f9fa;
-    }
-    .list-item:last-child {
-      border-bottom: none;
-    }
-    .list-actions {
-      display: flex;
-      gap: 5px;
-      flex-wrap: wrap;
-    }
-    .list-actions button {
-      padding: 4px 8px;
-      font-size: 12px;
-      border-radius: 3px;
-      width: auto;
-      margin: 0;
-      border: none;
-      cursor: pointer;
-      color: white;
-    }
-    .btn-view { background: #17a2b8; }
-    .btn-edit { background: #ffc107; color: #212529; }
-    .btn-delete { background: #dc3545; }
-    .btn-contract { background: #28a745; }
-    .btn-pdf { background: #6c757d; }
-    .btn-calendar { background: #4285f4; }
-    .btn-calendar:disabled { background: #ccc; cursor: not-allowed; }
+        .logo::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(240,147,251,0.1) 0%, rgba(245,87,108,0.1) 100%);
+            z-index: 1;
+        }
 
-    .empty-state {
-      text-align: center;
-      padding: 40px;
-      color: #6c757d;
-      font-style: italic;
-    }
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: relative;
+            z-index: 2;
+        }
 
-    /* Accordion Menü */
-    .accordion {
-      color: white;
-      cursor: pointer;
-      padding: 15px 20px;
-      width: 100%;
-      border: none;
-      text-align: left;
-      outline: none;
-      font-size: 18px;
-      border-radius: 8px;
-      margin-top: 25px;
-      user-select: none;
-      transition: background-color 0.3s ease;
-    }
-    .accordion.teklif {
-      background-color: #007bff;
-    }
-    .accordion.teklif:hover {
-      background-color: #0056b3;
-    }
-    .accordion.teklif.active {
-      background-color: #00408d;
-    }
-    .accordion.sozlesme {
-      background-color: #dc3545;
-    }
-    .accordion.sozlesme:hover {
-      background-color: #c82333;
-    }
-    .accordion.sozlesme.active {
-      background-color: #bd2130;
-    }
-    .panel {
-      padding: 0;
-      display: none;
-      background-color: white;
-      overflow: hidden;
-      border-radius: 0 0 8px 8px;
-    }
-    .panel.teklif {
-      border: 1px solid #007bff;
-      border-top: none;
-    }
-    .panel.sozlesme {
-      border: 1px solid #dc3545;
-      border-top: none;
-    }
+        .logo-placeholder {
+            font-size: 48px;
+            position: relative;
+            z-index: 2;
+        }
 
-    #output {
-      margin-top: 30px;
-      min-height: 180px;
-    }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
 
-    /* PDF için özel stiller */
-    .pdf-content {
-      background: white;
-      padding: 40px;
-      margin: 20px;
-      border: 1px solid #ddd;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      line-height: 1.6;
-      color: #333;
-    }
-    
-    .pdf-header {
-      text-align: center;
-      margin-bottom: 30px;
-      border-bottom: 2px solid #007bff;
-      padding-bottom: 20px;
-    }
-    
-    .pdf-header img {
-      max-height: 80px;
-      margin-bottom: 15px;
-    }
-    
-    .pdf-title {
-      color: #007bff;
-      font-size: 24px;
-      font-weight: bold;
-      margin: 0;
-    }
-    
-    .pdf-body {
-      font-size: 16px;
-    }
-    
-    .pdf-body p {
-      margin: 12px 0;
-    }
-    
-    .pdf-body strong {
-      color: #007bff;
-    }
-    
-    .pdf-footer {
-      margin-top: 40px;
-      text-align: center;
-      font-size: 14px;
-      color: #666;
-      border-top: 1px solid #ddd;
-      padding-top: 20px;
-    }
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
 
-    /* Responsive */
-    @media (max-width: 768px) {
-      .list-header, .list-item {
-        grid-template-columns: 1fr;
-        gap: 5px;
-      }
-      .list-header {
-        display: none;
-      }
-      .list-item {
-        padding: 15px;
-        border-radius: 5px;
-        margin-bottom: 10px;
-      }
-      .search-container {
-        flex-direction: column;
-      }
-      .status-container {
-        position: relative;
-        top: auto;
-        right: auto;
-        margin-bottom: 20px;
-      }
-    }
+        .content {
+            padding: 40px 30px;
+        }
 
-    /* Yazdır için gizle */
-    @media print {
-      body * {
-        visibility: hidden;
-      }
-      .pdf-content, .pdf-content * {
-        visibility: visible;
-      }
-      .pdf-content {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        margin: 0;
-        padding: 20px;
-      }
-    }
-  </style>
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .participant-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .participant-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .participant-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .participant-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .participant-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .participant-tickets {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input[type="number"] {
+            width: 120px;
+        }
+
+        button {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-draw {
+            width: 100%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            font-size: 18px;
+            padding: 18px;
+            margin-top: 20px;
+        }
+
+        .btn-draw:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-draw:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .winner-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            color: white;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .winner-section.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .winner-section h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .winner-name {
+            font-size: 36px;
+            font-weight: bold;
+            padding: 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .error {
+            color: #f5576c;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
+        /* Konfeti Animasyonu */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #f093fb;
+            position: absolute;
+            animation: confetti-fall 3s linear forwards;
+            z-index: 1000;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(0) rotateZ(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotateZ(720deg);
+                opacity: 0;
+            }
+        }
+
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+    </style>
 </head>
 <body>
-  <!-- Firebase ve Calendar bağlantı durumu -->
-  <div class="status-container">
-    <div id="firebaseStatus" class="status-item status-disconnected">
-      🔴 Firebase Bağlanıyor...
+    <div class="confetti-container" id="confettiContainer"></div>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <!-- Buraya kendi logonuzu ekleyin -->
+                <img src="LOGO_URL_BURAYA" alt="Logo" style="display: none;" id="logoImg">
+                <span class="logo-placeholder">🎁</span>
+            </div>
+            <h1>Instagram Çekiliş</h1>
+            <p>Katılımcıları ekleyin ve kazananı belirleyin</p>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>➕ Katılımcı Ekle</h2>
+                <div class="input-group">
+                    <input type="text" id="username" placeholder="@kullaniciadi" autocomplete="off">
+                    <input type="number" id="tickets" placeholder="Hak sayısı" min="1" value="1">
+                    <button class="btn-add" onclick="addParticipant()">Ekle</button>
+                </div>
+                <div class="error" id="error"></div>
+            </div>
+
+            <div class="section">
+                <h2>👥 Katılımcılar (<span id="totalParticipants">0</span>)</h2>
+                <div class="participant-list" id="participantList">
+                    <div style="text-align: center; color: #999; padding: 40px 20px;">
+                        Henüz katılımcı eklenmedi
+                    </div>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-value" id="totalTickets">0</span>
+                        <span class="stat-label">Toplam Hak</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="participantCount">0</span>
+                        <span class="stat-label">Katılımcı</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="winner-section" id="winnerSection">
+                <h3>🎉 Kazanan</h3>
+                <div class="winner-name" id="winnerName"></div>
+                <button class="btn-draw" onclick="resetDraw()">Yeni Çekiliş Yap</button>
+            </div>
+
+            <button class="btn-draw" id="drawBtn" onclick="drawWinner()" disabled>
+                🎲 Çekilişi Başlat
+            </button>
+        </div>
     </div>
-    <div id="calendarStatus" class="status-item status-disconnected">
-      🔴 Calendar Bağlantısız
-    </div>
-  </div>
 
-  <div class="container">
-    <div class="logo">
-      <img src="https://i.hizliresim.com/eqyhuxx.png" alt="Logo" />
-    </div>
-    
-    <!-- Google Calendar Yetkilendirme -->
-    <div style="text-align: center; margin-bottom: 20px;">
-      <button id="authorizeBtn" class="calendar-auth" onclick="handleAuthClick()">
-        📅 Google Calendar'a Bağlan
-      </button>
-      <button id="signoutBtn" class="calendar-auth" onclick="handleSignoutClick()" style="display:none; background-color: #dc3545;">
-        🚪 Calendar Bağlantısını Kes
-      </button>
-    </div>
-    
-    <h2>TEKLİF VE SÖZLEŞME YÖNETİMİ</h2>
+    <script>
+        let participants = [];
 
-    <div id="output"></div>
+        function addParticipant() {
+            const usernameInput = document.getElementById('username');
+            const ticketsInput = document.getElementById('tickets');
+            const error = document.getElementById('error');
+            
+            let username = usernameInput.value.trim();
+            const tickets = parseInt(ticketsInput.value);
 
-    <button class="accordion teklif">📋 Teklifler</button>
-    <div class="panel teklif" id="tekliflerPanel">
-      <div class="search-container">
-        <input type="text" id="teklifArama" class="search-input" placeholder="Müşteri adı, paket, yer ile arayın...">
-        <button onclick="teklifAra()" class="search-btn">🔍 Ara</button>
-        <button onclick="aramaTemizle('teklif')" class="clear-btn">Temizle</button>
-      </div>
-      <div id="tekliflerListesi" class="list-container"></div>
-    </div>
+            // @ işareti yoksa ekle
+            if (username && !username.startsWith('@')) {
+                username = '@' + username;
+            }
 
-    <button class="accordion sozlesme">📄 Sözleşmeler</button>
-    <div class="panel sozlesme" id="sozlesmelerPanel">
-      <div class="search-container">
-        <input type="text" id="sozlesmeArama" class="search-input" placeholder="Müşteri adı, paket, yer ile arayın...">
-        <button onclick="sozlesmeAra()" class="search-btn">🔍 Ara</button>
-        <button onclick="aramaTemizle('sozlesme')" class="clear-btn">Temizle</button>
-      </div>
-      <div id="sozlesmelerListesi" class="list-container"></div>
-    </div>
-  </div>
+            error.classList.remove('show');
 
-  <!-- PDF içeriği için gizli div -->
-  <div id="pdfContent" class="pdf-content" style="display:none;">
-    <!-- PDF içeriği buraya dinamik olarak eklenecek -->
-  </div>
+            if (!username || username === '@') {
+                error.textContent = 'Lütfen kullanıcı adı girin!';
+                error.classList.add('show');
+                return;
+            }
 
-  <!-- Firebase SDK -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
-  
-  <!-- Google APIs -->
-  <script src="https://apis.google.com/js/api.js"></script>
+            if (!tickets || tickets < 1) {
+                error.textContent = 'Hak sayısı en az 1 olmalı!';
+                error.classList.add('show');
+                return;
+            }
 
-<script>
-  // Firebase Configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyDMMpU1l8zabgaw7bfSHKCOxLbz-RhNT7I",
-    authDomain: "databasepsv-dc1b7.firebaseapp.com",
-    databaseURL: "https://databasepsv-dc1b7-default-rtdb.firebaseio.com",
-    projectId: "databasepsv-dc1b7",
-    storageBucket: "databasepsv-dc1b7.firebasestorage.app",
-    messagingSenderId: "106474799557",
-    appId: "1:106474799557:web:8f7cff2b7ef8466ab08bac",
-    measurementId: "G-BKKE9YZS1T"
-  };
+            // Aynı kullanıcı kontrolü
+            if (participants.find(p => p.username.toLowerCase() === username.toLowerCase())) {
+                error.textContent = 'Bu kullanıcı zaten eklendi!';
+                error.classList.add('show');
+                return;
+            }
 
-  // Google Calendar API Configuration
-  const GOOGLE_CLIENT_ID = '270944409412-g5p51bra8t2cedq1h3mrdobd4dtm871o.apps.googleusercontent.com';
-  const GOOGLE_API_KEY = 'AIzaSyCh7KY4994qjiSXHkfgFTudCCgb67_gMd4';
-  const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
-  const SCOPES = 'https://www.googleapis.com/auth/calendar';
+            participants.push({ username, tickets });
+            usernameInput.value = '';
+            ticketsInput.value = '1';
+            usernameInput.focus();
 
-  // Firebase'i başlat
-  let db;
-  let firebaseConnected = false;
-  let tokenClient;
-  let gapiInited = false;
-  let gisInited = false;
-  let isCalendarAuthorized = false;
+            updateParticipantList();
+            updateStats();
+        }
 
-  try {
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.firestore();
-    firebaseConnected = true;
-    updateFirebaseStatus(true);
-    console.log("Firebase başarıyla bağlandı!");
-  } catch (error) {
-    console.error("Firebase bağlantı hatası:", error);
-    updateFirebaseStatus(false);
-    alert("Firebase bağlantısı kurulamadı. Veriler geçici olarak tarayıcıda saklanacak.");
-  }
+        function removeParticipant(index) {
+            participants.splice(index, 1);
+            updateParticipantList();
+            updateStats();
+        }
 
-  function updateFirebaseStatus(connected) {
-    const statusEl = document.getElementById('firebaseStatus');
-    if (connected) {
-      statusEl.textContent = '🟢 Firebase Bağlı';
-      statusEl.className = 'status-item status-connected';
-    } else {
-      statusEl.textContent = '🔴 Firebase Bağlantısız';
-      statusEl.className = 'status-item status-disconnected';
-    }
-  }
+        function updateParticipantList() {
+            const list = document.getElementById('participantList');
+            
+            if (participants.length === 0) {
+                list.innerHTML = '<div style="text-align: center; color: #999; padding: 40px 20px;">Henüz katılımcı eklenmedi</div>';
+                document.getElementById('drawBtn').disabled = true;
+                return;
+            }
 
-  function updateCalendarStatus(connected) {
-    const statusEl = document.getElementById('calendarStatus');
-    if (connected) {
-      statusEl.textContent = '🟢 Calendar Bağlı';
-      statusEl.className = 'status-item status-connected';
-    } else {
-      statusEl.textContent = '🔴 Calendar Bağlantısız';
-      statusEl.className = 'status-item status-disconnected';
-    }
-  }
+            list.innerHTML = participants.map((p, index) => `
+                <div class="participant-item">
+                    <span class="participant-name">${p.username}</span>
+                    <div>
+                        <span class="participant-tickets">${p.tickets} hak</span>
+                        <button class="remove-btn" onclick="removeParticipant(${index})">×</button>
+                    </div>
+                </div>
+            `).join('');
 
-  // Google API yükleme
-  window.gapiLoaded = function() {
-    gapi.load('client', initializeGapiClient);
-  }
+            document.getElementById('drawBtn').disabled = false;
+        }
 
-  window.gisLoaded = function() {
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: GOOGLE_CLIENT_ID,
-      scope: SCOPES,
-      callback: '',
-    });
-    gisInited = true;
-    maybeEnableButtons();
-  }
+        function updateStats() {
+            const totalTickets = participants.reduce((sum, p) => sum + p.tickets, 0);
+            document.getElementById('totalTickets').textContent = totalTickets;
+            document.getElementById('participantCount').textContent = participants.length;
+            document.getElementById('totalParticipants').textContent = participants.length;
+        }
 
-  async function initializeGapiClient() {
-    await gapi.client.init({
-      apiKey: GOOGLE_API_KEY,
-      discoveryDocs: [DISCOVERY_DOC]
-    });
-    gapiInited = true;
-    maybeEnableButtons();
-  }
+        function drawWinner() {
+            if (participants.length === 0) return;
 
-  function maybeEnableButtons() {
-    if (gapiInited && gisInited) {
-      document.getElementById('authorizeBtn').style.display = 'block';
-    }
-  }
+            document.getElementById('winnerSection').classList.remove('show');
+            document.getElementById('drawBtn').disabled = true;
 
-  function handleAuthClick() {
-    tokenClient.callback = async (resp) => {
-      if (resp.error !== undefined) {
-        throw (resp);
-      }
-      isCalendarAuthorized = true;
-      updateCalendarStatus(true);
-      document.getElementById('authorizeBtn').style.display = 'none';
-      document.getElementById('signoutBtn').style.display = 'block';
-    };
+            // Tüm hak sayılarına göre havuz oluştur
+            const pool = [];
+            participants.forEach(p => {
+                for (let i = 0; i < p.tickets; i++) {
+                    pool.push(p.username);
+                }
+            });
 
-    if (gapi.client.getToken() === null) {
-      tokenClient.requestAccessToken({prompt: 'consent'});
-    } else {
-      tokenClient.requestAccessToken({prompt: ''});
-    }
-  }
+            // Final kazananı önceden belirle
+            const finalWinnerIndex = Math.floor(Math.random() * pool.length);
+            const finalWinner = pool[finalWinnerIndex];
 
-  function handleSignoutClick() {
-    const token = gapi.client.getToken();
-    if (token !== null) {
-      google.accounts.oauth2.revoke(token.access_token);
-      gapi.client.setToken('');
-      isCalendarAuthorized = false;
-      updateCalendarStatus(false);
-      document.getElementById('authorizeBtn').style.display = 'block';
-      document.getElementById('signoutBtn').style.display = 'none';
-    }
-  }
+            // Animasyon parametreleri
+            const totalDuration = 10000; // 10 saniye
+            let elapsed = 0;
+            let intervalTime = 50; // Başlangıç hızı
 
-  // Google Calendar'a etkinlik ekleme fonksiyonu (Tüm gün etkinliği)
-async function addToGoogleCalendar(item, tip) {
-  try {
-    if (!gapi.client || !gapi.client.calendar) {
-      console.error('Google API yüklenmemiş!');
-      alert('Google API henüz yüklenmedi. Lütfen sayfayı yenileyip tekrar deneyin.');
-      return;
-    }
+            document.getElementById('winnerSection').classList.add('show');
 
-    if (!isCalendarAuthorized) {
-      alert("Google Calendar bağlantısı yapılmadı. Önce yetkilendirme yapmalısınız.");
-      return;
-    }
+            const interval = setInterval(() => {
+                elapsed += intervalTime;
+                const progress = elapsed / totalDuration;
 
-    let etkinlikTarihi = item.tarih ? new Date(item.tarih) : new Date();
-    if (isNaN(etkinlikTarihi)) {
-      alert('Tarih formatı hatalı! Lütfen geçerli bir tarih girin.');
-      return;
-    }
+                // Zamanla yavaşlama efekti
+                if (progress > 0.7) {
+                    intervalTime = 150;
+                } else if (progress > 0.5) {
+                    intervalTime = 100;
+                }
 
-    const tarihStr = etkinlikTarihi.toISOString().split('T')[0];
+                // Son saniyede final kazananı göster
+                if (elapsed >= totalDuration) {
+                    clearInterval(interval);
+                    document.getElementById('winnerName').textContent = finalWinner;
+                    // Konfeti patlatma efekti
+                    createConfetti();
+                } else {
+                    // Rastgele isim göster
+                    const randomIndex = Math.floor(Math.random() * pool.length);
+                    document.getElementById('winnerName').textContent = pool[randomIndex];
+                }
+            }, intervalTime);
+        }
 
-    const event = {
-      summary: `${tip === 'teklif' ? '📋 TEKLİF' : '📄 SÖZLEŞME'}: ${item.ad}`,
-      location: item.yer || '',
-      description: `
-👤 Müşteri: ${item.ad}
-📞 Telefon: ${item.telefon || 'Belirtilmemiş'}
-📦 Paket: ${item.paket || 'Belirtilmemiş'}
-📍 Yer: ${item.yer || 'Belirtilmemiş'}
-💰 Fiyat: ${item.fiyat || 'Belirtilmemiş'} TL
-🎯 Çekim Türü: ${(item.cekim || '').replace(/<br>/g, '\n')}
-📝 Açıklama: ${(item.aciklama || '').replace(/<br>/g, '\n')}
-${item.referans ? `👤 Referans: ${item.referans}` : ''}
-`.trim(),
-      start: {
-        date: tarihStr,
-        timeZone: 'Europe/Istanbul'
-      },
-      end: {
-        date: tarihStr,
-        timeZone: 'Europe/Istanbul'
-      },
-      reminders: {
-        useDefault: false,
-        overrides: [
-          { method: 'email', minutes: 24 * 60 },
-          { method: 'popup', minutes: 60 }
-        ]
-      }
-    };
+        function createConfetti() {
+            const container = document.getElementById('confettiContainer');
+            const colors = ['#f093fb', '#f5576c', '#667eea', '#764ba2', '#4facfe', '#00f2fe', '#ffd89b', '#19547b'];
+            const confettiCount = 150;
 
-    const response = await gapi.client.calendar.events.insert({
-      calendarId: 'primary',
-      resource: event
-    });
+            for (let i = 0; i < confettiCount; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.width = (Math.random() * 10 + 5) + 'px';
+                    confetti.style.height = (Math.random() * 10 + 5) + 'px';
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    confetti.style.animationDelay = (Math.random() * 0.5) + 's';
+                    
+                    // Rastgele şekiller
+                    if (Math.random() > 0.5) {
+                        confetti.style.borderRadius = '50%';
+                    }
+                    
+                    container.appendChild(confetti);
 
-    console.log('Takvime başarıyla eklendi:', response.result);
-    alert('Etkinlik Google Calendar\'a başarıyla eklendi!');
-	
-	return response.result;
-  } catch (error) {
-    console.error('Takvim ekleme hatası:', error);
-    alert('Google Calendar\'a eklenirken hata oluştu: ' + error.message);
-  }
-}
+                    // Konfeti temizleme
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 4000);
+                }, i * 15);
+            }
+        }
 
+        function resetDraw() {
+            document.getElementById('winnerSection').classList.remove('show');
+            document.getElementById('drawBtn').disabled = false;
+        }
 
-
-  let teklifler = [];
-  let sozlesmeler = [];
-  let filtreliTeklifler = [];
-  let filtreliSozlesmeler = [];
-
-  // Sayfa yüklendiğinde verileri çek
-  window.addEventListener('load', async () => {
-    await veriCek();
-    
-    // Google APIs yükle
-    const script1 = document.createElement('script');
-    script1.src = 'https://apis.google.com/js/api.js';
-    script1.onload = window.gapiLoaded;
-    document.head.appendChild(script1);
-
-    const script2 = document.createElement('script');
-    script2.src = 'https://accounts.google.com/gsi/client';
-    script2.onload = window.gisLoaded;
-    document.head.appendChild(script2);
-  });
-
-  // Firebase'den verileri çek
-  async function veriCek() {
-    if (!firebaseConnected) {
-      console.log("Firebase bağlantısı yok, yerel veriler kullanılıyor.");
-      return;
-    }
-
-    try {
-      showLoading("tekliflerListesi");
-      showLoading("sozlesmelerListesi");
-
-      // Teklifleri çek
-      const teklifSnapshot = await db.collection('teklifler').orderBy('createdAt', 'desc').get();
-      teklifler = [];
-      teklifSnapshot.forEach(doc => {
-        teklifler.push({
-          id: doc.id,
-          ...doc.data()
+        // Enter tuşu ile ekleme
+        document.getElementById('username').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('tickets').focus();
+            }
         });
-      });
 
-      // Sözleşmeleri çek
-      const sozlesmeSnapshot = await db.collection('sozlesmeler').orderBy('createdAt', 'desc').get();
-      sozlesmeler = [];
-      sozlesmeSnapshot.forEach(doc => {
-        sozlesmeler.push({
-          id: doc.id,
-          ...doc.data()
+        document.getElementById('tickets').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addParticipant();
+            }
         });
-      });
 
-      filtreliTeklifler = [...teklifler];
-      filtreliSozlesmeler = [...sozlesmeler];
-      renderTeklifler();
-      renderSozlesmeler();
-    } catch (error) {
-      console.error("Veri çekme hatası:", error);
-      document.getElementById('output').innerHTML = `
-        <div style="color: red; padding: 10px; border: 1px solid red; border-radius: 5px;">
-          ❌ Veriler yüklenirken hata oluştu: ${error.message}
-        </div>
-      `;
-    }
-  }
-
-  function showLoading(containerId) {
-    document.getElementById(containerId).innerHTML = `
-      <div class="loading-text">
-        <div class="loading"></div>
-        Veriler yükleniyor...
-      </div>
-    `;
-  }
-
-  // Accordion aç/kapa
-  document.querySelectorAll(".accordion").forEach(button => {
-    button.addEventListener("click", () => {
-      button.classList.toggle("active");
-      const panel = button.nextElementSibling;
-      if(panel.style.display === "block") {
-        panel.style.display = "none";
-      } else {
-        panel.style.display = "block";
-      }
-    });
-  });
-
-  function renderTeklifler() {
-    const container = document.getElementById('tekliflerListesi');
-    
-    if (filtreliTeklifler.length === 0) {
-      container.innerHTML = `
-        <div class="empty-state">
-          📋 Henüz teklif bulunmuyor
-        </div>
-      `;
-      return;
-    }
-
-    let html = `
-      <div class="list-header">
-        <div>Müşteri</div>
-		<div>Telefon</div>
-        <div>Paket</div>
-        <div>Tarih</div>
-        <div>Fiyat</div>
-        <div>Durum</div>
-        <div>İşlemler</div>
-      </div>
-    `;
-
-    filtreliTeklifler.forEach(teklif => {
-      const tarihFormatli = teklif.tarih ? new Date(teklif.tarih).toLocaleDateString('tr-TR') : 'Belirtilmemiş';
-      const fiyatFormatli = teklif.fiyat ? `${teklif.fiyat} TL` : 'Belirtilmemiş';
-      
-      html += `
-        <div class="list-item">
-          <div><strong>${teklif.ad}</strong><br><small>${teklif.yer || 'Yer belirtilmemiş'}</small></div>
-		  <div>${teklif.telefon || 'Belirtilmemiş'}</div>
-          <div>${teklif.paket || 'Belirtilmemiş'}</div>
-          <div>${tarihFormatli}</div>
-          <div>${fiyatFormatli}</div>
-          <div><span style="color: #ff9800;">⏳ Bekliyor</span></div>
-          <div class="list-actions">
-            <button class="btn-view" onclick="teklifGoster('${teklif.id}')">👁️</button>
-            <button class="btn-edit" onclick="teklifDuzenle('${teklif.id}')">✏️</button>
-            <button class="btn-delete" onclick="teklifSil('${teklif.id}')">🗑️</button>
-            <button class="btn-contract" onclick="sozlesmeOlustur('${teklif.id}')">📄</button>
-            <button class="btn-pdf" onclick="pdfOlustur('${teklif.id}')">📄</button>
-            <button class="btn-calendar" onclick="teklifTakvimeEkle('${teklif.id}')">📅</button>
-
-          </div>
-        </div>
-      `;
-    });
-
-    container.innerHTML = html;
-  }
-
-  function renderSozlesmeler() {
-    const container = document.getElementById('sozlesmelerListesi');
-    
-    if (filtreliSozlesmeler.length === 0) {
-      container.innerHTML = `
-        <div class="empty-state">
-          📄 Henüz sözleşme bulunmuyor
-        </div>
-      `;
-      return;
-    }
-
-    let html = `
-      <div class="list-header sozlesme">
-        <div>Müşteri</div>
-		<div>Telefon</div>
-        <div>Paket</div>
-        <div>Tarih</div>
-        <div>Fiyat</div>
-        <div>Durum</div>
-        <div>İşlemler</div>
-      </div>
-    `;
-
-    filtreliSozlesmeler.forEach(sozlesme => {
-      const tarihFormatli = sozlesme.tarih ? new Date(sozlesme.tarih).toLocaleDateString('tr-TR') : 'Belirtilmemiş';
-      const fiyatFormatli = sozlesme.fiyat ? `${sozlesme.fiyat} TL` : 'Belirtilmemiş';
-      
-      html += `
-        <div class="list-item">
-          <div><strong>${sozlesme.ad}</strong><br><small>${sozlesme.yer || 'Yer belirtilmemiş'}</small></div>
-		  <div>${sozlesme.telefon || 'Belirtilmemiş'}</div>
-          <div>${sozlesme.paket || 'Belirtilmemiş'}</div>
-          <div>${tarihFormatli}</div>
-          <div>${fiyatFormatli}</div>
-          <div><span style="color: #4caf50;">✅ Aktif</span></div>
-          <div class="list-actions">
-            <button class="btn-view" onclick="sozlesmeGoster('${sozlesme.id}')">👁️</button>
-            <button class="btn-edit" onclick="sozlesmeDuzenle('${sozlesme.id}')">✏️</button>
-            <button class="btn-delete" onclick="sozlesmeSil('${sozlesme.id}')">🗑️</button>
-            <button class="btn-pdf" onclick="sozlesmePdfOlustur('${sozlesme.id}')">📄</button>
-            <button class="btn-calendar" onclick="sozlesmeTakvimeEkle('${sozlesme.id}')" ${!isCalendarAuthorized ? 'disabled' : ''}>📅</button>
-          </div>
-        </div>
-      `;
-    });
-
-    container.innerHTML = html;
-  }
-
-  // Teklifi takvime ekleme
-async function teklifTakvimeEkle(teklifId) {
-  const teklif = teklifler.find(t => t.id === teklifId);
-  if (!teklif) {
-    alert('Teklif bulunamadı!');
-    return;
-  }
-
-  const event = await addToGoogleCalendar(teklif, 'teklif');
-
-  if (firebaseConnected && event) {
-    await db.collection('teklifler').doc(teklifId).update({
-      calendarEventId: event.id  // 🔥 ID'yi kaydet
-    });
-
-    // Teklifi yerel listeye de güncelle
-    const index = teklifler.findIndex(t => t.id === teklifId);
-    if (index !== -1) {
-      teklifler[index].calendarEventId = event.id;
-    }
-  }
-
-  alert('Teklif Google Calendar\'a eklendi!');
-}
-
-
-async function sozlesmeTakvimeEkle(sozlesmeId) {
-  const sozlesme = sozlesmeler.find(s => s.id === sozlesmeId);
-  if (!sozlesme) {
-    alert('Sözleşme bulunamadı!');
-    return;
-  }
-  await addToGoogleCalendar(sozlesme, 'sozlesme');
-}
-
-
-  // Sözleşmeyi takvime ekleme
-  async function sozlesmeTakvimeEkle(sozlesmeId) {
-  const sozlesme = sozlesmeler.find(s => s.id === sozlesmeId);
-  if (!sozlesme) {
-    alert('Sözleşme bulunamadı!');
-    return;
-  }
-
-  const calendarEventId = sozlesme.calendarEventId;
-
-  if (!calendarEventId) {
-    alert('❌ Bu sözleşmenin takvimde bağlı etkinliği bulunamadı.');
-    return;
-  }
-
-  try {
-    const etkinlik = await gapi.client.calendar.events.get({
-      calendarId: 'primary',
-      eventId: calendarEventId
-    });
-
-    const updatedEvent = etkinlik.result;
-    updatedEvent.summary = `📄 SÖZLEŞME: ${sozlesme.ad}`;
-    updatedEvent.description = `
-👤 Müşteri: ${sozlesme.ad}
-📞 Telefon: ${sozlesme.telefon || 'Belirtilmemiş'}
-📦 Paket: ${sozlesme.paket || 'Belirtilmemiş'}
-📍 Yer: ${sozlesme.yer || 'Belirtilmemiş'}
-💰 Fiyat: ${sozlesme.fiyat || 'Belirtilmemiş'} TL
-🎯 Çekim Türü: ${(sozlesme.cekim || '').replace(/<br>/g, '\n')}
-📝 Açıklama: ${(sozlesme.aciklama || '').replace(/<br>/g, '\n')}
-${sozlesme.referans ? `👤 Referans: ${sozlesme.referans}` : ''}
-`.trim();
-
-    updatedEvent.colorId = '11'; // 🔴 Kırmızı
-
-    const response = await gapi.client.calendar.events.update({
-      calendarId: 'primary',
-      eventId: calendarEventId,
-      resource: updatedEvent
-    });
-
-    console.log('Etkinlik güncellendi:', response.result);
-    alert('Sözleşme takvimde güncellendi ve rengi kırmızı yapıldı!');
-  } catch (error) {
-    console.error('Takvim güncelleme hatası:', error);
-    alert('Google Calendar güncellenirken hata oluştu: ' + error.message);
-  }
-}
-
-
-
-  // Arama fonksiyonları
-  function teklifAra() {
-    const arama = document.getElementById('teklifArama').value.toLowerCase();
-    if (arama.trim() === '') {
-      filtreliTeklifler = [...teklifler];
-    } else {
-      filtreliTeklifler = teklifler.filter(teklif => 
-        teklif.ad.toLowerCase().includes(arama) ||
-        (teklif.paket && teklif.paket.toLowerCase().includes(arama)) ||
-        (teklif.yer && teklif.yer.toLowerCase().includes(arama)) ||
-        (teklif.cekim && teklif.cekim.toLowerCase().includes(arama))
-      );
-    }
-    renderTeklifler();
-  }
-
-  function sozlesmeAra() {
-    const arama = document.getElementById('sozlesmeArama').value.toLowerCase();
-    if (arama.trim() === '') {
-      filtreliSozlesmeler = [...sozlesmeler];
-    } else {
-      filtreliSozlesmeler = sozlesmeler.filter(sozlesme => 
-        sozlesme.ad.toLowerCase().includes(arama) ||
-        (sozlesme.paket && sozlesme.paket.toLowerCase().includes(arama)) ||
-        (sozlesme.yer && sozlesme.yer.toLowerCase().includes(arama)) ||
-        (sozlesme.cekim && sozlesme.cekim.toLowerCase().includes(arama))
-      );
-    }
-    renderSozlesmeler();
-  }
-
-  function aramaTemizle(tip) {
-    if (tip === 'teklif') {
-      document.getElementById('teklifArama').value = '';
-      filtreliTeklifler = [...teklifler];
-      renderTeklifler();
-    } else {
-      document.getElementById('sozlesmeArama').value = '';
-      filtreliSozlesmeler = [...sozlesmeler];
-      renderSozlesmeler();
-    }
-  }
-
-  // Enter tuşu ile arama
-  document.getElementById('teklifArama').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      teklifAra();
-    }
-  });
-
-  document.getElementById('sozlesmeArama').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      sozlesmeAra();
-    }
-  });
-
-  // Teklif düzenleme
-  function teklifDuzenle(teklifId) {
-    const teklif = teklifler.find(t => t.id === teklifId);
-    if (!teklif) {
-      alert('Teklif bulunamadı!');
-      return;
-    }
-
-    const output = document.getElementById('output');
-    output.innerHTML = `
-      <div style="background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107;">
-        <h3 style="color: #856404; margin-top: 0;">✏️ Teklif Düzenle</h3>
-        <form id="teklifDuzenleForm" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-          <div>
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">👤 Müşteri Adı:</label>
-            <input type="text" id="duzenleAd" value="${teklif.ad}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
-          </div>
-		  <div>
-  <label style="display: block; margin-bottom: 5px; font-weight: bold;">📞 Telefon:</label>
-  <input type="text" id="duzenleTelefon" value="${teklif.telefon || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-</div>
-
-          <div>
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">📦 Paket:</label>
-            <input type="text" id="duzenlePaket" value="${teklif.paket || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-          </div>
-          <div>
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">📅 Çekim Tarihi:</label>
-            <input type="date" id="duzenleTarih" value="${teklif.tarih || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-          </div>
-          <div>
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">💰 Fiyat:</label>
-            <input type="number" id="duzenleFiyat" value="${teklif.fiyat || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" min="0">
-          </div>
-          <div style="grid-column: 1 / -1;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">📍 Yer:</label>
-            <input type="text" id="duzenleYer" value="${teklif.yer || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-          </div>
-          <div style="grid-column: 1 / -1;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">🎯 Çekim Türü:</label>
-            <textarea id="duzenleCekim" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;">${teklif.cekim ? teklif.cekim.replace(/<br>/g, '\n') : ''}</textarea>
-          </div>
-          <div style="grid-column: 1 / -1;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">📝 Açıklama:</label>
-            <textarea id="duzenleAciklama" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;">${teklif.aciklama ? teklif.aciklama.replace(/<br>/g, '\n') : ''}</textarea>
-          </div>
-          <div style="grid-column: 1 / -1;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">👤 Referans:</label>
-            <input type="text" id="duzenleReferans" value="${teklif.referans || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-          </div>
-          <div style="grid-column: 1 / -1; margin-top: 20px;">
-            <button type="button" onclick="teklifGuncelle('${teklif.id}')" style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; margin-right: 10px; font-weight: bold;">💾 Güncelle</button>
-            <button type="button" onclick="document.getElementById('output').innerHTML = ''" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer;">❌ İptal</button>
-          </div>
-        </form>
-      </div>
-    `;
-    output.scrollIntoView({ behavior: 'smooth' });
-  }
-
-  // Teklif güncelleme
-  async function teklifGuncelle(teklifId) {
-    const ad = document.getElementById('duzenleAd').value.trim();
-	const telefon = document.getElementById('duzenleTelefon').value.trim();
-    const paket = document.getElementById('duzenlePaket').value.trim();
-    const tarih = document.getElementById('duzenleTarih').value;
-    const fiyat = document.getElementById('duzenleFiyat').value;
-    const yer = document.getElementById('duzenleYer').value.trim();
-    const cekim = document.getElementById('duzenleCekim').value.trim();
-    const aciklama = document.getElementById('duzenleAciklama').value.trim();
-    const referans = document.getElementById('duzenleReferans').value.trim();
-
-    if (!ad) {
-      alert('Müşteri adı boş bırakılamaz!');
-      return;
-    }
-
-    const guncellenmisTeklif = {
-      ad: ad,
-	  telefon: telefon,
-      paket: paket,
-      tarih: tarih,
-      fiyat: fiyat ? parseFloat(fiyat) : null,
-      yer: yer,
-      cekim: cekim.replace(/\n/g, '<br>'),
-      aciklama: aciklama.replace(/\n/g, '<br>'),
-      referans: referans,
-      updatedAt: new Date()
-    };
-
-    try {
-      if (firebaseConnected) {
-        await db.collection('teklifler').doc(teklifId).update(guncellenmisTeklif);
-      }
-
-      // Yerel diziyi güncelle
-      const teklifIndex = teklifler.findIndex(t => t.id === teklifId);
-      if (teklifIndex !== -1) {
-        teklifler[teklifIndex] = { ...teklifler[teklifIndex], ...guncellenmisTeklif };
-      }
-
-      const filtreliIndex = filtreliTeklifler.findIndex(t => t.id === teklifId);
-      if (filtreliIndex !== -1) {
-        filtreliTeklifler[filtreliIndex] = { ...filtreliTeklifler[filtreliIndex], ...guncellenmisTeklif };
-      }
-
-      renderTeklifler();
-      
-      document.getElementById('output').innerHTML = `
-        <div style="color: green; padding: 10px; border: 1px solid green; border-radius: 5px;">
-          ✅ Teklif başarıyla güncellendi!
-        </div>
-      `;
-    } catch (error) {
-      console.error('Güncelleme hatası:', error);
-      alert('Teklif güncellenirken hata oluştu: ' + error.message);
-    }
-  }
-
-  // Teklif görüntüleme
-  function teklifGoster(teklifId) {
-    const teklif = teklifler.find(t => t.id === teklifId);
-    if (!teklif) {
-      alert('Teklif bulunamadı!');
-      return;
-    }
-
-    const output = document.getElementById('output');
-    output.innerHTML = `
-      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #007bff;">
-        <h3 style="color: #007bff; margin-top: 0;">📋 Teklif Detayları</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-          <div><strong>👤 Müşteri:</strong> ${teklif.ad}</div>
-		  <div><strong>📞 Telefon:</strong> ${teklif.telefon || 'Belirtilmemiş'}</div>
-          <div><strong>📦 Paket:</strong> ${teklif.paket || 'Belirtilmemiş'}</div>
-          <div><strong>📅 Tarih:</strong> ${teklif.tarih ? new Date(teklif.tarih).toLocaleDateString('tr-TR') : 'Belirtilmemiş'}</div>
-          <div><strong>💰 Fiyat:</strong> ${teklif.fiyat ? teklif.fiyat + ' TL' : 'Belirtilmemiş'}</div>
-          <div><strong>📍 Yer:</strong> ${teklif.yer || 'Belirtilmemiş'}</div>
-          <div><strong>📝 Oluşturma:</strong> ${teklif.bugun || 'Belirtilmemiş'}</div>
-        </div>
-        <div style="margin-bottom: 15px;">
-          <strong>🎯 Çekim Türü:</strong><br>
-          <div style="background: white; padding: 10px; border-radius: 5px; margin-top: 5px;">
-            ${teklif.cekim || 'Belirtilmemiş'}
-          </div>
-        </div>
-        <div style="margin-bottom: 15px;">
-          <strong>📝 Açıklama:</strong><br>
-          <div style="background: white; padding: 10px; border-radius: 5px; margin-top: 5px;">
-            ${teklif.aciklama || 'Belirtilmemiş'}
-          </div>
-        </div>
-        ${teklif.referans ? `<div><strong>👤 Referans:</strong> ${teklif.referans}</div>` : ''}
-        <div style="margin-top: 20px;">
-          <button onclick="pdfOlustur('${teklif.id}')" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px;">📄 PDF Oluştur</button>
-          <button onclick="sozlesmeOlustur('${teklif.id}')" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">📄 Sözleşmeye Çevir</button>
-        </div>
-      </div>
-    `;
-    output.scrollIntoView({ behavior: 'smooth' });
-  }
-
-  // Sözleşme düzenleme
-  function sozlesmeDuzenle(sozlesmeId) {
-    const sozlesme = sozlesmeler.find(s => s.id === sozlesmeId);
-    if (!sozlesme) {
-      alert('Sözleşme bulunamadı!');
-      return;
-    }
-
-    const output = document.getElementById('output');
-    output.innerHTML = `
-      <div style="background: #f8d7da; padding: 20px; border-radius: 8px; border-left: 4px solid #dc3545;">
-        <h3 style="color: #721c24; margin-top: 0;">✏️ Sözleşme Düzenle</h3>
-        <form id="sozlesmeDuzenleForm" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-          <div>
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">👤 Müşteri Adı:</label>
-            <input type="text" id="sozlesmeDuzenleAd" value="${sozlesme.ad}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
-          </div>
-		  <div>
-  <label style="display: block; margin-bottom: 5px; font-weight: bold;">📞 Telefon:</label>
-  <input type="text" id="sozlesmeDuzenleTelefon" value="${sozlesme.telefon || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-</div>
-          <div>
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">📦 Paket:</label>
-            <input type="text" id="sozlesmeDuzenlePaket" value="${sozlesme.paket || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-          </div>
-          <div>
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">📅 Çekim Tarihi:</label>
-            <input type="date" id="sozlesmeDuzenleTarih" value="${sozlesme.tarih || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-          </div>
-          <div>
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">💰 Fiyat:</label>
-            <input type="number" id="sozlesmeDuzenleFiyat" value="${sozlesme.fiyat || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" min="0">
-          </div>
-          <div style="grid-column: 1 / -1;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">📍 Yer:</label>
-            <input type="text" id="sozlesmeDuzenleYer" value="${sozlesme.yer || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-          </div>
-          <div style="grid-column: 1 / -1;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">🎯 Çekim Türü:</label>
-            <textarea id="sozlesmeDuzenleCekim" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;">${sozlesme.cekim ? sozlesme.cekim.replace(/<br>/g, '\n') : ''}</textarea>
-          </div>
-          <div style="grid-column: 1 / -1;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">📝 Açıklama:</label>
-            <textarea id="sozlesmeDuzenleAciklama" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;">${sozlesme.aciklama ? sozlesme.aciklama.replace(/<br>/g, '\n') : ''}</textarea>
-          </div>
-          <div style="grid-column: 1 / -1;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">👤 Referans:</label>
-            <input type="text" id="sozlesmeDuzenleReferans" value="${sozlesme.referans || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-          </div>
-          <div style="grid-column: 1 / -1; margin-top: 20px;">
-            <button type="button" onclick="sozlesmeGuncelle('${sozlesme.id}')" style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; margin-right: 10px; font-weight: bold;">💾 Güncelle</button>
-            <button type="button" onclick="document.getElementById('output').innerHTML = ''" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer;">❌ İptal</button>
-          </div>
-        </form>
-      </div>
-    `;
-    output.scrollIntoView({ behavior: 'smooth' });
-  }
-
-  // Sözleşme güncelleme
-  async function sozlesmeGuncelle(sozlesmeId) {
-    const ad = document.getElementById('sozlesmeDuzenleAd').value.trim();
-	const telefon = document.getElementById('sozlesmeDuzenleTelefon').value.trim();
-    const paket = document.getElementById('sozlesmeDuzenlePaket').value.trim();
-    const tarih = document.getElementById('sozlesmeDuzenleTarih').value;
-    const fiyat = document.getElementById('sozlesmeDuzenleFiyat').value;
-    const yer = document.getElementById('sozlesmeDuzenleYer').value.trim();
-    const cekim = document.getElementById('sozlesmeDuzenleCekim').value.trim();
-    const aciklama = document.getElementById('sozlesmeDuzenleAciklama').value.trim();
-    const referans = document.getElementById('sozlesmeDuzenleReferans').value.trim();
-
-    if (!ad) {
-      alert('Müşteri adı boş bırakılamaz!');
-      return;
-    }
-
-    const guncellenmisSozlesme = {
-      ad: ad,
-	  telefon: telefon,
-      paket: paket,
-      tarih: tarih,
-      fiyat: fiyat ? parseFloat(fiyat) : null,
-      yer: yer,
-      cekim: cekim.replace(/\n/g, '<br>'),
-      aciklama: aciklama.replace(/\n/g, '<br>'),
-      referans: referans,
-      updatedAt: new Date()
-    };
-
-    try {
-      if (firebaseConnected) {
-        await db.collection('sozlesmeler').doc(sozlesmeId).update(guncellenmisSozlesme);
-      }
-
-      // Yerel diziyi güncelle
-      const sozlesmeIndex = sozlesmeler.findIndex(s => s.id === sozlesmeId);
-      if (sozlesmeIndex !== -1) {
-        sozlesmeler[sozlesmeIndex] = { ...sozlesmeler[sozlesmeIndex], ...guncellenmisSozlesme };
-      }
-
-      const filtreliIndex = filtreliSozlesmeler.findIndex(s => s.id === sozlesmeId);
-      if (filtreliIndex !== -1) {
-        filtreliSozlesmeler[filtreliIndex] = { ...filtreliSozlesmeler[filtreliIndex], ...guncellenmisSozlesme };
-      }
-
-      renderSozlesmeler();
-      
-      document.getElementById('output').innerHTML = `
-        <div style="color: green; padding: 10px; border: 1px solid green; border-radius: 5px;">
-          ✅ Sözleşme başarıyla güncellendi!
-        </div>
-      `;
-    } catch (error) {
-      console.error('Güncelleme hatası:', error);
-      alert('Sözleşme güncellenirken hata oluştu: ' + error.message);
-    }
-  }
-
-  // Sözleşme görüntüleme
-  function sozlesmeGoster(sozlesmeId) {
-    const sozlesme = sozlesmeler.find(s => s.id === sozlesmeId);
-    if (!sozlesme) {
-      alert('Sözleşme bulunamadı!');
-      return;
-    }
-
-    const output = document.getElementById('output');
-    output.innerHTML = `
-      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #dc3545;">
-        <h3 style="color: #dc3545; margin-top: 0;">📄 Sözleşme Detayları</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-          <div><strong>👤 Müşteri:</strong> ${sozlesme.ad}</div>
-		  <div><strong>📞 Telefon:</strong> ${sozlesme.telefon || 'Belirtilmemiş'}</div>
-          <div><strong>📦 Paket:</strong> ${sozlesme.paket || 'Belirtilmemiş'}</div>
-          <div><strong>📅 Tarih:</strong> ${sozlesme.tarih ? new Date(sozlesme.tarih).toLocaleDateString('tr-TR') : 'Belirtilmemiş'}</div>
-          <div><strong>💰 Fiyat:</strong> ${sozlesme.fiyat ? sozlesme.fiyat + ' TL' : 'Belirtilmemiş'}</div>
-          <div><strong>📍 Yer:</strong> ${sozlesme.yer || 'Belirtilmemiş'}</div>
-          <div><strong>📝 Sözleşme Tarihi:</strong> ${sozlesme.sozlesmeTarihi || 'Belirtilmemiş'}</div>
-        </div>
-        <div style="margin-bottom: 15px;">
-          <strong>🎯 Çekim Türü:</strong><br>
-          <div style="background: white; padding: 10px; border-radius: 5px; margin-top: 5px;">
-            ${sozlesme.cekim || 'Belirtilmemiş'}
-          </div>
-        </div>
-        <div style="margin-bottom: 15px;">
-          <strong>📝 Açıklama:</strong><br>
-          <div style="background: white; padding: 10px; border-radius: 5px; margin-top: 5px;">
-            ${sozlesme.aciklama || 'Belirtilmemiş'}
-          </div>
-        </div>
-        ${sozlesme.referans ? `<div><strong>👤 Referans:</strong> ${sozlesme.referans}</div>` : ''}
-        <div style="margin-top: 20px;">
-          <button onclick="sozlesmePdfOlustur('${sozlesme.id}')" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">📄 PDF Oluştur</button>
-        </div>
-      </div>
-    `;
-    output.scrollIntoView({ behavior: 'smooth' });
-  }
-
-  // Teklif silme
-  async function teklifSil(teklifId) {
-    if (!confirm('Bu teklifi silmek istediğinizden emin misiniz?')) {
-      return;
-    }
-
-    try {
-      if (firebaseConnected) {
-        await db.collection('teklifler').doc(teklifId).delete();
-      }
-      
-      teklifler = teklifler.filter(t => t.id !== teklifId);
-      filtreliTeklifler = filtreliTeklifler.filter(t => t.id !== teklifId);
-      renderTeklifler();
-      
-      document.getElementById('output').innerHTML = `
-        <div style="color: green; padding: 10px; border: 1px solid green; border-radius: 5px;">
-          ✅ Teklif başarıyla silindi.
-        </div>
-      `;
-    } catch (error) {
-      console.error('Silme hatası:', error);
-      alert('Teklif silinirken hata oluştu: ' + error.message);
-    }
-  }
-
-  // Sözleşme silme
-  async function sozlesmeSil(sozlesmeId) {
-    if (!confirm('Bu sözleşmeyi silmek istediğinizden emin misiniz?')) {
-      return;
-    }
-
-    try {
-      if (firebaseConnected) {
-        await db.collection('sozlesmeler').doc(sozlesmeId).delete();
-      }
-      
-      sozlesmeler = sozlesmeler.filter(s => s.id !== sozlesmeId);
-      filtreliSozlesmeler = filtreliSozlesmeler.filter(s => s.id !== sozlesmeId);
-      renderSozlesmeler();
-      
-      document.getElementById('output').innerHTML = `
-        <div style="color: green; padding: 10px; border: 1px solid green; border-radius: 5px;">
-          ✅ Sözleşme başarıyla silindi.
-        </div>
-      `;
-    } catch (error) {
-      console.error('Silme hatası:', error);
-      alert('Sözleşme silinirken hata oluştu: ' + error.message);
-    }
-  }
-
-  // Teklifi sözleşmeye çevirme
-  async function sozlesmeOlustur(teklifId) {
-    const teklif = teklifler.find(t => t.id === teklifId);
-    if (!teklif) {
-      alert('Teklif bulunamadı!');
-      return;
-    }
-	console.log("Sözleşmeye çevrilecek teklif:", teklif);
-
-    if (!confirm('Bu teklifi sözleşmeye çevirmek istediğinizden emin misiniz?')) {
-      return;
-    }
-
-    try {
-const sozlesmeVerisi = {
-  ...teklif,
-  sozlesmeTarihi: new Date().toLocaleDateString('tr-TR'),
-  createdAt: teklif.createdAt ? teklif.createdAt : new Date(),
-  tip: 'sozlesme',
-  calendarEventId: teklif.calendarEventId || null  // 🔥 Etkinlik ID'sini sözleşmeye aktar
-};
-
-      
-      delete sozlesmeVerisi.id; // Eski ID'yi kaldır
-
-      if (firebaseConnected) {
-        const docRef = await db.collection('sozlesmeler').add(sozlesmeVerisi);
-        sozlesmeVerisi.id = docRef.id;
-        
-        // Teklifi sil
-        await db.collection('teklifler').doc(teklifId).delete();
-      } else {
-        sozlesmeVerisi.id = 'sozlesme_' + Date.now();
-      }
-
-      // Yerel dizileri güncelle
-      sozlesmeler.unshift(sozlesmeVerisi);
-      filtreliSozlesmeler.unshift(sozlesmeVerisi);
-      
-      teklifler = teklifler.filter(t => t.id !== teklifId);
-      filtreliTeklifler = filtreliTeklifler.filter(t => t.id !== teklifId);
-      
-      renderTeklifler();
-      renderSozlesmeler();
-      
-      document.getElementById('output').innerHTML = `
-        <div style="color: green; padding: 10px; border: 1px solid green; border-radius: 5px;">
-          ✅ Teklif başarıyla sözleşmeye çevrildi!
-        </div>
-      `;
-    } catch (error) {
-      console.error('Sözleşme oluşturma hatası:', error);
-      alert('Sözleşme oluşturulurken hata oluştu: ' + error.message);
-    }
-  }
-
-  // PDF oluşturma fonksiyonları
-  function pdfOlustur(teklifId) {
-    const teklif = teklifler.find(t => t.id === teklifId);
-    if (!teklif) {
-      alert('Teklif bulunamadı!');
-      return;
-    }
-
-    const pdfContent = document.getElementById('pdfContent');
-    pdfContent.innerHTML = `
-      <div class="pdf-header">
-        <img src="https://i.hizliresim.com/eqyhuxx.png" alt="Logo" />
-        <h1 class="pdf-title">TEKLİF FORMU</h1>
-      </div>
-      <div class="pdf-body">
-        <p><strong>Müşteri Adı:</strong> ${teklif.ad}</p>
-        <p><strong>Paket:</strong> ${teklif.paket || 'Belirtilmemiş'}</p>
-        <p><strong>Çekim Tarihi:</strong> ${teklif.tarih ? new Date(teklif.tarih).toLocaleDateString('tr-TR') : 'Belirtilmemiş'}</p>
-        <p><strong>Yer:</strong> ${teklif.yer || 'Belirtilmemiş'}</p>
-        <p><strong>Fiyat:</strong> ${teklif.fiyat ? teklif.fiyat + ' TL' : 'Belirtilmemiş'}</p>
-        <p><strong>Çekim Türü:</strong></p>
-        <div style="margin-left: 20px; margin-bottom: 15px;">
-          ${teklif.cekim ? teklif.cekim.replace(/<br>/g, '<br>') : 'Belirtilmemiş'}
-        </div>
-        <p><strong>Açıklama:</strong></p>
-        <div style="margin-left: 20px; margin-bottom: 15px;">
-          ${teklif.aciklama ? teklif.aciklama.replace(/\n/g, '<br>') : 'Belirtilmemiş'}
-        </div>
-        ${teklif.referans ? `<p><strong>Referans:</strong> ${teklif.referans}</p>` : ''}
-      </div>
-      <div class="pdf-footer">
-        <p>Teklif Tarihi: ${teklif.bugun || new Date().toLocaleDateString('tr-TR')}</p>
-        <p>Bu teklif 30 gün geçerlidir.</p>
-      </div>
-    `;
-    
-    pdfContent.style.display = 'block';
-    window.print();
-    pdfContent.style.display = 'none';
-  }
-
-  function sozlesmePdfOlustur(sozlesmeId) {
-    const sozlesme = sozlesmeler.find(s => s.id === sozlesmeId);
-    if (!sozlesme) {
-      alert('Sözleşme bulunamadı!');
-      return;
-    }
-
-    const pdfContent = document.getElementById('pdfContent');
-    pdfContent.innerHTML = `
-      <div class="pdf-header">
-        <img src="https://i.hizliresim.com/eqyhuxx.png" alt="Logo" />
-        <h1 class="pdf-title">SÖZLEŞME</h1>
-      </div>
-      <div class="pdf-body">
-        <p><strong>Müşteri Adı:</strong> ${sozlesme.ad}</p>
-        <p><strong>Paket:</strong> ${sozlesme.paket || 'Belirtilmemiş'}</p>
-        <p><strong>Çekim Tarihi:</strong> ${sozlesme.tarih ? new Date(sozlesme.tarih).toLocaleDateString('tr-TR') : 'Belirtilmemiş'}</p>
-        <p><strong>Yer:</strong> ${sozlesme.yer || 'Belirtilmemiş'}</p>
-        <p><strong>Fiyat:</strong> ${sozlesme.fiyat ? sozlesme.fiyat + ' TL' : 'Belirtilmemiş'}</p>
-        <p><strong>Çekim Türü:</strong></p>
-        <div style="margin-left: 20px; margin-bottom: 15px;">
-          ${sozlesme.cekim ? sozlesme.cekim.replace(/<br>/g, '<br>') : 'Belirtilmemiş'}
-        </div>
-        <p><strong>Şartlar ve Koşullar:</strong></p>
-        <div style="margin-left: 20px; margin-bottom: 15px;">
-          ${sozlesme.aciklama ? sozlesme.aciklama.replace(/\n/g, '<br>') : 'Belirtilmemiş'}
-        </div>
-        ${sozlesme.referans ? `<p><strong>Referans:</strong> ${sozlesme.referans}</p>` : ''}
-      </div>
-      <div class="pdf-footer">
-        <p>Sözleşme Tarihi: ${sozlesme.sozlesmeTarihi || new Date().toLocaleDateString('tr-TR')}</p>
-        <p>Bu sözleşme yasal olarak bağlayıcıdır.</p>
-        <div style="margin-top: 40px; display: flex; justify-content: space-between;">
-          <div style="text-align: center;">
-            <div style="border-top: 1px solid #333; width: 200px; margin-top: 60px;">Müşteri İmzası</div>
-          </div>
-          <div style="text-align: center;">
-            <div style="border-top: 1px solid #333; width: 200px; margin-top: 60px;">Firma İmzası</div>
-          </div>
-        </div>
-      </div>
-    `;
-    
-    pdfContent.style.display = 'block';
-    window.print();
-    pdfContent.style.display = 'none';
-  }
-</script>
-
+        // Logo yükleme kontrolü
+        window.addEventListener('load', function() {
+            const logoImg = document.getElementById('logoImg');
+            const logoPlaceholder = document.querySelector('.logo-placeholder');
+            
+            logoImg.addEventListener('load', function() {
+                logoImg.style.display = 'block';
+                logoPlaceholder.style.display = 'none';
+            });
+            
+            logoImg.addEventListener('error', function() {
+                logoImg.style.display = 'none';
+                logoPlaceholder.style.display = 'block';
+            });
+        });
+    </script>
 </body>
 </html>
