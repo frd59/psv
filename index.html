@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <title>PASOVART | Müşteri Paneli</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap');
@@ -15,16 +15,16 @@
             --fn:'DM Sans', system-ui, sans-serif;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { font-family: var(--fn); background: var(--bg); color: var(--txt); overflow-x: hidden; }
 
         /* GİRİŞ EKRANI */
         .login-screen {
             position: fixed; inset: 0; background: linear-gradient(135deg, var(--sb), var(--sb2));
-            z-index: 9999; display: flex; align-items: center; justify-content: center;
+            z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;
         }
         .login-box {
-            background: #fff; border-radius: 20px; padding: 40px; width: 380px;
+            background: #fff; border-radius: 20px; padding: 40px; width: 100%; max-width: 380px;
             box-shadow: 0 30px 80px rgba(0,0,0,.3); text-align: center;
         }
         .login-logo-icon {
@@ -37,22 +37,24 @@
         .fg label { display: block; font-size: 12px; font-weight: 700; color: var(--txt2); margin-bottom: 5px; }
         .fg input {
             width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px;
-            outline: none; font-family: var(--fn); transition: 0.2s;
+            outline: none; font-family: var(--fn); transition: 0.2s; font-size: 16px; /* Mobilde zoom engelleme */
         }
         .fg input:focus { border-color: var(--acc); }
         .btn-p {
             width: 100%; padding: 12px; border: none; border-radius: 10px;
-            background: var(--acc); color: #fff; font-weight: 700; cursor: pointer;
+            background: var(--acc); color: #fff; font-weight: 700; cursor: pointer; font-size: 14px;
         }
 
         /* ANA EKRAN */
-        .app { display: flex; height: 100vh; }
-        .main { flex: 1; overflow-y: auto; padding: 30px; }
+        .app { display: flex; min-height: 100vh; flex-direction: column; }
+        .main { flex: 1; padding: 30px; width: 100%; max-width: 1000px; margin: 0 auto; }
         
         .hdr {
-            background: #fff; padding: 20px 30px; border-bottom: 1px solid var(--bdr);
-            display: flex; justify-content: space-between; align-items: center; margin: -30px -30px 30px -30px;
+            background: #fff; padding: 20px 30px; border-bottom: 1px solid var(--bdr); border-radius: 16px;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;
+            box-shadow: var(--sh);
         }
+        .hdr h2 { font-size: 18px; font-weight: 800; }
 
         .card { background: var(--card); border-radius: 16px; padding: 25px; box-shadow: var(--sh); margin-bottom: 20px; }
         .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
@@ -87,11 +89,52 @@
             text-align: center; font-size: 14px; font-weight: 500; color: var(--txt2);
         }
 
+        /* TABLE */
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; font-size: 11px; color: var(--txt3); text-transform: uppercase; padding: 12px; border-bottom: 1px solid var(--bdr); }
-        td { padding: 15px 12px; font-size: 14px; border-bottom: 1px solid #fafafa; }
-        .badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        td { padding: 15px 12px; font-size: 14px; border-bottom: 1px solid #fafafa; vertical-align: middle; }
+        .badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
         .b-wait { background: #fffbeb; color: var(--amb); }
+
+        /* ─── RESPONSIVE / MOBİL UYUM ─── */
+        @media (max-width: 768px) {
+            .main { padding: 15px; }
+            
+            /* Header Mobil */
+            .hdr {
+                flex-direction: column; gap: 15px; text-align: center;
+                padding: 20px; margin-bottom: 20px; align-items: stretch;
+            }
+            .hdr button { width: 100%; }
+
+            /* Grid Mobil: Alt alta sırala */
+            .stat-grid { grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px; }
+            .card { padding: 20px; margin-bottom: 15px; }
+
+            /* Workflow Mobil */
+            .step-dot { width: 28px; height: 28px; font-size: 11px; border-width: 2px; }
+            .progress-track { top: 31px; }
+            .step-label { font-size: 9px; margin-top: 8px; }
+            
+            /* Tablo -> Kart Görünümü (Responsive Table) */
+            table, thead, tbody, th, td, tr { display: block; }
+            thead { display: none; } /* Başlıkları gizle */
+            tr { 
+                margin-bottom: 15px; border: 1px solid var(--bdr); 
+                border-radius: 12px; padding: 10px; background: #fafafa;
+            }
+            td { 
+                display: flex; justify-content: space-between; align-items: center; 
+                padding: 10px 0; border-bottom: 1px solid #eee; text-align: right;
+            }
+            td:last-child { border-bottom: none; }
+            /* data-label özelliği ile sol tarafa başlık ekleme */
+            td::before {
+                content: attr(data-label);
+                font-weight: 700; color: var(--txt3); font-size: 11px; text-transform: uppercase;
+                text-align: left; margin-right: 15px;
+            }
+        }
 
     </style>
 </head>
@@ -129,9 +172,18 @@
         </header>
 
         <div class="stat-grid">
-            <div class="card"><div class="stat-lbl">Anlaşma Tutarı</div><div class="stat-val" id="totalPrice">₺0</div></div>
-            <div class="card"><div class="stat-lbl">Ödenen</div><div class="stat-val" style="color:var(--grn)" id="paidPrice">₺0</div></div>
-            <div class="card"><div class="stat-lbl">Kalan Borç</div><div class="stat-val" style="color:var(--red)" id="debtPrice">₺0</div></div>
+            <div class="card">
+                <div class="stat-lbl">Anlaşma Tutarı</div>
+                <div class="stat-val" id="totalPrice">₺0</div>
+            </div>
+            <div class="card">
+                <div class="stat-lbl">Ödenen</div>
+                <div class="stat-val" style="color:var(--grn)" id="paidPrice">₺0</div>
+            </div>
+            <div class="card">
+                <div class="stat-lbl">Kalan Borç</div>
+                <div class="stat-val" style="color:var(--red)" id="debtPrice">₺0</div>
+            </div>
         </div>
 
         <div class="card">
@@ -141,7 +193,7 @@
                 <div class="steps">
                     <div class="step-item" id="s1"><div class="step-dot">1</div><div class="step-label">Çekim</div></div>
                     <div class="step-item" id="s2"><div class="step-dot">2</div><div class="step-label">Yedekleme</div></div>
-                    <div class="step-item" id="s3"><div class="step-dot">3</div><div class="step-label">Düzenleme &<br>Albüm</div></div>
+                    <div class="step-item" id="s3"><div class="step-dot">3</div><div class="step-label">Düzenleme</div></div>
                     <div class="step-item" id="s4"><div class="step-dot">4</div><div class="step-label">Baskı</div></div>
                     <div class="step-item" id="s5"><div class="step-dot">5</div><div class="step-label">Teslimat</div></div>
                 </div>
@@ -176,7 +228,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Oturum Kontrolü (Sayfa yenilenince hatırla)
+    // Oturum Kontrolü
     window.onload = function() {
         const savedDocId = localStorage.getItem('pasovart_client_id');
         if(savedDocId) {
@@ -199,7 +251,6 @@
         btn.disabled = true;
         err.style.display = 'none';
 
-        // DİKKAT: Koleksiyon adı resimdeki gibi 'clients' yapıldı
         db.collection("clients")
           .where("username", "==", username)
           .get()
@@ -213,7 +264,6 @@
 
               querySnapshot.forEach((doc) => {
                   const data = doc.data();
-                  // Şifre kontrolü (Resimdeki 'password' alanı ile eşleşmeli)
                   if (data.password === pass) {
                       foundUser = data;
                       docId = doc.id;
@@ -234,14 +284,11 @@
               btn.innerText = "Sisteme Giriş Yap";
               btn.disabled = false;
               err.style.display = 'block';
-              err.innerText = error.message === "Kullanıcı bulunamadı." || error.message === "Şifre hatalı." 
-                  ? "Bilgiler hatalı. Lütfen kontrol edin." 
-                  : "Bağlantı hatası.";
+              err.innerText = "Bilgiler hatalı. Lütfen kontrol edin.";
           });
     }
 
     function fetchDataByDocId(docId) {
-        // 'clients' koleksiyonundan veri çekme
         db.collection("clients").doc(docId).get().then((doc) => {
             if (doc.exists) {
                 renderDashboard(doc.data());
@@ -252,18 +299,17 @@
     }
 
     function renderDashboard(data) {
-        // Veritabanında sadece 'name' var, diğerleri olmadığı için varsayılan (0) gösterilecek.
         document.getElementById('welcomeTxt').innerText = `Hoş Geldin, ${data.name || 'Misafir'} 👋`;
         
-        const total = data.total || 0; // DB'de henüz yoksa 0
-        const paid = data.paid || 0;   // DB'de henüz yoksa 0
+        const total = data.total || 0;
+        const paid = data.paid || 0;   
         const debt = total - paid;
 
         document.getElementById('totalPrice').innerText = `₺${total.toLocaleString('tr-TR')}`;
         document.getElementById('paidPrice').innerText = `₺${paid.toLocaleString('tr-TR')}`;
         document.getElementById('debtPrice').innerText = `₺${debt.toLocaleString('tr-TR')}`;
 
-        // İş Akışı (Varsayılan 1. aşama)
+        // İş Akışı
         const stage = data.stage || 1; 
         document.getElementById('progressFill').style.width = (stage * 20) + "%";
         
@@ -276,14 +322,16 @@
         const msgs = ["", "Hazırlık yapılıyor.", "Yedeklendi.", "Düzenleniyor.", "Baskıda.", "Teslim Edildi."];
         document.getElementById('statusMsg').innerText = msgs[stage] || "Veri bekleniyor...";
 
-        // Tablo Detayları
+        // Tablo Detayları (Mobile Uyumlu data-label eklendi)
         const ses = data.session || {};
+        const displayDate = ses.date ? ses.date + (ses.time ? ' ' + ses.time : '') : '-';
+
         document.getElementById('sessionRow').innerHTML = `
             <tr>
-                <td><strong>${ses.date || '-'}</strong><br><small>${ses.time || ''}</small></td>
-                <td>${ses.pkg || '-'}</td>
-                <td>${ses.loc || '-'}</td>
-                <td><span class="badge b-wait">${ses.status || 'Planlanıyor'}</span></td>
+                <td data-label="Tarih / Saat"><strong>${displayDate}</strong></td>
+                <td data-label="Paket">${ses.pkg || '-'}</td>
+                <td data-label="Konum">${ses.loc || '-'}</td>
+                <td data-label="Durum"><span class="badge b-wait">${ses.status || 'Planlanıyor'}</span></td>
             </tr>
         `;
     }
