@@ -99,6 +99,54 @@
         .badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
         .b-wait { background: #fffbeb; color: var(--amb); }
 
+        /* ─── MODAL (POPUP) STYLES ─── */
+        .modal {
+            display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%;
+            overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            background-color: #fff; margin: 3% auto; padding: 30px; border-radius: 16px;
+            width: 90%; max-width: 800px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .close-btn {
+            position: absolute; top: 15px; right: 20px; color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; z-index: 10;
+        }
+        .close-btn:hover { color: #000; }
+        
+        .print-btn {
+            display: block; width: 100%; background: var(--sb); color: #fff; padding: 12px; 
+            border: none; border-radius: 10px; font-weight: 700; cursor: pointer; margin-top: 20px;
+            text-align: center; text-decoration: none;
+        }
+        .print-btn:hover { background: var(--sb2); }
+
+        /* ─── SÖZLEŞME İÇERİK TASARIMI ─── */
+        .ct-print-area { padding: 10px; }
+        .ct-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; }
+        .ct-logo { font-size: 20px; font-weight: 800; color: #000; }
+        .ct-logo span { display: block; font-size: 12px; font-weight: 500; color: #555; }
+        
+        .ct-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding-bottom: 8px; margin-bottom: 8px; }
+        .ct-row:last-child { border-bottom: none; }
+        
+        .ct-lbl { color: #555; font-size: 13px; font-weight: 700; width: 40%; }
+        .ct-val { color: #000; font-size: 14px; font-weight: 600; text-align: right; width: 60%; }
+        
+        .ct-box { border: 1px solid #000; padding: 15px; margin-top: 20px; }
+        .ct-title { font-size: 14px; font-weight: 800; color: #000; margin-bottom: 10px; text-transform: uppercase; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+        .ct-text { font-size: 13px; color: #000; line-height: 1.6; white-space: pre-line; text-align: justify; }
+
+        /* ─── YAZDIRMA (PRINT) MODE ─── */
+        @media print {
+            body * { visibility: hidden; }
+            .modal { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: #fff; overflow: visible; display: block !important; }
+            .modal-content { box-shadow: none; margin: 0; width: 100%; max-width: 100%; padding: 0; }
+            .ct-print-area, .ct-print-area * { visibility: visible; }
+            .ct-print-area { position: absolute; left: 0; top: 0; width: 100%; }
+            .print-btn, .close-btn { display: none !important; }
+        }
+
         /* ─── RESPONSIVE ─── */
         @media (max-width: 768px) {
             .main { padding: 15px; }
@@ -106,11 +154,6 @@
             .hdr button { width: 100%; }
             .stat-grid { grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px; }
             .card { padding: 20px; margin-bottom: 15px; }
-            
-            /* Workflow Mobil */
-            .step-dot { width: 28px; height: 28px; font-size: 11px; border-width: 2px; }
-            .progress-track { top: 31px; }
-            .step-label { font-size: 9px; margin-top: 8px; }
             
             /* Table Responsive */
             table, thead, tbody, th, td, tr { display: block; }
@@ -200,7 +243,26 @@
             </table>
         </div>
 
+        <div class="card" id="contractCard" style="display:none">
+            <h3 style="font-size:16px; margin-bottom:15px;">📄 Sözleşme & Hizmet Detayları</h3>
+            <p style="font-size:13px; color:var(--txt2); margin-bottom:15px;">
+                Hizmetinize ait sözleşme ve detayları görüntülemek veya yazdırmak için aşağıdaki butonu kullanabilirsiniz.
+            </p>
+            <button class="btn-p" onclick="openContractModal()">Sözleşmeyi Görüntüle</button>
+        </div>
+
     </main>
+</div>
+
+<div id="contractModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeContractModal()">&times;</span>
+        
+        <div class="ct-print-area" id="printableContract">
+            </div>
+
+        <button class="print-btn" onclick="window.print()">🖨️ Bu Sayfayı Yazdır</button>
+    </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -343,6 +405,9 @@
 
         // ÖDEME GEÇMİŞİ (Telefon ile Eşleşme)
         fetchPayments(data);
+        
+        // SÖZLEŞME HAZIRLA
+        prepareContract(data);
     }
 
     function fetchPayments(clientData) {
@@ -388,6 +453,79 @@
             });
             tbody.innerHTML = html;
         });
+    }
+    
+    // SÖZLEŞME VERİSİNİ ÇEK VE HAZIRLA
+    function prepareContract(clientData) {
+        db.collection("contracts").where("cid", "==", clientData.id).get()
+        .then((querySnapshot) => {
+            if (!querySnapshot.empty) {
+                const contracts = [];
+                querySnapshot.forEach(doc => contracts.push(doc.data()));
+                contracts.sort((a, b) => new Date(b.date) - new Date(a.date));
+                const c = contracts[0];
+
+                if(c) {
+                    const remaining = c.total - c.paid;
+                    const dateStr = new Date(c.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+                    const htmlContent = `
+                        <div class="ct-header">
+                            <div class="ct-logo">PASOVART<span>Prodüksiyon</span></div>
+                            <div style="font-size:12px; color:#555">${dateStr}</div>
+                        </div>
+
+                        <div class="ct-row"><span class="ct-lbl">Müşteri Adı:</span><span class="ct-val">${clientData.name}</span></div>
+                        <div class="ct-row"><span class="ct-lbl">Telefon:</span><span class="ct-val">${clientData.phone || '-'}</span></div>
+
+                        <div class="ct-box">
+                            <div class="ct-title">Hizmet Detayları</div>
+                            <div class="ct-text">${(c.terms || '').replace(/\n/g, '<br>')}</div>
+                        </div>
+
+                        <div class="ct-box">
+                            <div class="ct-title">Ödeme Tablosu</div>
+                            <div class="ct-row"><span class="ct-lbl">Toplam Tutar:</span><span class="ct-val">₺${Number(c.total).toLocaleString('tr-TR')}</span></div>
+                            <div class="ct-row"><span class="ct-lbl">Alınan Kapora:</span><span class="ct-val">₺${Number(c.paid).toLocaleString('tr-TR')}</span></div>
+                            <div class="ct-row"><span class="ct-lbl">Kalan Bakiye:</span><span class="ct-val" style="font-weight:800">₺${Number(remaining).toLocaleString('tr-TR')}</span></div>
+                        </div>
+
+                        <div style="font-size:11px; color:#555; margin-top:20px; text-align:justify; line-height:1.4">
+                            İşbu sözleşme taraflar arasında yukarıda belirtilen şartlar dahilinde düzenlenmiştir.
+                            Hizmet alan kişi, çekim tarihinden en geç 3 gün öncesine kadar iptal hakkına sahiptir. 
+                            Kapora iadesi mücbir sebepler dışında yapılmamaktadır.
+                        </div>
+                    `;
+
+                    // Butonu görünür yap
+                    document.getElementById('contractCard').style.display = 'block';
+                    // Modal içini doldur
+                    document.getElementById('printableContract').innerHTML = htmlContent;
+                }
+            } else {
+                document.getElementById('contractCard').style.display = 'none';
+            }
+        })
+        .catch((error) => {
+            console.log("Sözleşme çekilemedi:", error);
+        });
+    }
+
+    // MODAL İŞLEMLERİ
+    function openContractModal() {
+        document.getElementById('contractModal').style.display = 'block';
+    }
+    
+    function closeContractModal() {
+        document.getElementById('contractModal').style.display = 'none';
+    }
+
+    // Modal dışına tıklayınca kapatma
+    window.onclick = function(event) {
+        const modal = document.getElementById('contractModal');
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
     }
 
     function doLogout() {
