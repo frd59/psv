@@ -73,7 +73,6 @@
         }
         .steps { position: relative; z-index: 2; display: flex; justify-content: space-between; }
         
-        /* Değişiklik: Genişliği flex:1 yaptık ki adım sayısı değişince otomatik sığsın */
         .step-item { display: flex; flex: 1; flex-direction: column; align-items: center; position: relative; }
         
         .step-dot {
@@ -190,6 +189,17 @@
                 <tbody id="sessionRow"></tbody>
             </table>
         </div>
+
+        <div class="card">
+            <h3 style="font-size:16px; margin-bottom:15px;">💸 Ödeme Geçmişi</h3>
+            <table>
+                <thead><tr><th>Tarih</th><th>Açıklama</th><th>Tutar</th></tr></thead>
+                <tbody id="paymentHistoryRow">
+                    <tr><td colspan="3" style="text-align:center; color:var(--txt3)">Yükleniyor...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
     </main>
 </div>
 
@@ -275,33 +285,24 @@
         document.getElementById('paidPrice').innerText = `₺${paid.toLocaleString('tr-TR')}`;
         document.getElementById('debtPrice').innerText = `₺${(total - paid).toLocaleString('tr-TR')}`;
 
-        // 1. Paket ismini al
+        // İŞ AKIŞI MANTIĞI
         const sessionPkg = (data.session && data.session.pkg) ? data.session.pkg : "";
-        
-        // 2. Paket ismine göre adımları belirle
         let stepsArray = [];
-        
-        // Eğer paket isminde "Düğün" geçiyorsa (Büyük/küçük harf duyarsız)
         if (sessionPkg.toLowerCase().includes("düğün")) {
             stepsArray = ["Çekim", "Yedekleme", "Montaj", "Teslimata Hazır", "Teslim Edildi"];
         } else {
-            // Dış Çekim veya diğerleri
             stepsArray = ["Çekim", "Yedekleme", "Düzenleme", "Baskı", "Teslimata Hazır", "Teslim Edildi"];
         }
 
-        // 3. Mevcut Stage bilgisini al
         let currentStage = data.stage || 1;
-        // Güvenlik: Eğer stage, adım sayısından büyükse son adıma sabitle
         if(currentStage > stepsArray.length) currentStage = stepsArray.length;
 
-        // 4. HTML'i oluştur
         const stepsContainer = document.getElementById('stepsContainer');
-        stepsContainer.innerHTML = ""; // Önce temizle
+        stepsContainer.innerHTML = ""; 
 
         stepsArray.forEach((stepName, index) => {
             const stepNum = index + 1;
             const isActive = stepNum <= currentStage ? "active" : "";
-            
             const stepHtml = `
                 <div class="step-item ${isActive}">
                     <div class="step-dot">${stepNum}</div>
@@ -311,30 +312,23 @@
             stepsContainer.innerHTML += stepHtml;
         });
 
-        // 5. İlerleme Çubuğunu (Progress Bar) Hesapla
-        // Matematik: (MevcutAdım - 1) / (ToplamAdım - 1) * 100
         const totalSteps = stepsArray.length;
         let progressPercent = 0;
-        
         if (totalSteps > 1) {
             progressPercent = ((currentStage - 1) / (totalSteps - 1)) * 100;
         } else {
             progressPercent = currentStage === 1 ? 100 : 0;
         }
-        
         document.getElementById('progressFill').style.width = progressPercent + "%";
 
-        // 6. Durum Mesajını Güncelle
-        // Son aşama ise özel mesaj, değilse "Tamamlandı" vs.
         if (currentStage === totalSteps) {
             document.getElementById('statusMsg').innerText = "🎉 Süreç başarıyla tamamlandı, iyi günlerde kullanın!";
         } else {
-            // Şuan hangi aşamadaysak onun ismini göster
             const currentStepName = stepsArray[currentStage - 1]; 
             document.getElementById('statusMsg').innerText = `Şu anki durum: ${currentStepName}`;
         }
 
-        // Tabloyu Doldur
+        // ÇEKİM DETAYLARI
         const ses = data.session || {};
         const displayDate = ses.date ? ses.date + (ses.time ? ' ' + ses.time : '') : '-';
 
@@ -346,6 +340,54 @@
                 <td data-label="Durum"><span class="badge b-wait">${ses.status || 'Planlanıyor'}</span></td>
             </tr>
         `;
+
+        // ÖDEME GEÇMİŞİ (Telefon ile Eşleşme)
+        fetchPayments(data);
+    }
+
+    function fetchPayments(clientData) {
+        const rawPhone = clientData.phone || "";
+        const cleanPhone = rawPhone.replace(/\s/g, ''); 
+
+        if(!cleanPhone || cleanPhone.length < 5) {
+             document.getElementById('paymentHistoryRow').innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--txt3)">Telefon numarası kayıtlı değil.</td></tr>';
+             return;
+        }
+
+        db.collection("incomes").get().then((querySnapshot) => {
+            let payments = [];
+            querySnapshot.forEach((doc) => {
+                const pay = doc.data();
+                const desc = (pay.desc || "").toLowerCase();
+                
+                // Telefon numarasını açıklamada ara
+                if (desc.includes(rawPhone) || desc.includes(cleanPhone)) {
+                    payments.push(pay);
+                }
+            });
+
+            payments.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            const tbody = document.getElementById('paymentHistoryRow');
+            if (payments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--txt3)">Henüz ödeme kaydı bulunamadı.</td></tr>';
+                return;
+            }
+
+            let html = "";
+            payments.forEach(p => {
+                const d = new Date(p.date);
+                const dateStr = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+                html += `
+                    <tr>
+                        <td data-label="Tarih"><strong>${dateStr}</strong></td>
+                        <td data-label="Açıklama">${p.desc}</td>
+                        <td data-label="Tutar" style="color:var(--grn); font-weight:700">₺${Number(p.amt).toLocaleString('tr-TR')}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        });
     }
 
     function doLogout() {
