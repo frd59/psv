@@ -106,8 +106,8 @@
         }
         .modal-content {
             background-color: #fff; margin: 3% auto; padding: 30px; border-radius: 16px;
-            width: 90%; max-width: 800px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            position: relative;
+            width: 90%; max-width: 900px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            position: relative; max-height: 85vh; overflow-y: auto;
         }
         .close-btn {
             position: absolute; top: 15px; right: 20px; color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; z-index: 10;
@@ -120,6 +120,117 @@
             text-align: center; text-decoration: none;
         }
         .print-btn:hover { background: var(--sb2); }
+
+        /* ─── YENİ: FOTOĞRAF GRİD ─── */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .photo-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+            background: #f8fafc;
+            border: 3px solid transparent;
+        }
+        .photo-item:hover {
+            transform: scale(1.05);
+        }
+        .photo-item.selected {
+            border-color: var(--grn);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        }
+        .photo-item img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+        }
+        .photo-select-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--grn);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .photo-item.selected .photo-select-badge {
+            opacity: 1;
+        }
+        .photo-name {
+            padding: 10px;
+            font-size: 11px;
+            color: var(--txt2);
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 600;
+        }
+
+        .selection-info {
+            background: #ecfdf5;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .selection-count {
+            font-weight: 700;
+            color: var(--grn);
+            font-size: 16px;
+        }
+        .save-selection-btn {
+            background: var(--grn);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .save-selection-btn:hover {
+            background: #059669;
+        }
+        .save-selection-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--txt3);
+            font-size: 14px;
+        }
+
+        .selected-photos-display {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 12px;
+            color: var(--txt2);
+            line-height: 1.6;
+        }
 
         /* ─── SÖZLEŞME İÇERİK TASARIMI ─── */
         .ct-print-area { padding: 10px; }
@@ -165,6 +276,14 @@
                 content: attr(data-label);
                 font-weight: 700; color: var(--txt3); font-size: 11px; text-transform: uppercase;
                 text-align: left; margin-right: 15px;
+            }
+
+            .photo-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 10px;
+            }
+            .photo-item img {
+                height: 140px;
             }
         }
     </style>
@@ -225,6 +344,22 @@
             <div class="status-msg" id="statusMsg">Durum bilgisi bekleniyor...</div>
         </div>
 
+        <!-- YENİ: FOTOĞRAFLARIM BÖLÜMÜ -->
+        <div class="card">
+            <h3 style="font-size:16px; margin-bottom:15px;">📸 Fotoğraflarım</h3>
+            <p style="font-size:13px; color:var(--txt2); margin-bottom:15px;">
+                Çekim fotoğraflarınızı görüntüleyin ve beğendiğiniz en fazla 35 fotoğrafı seçin.
+            </p>
+            <button class="btn-p" onclick="openPhotosModal()">Fotoğrafları Görüntüle ve Seç</button>
+            
+            <div id="selectedPhotosInfo" style="display:none">
+                <div class="selected-photos-display">
+                    <strong style="color:var(--grn)">✓ Seçili Fotoğraflar:</strong><br>
+                    <span id="selectedPhotosList"></span>
+                </div>
+            </div>
+        </div>
+
         <div class="card">
             <h3 style="font-size:16px; margin-bottom:15px;">📅 Çekim Detayları</h3>
             <table>
@@ -254,14 +389,34 @@
     </main>
 </div>
 
+<!-- SÖZLEŞME MODAL -->
 <div id="contractModal" class="modal">
     <div class="modal-content">
         <span class="close-btn" onclick="closeContractModal()">&times;</span>
-        
-        <div class="ct-print-area" id="printableContract">
-            </div>
-
+        <div class="ct-print-area" id="printableContract"></div>
         <button class="print-btn" onclick="window.print()">🖨️ Bu Sayfayı Yazdır</button>
+    </div>
+</div>
+
+<!-- YENİ: FOTOĞRAFLAR MODAL -->
+<div id="photosModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closePhotosModal()">&times;</span>
+        <h2 style="font-weight:800; margin-bottom:20px;">📸 Fotoğraflarım</h2>
+        
+        <div class="selection-info">
+            <div>
+                <span class="selection-count" id="selectionCount">0/35</span>
+                <span style="font-size:13px; color:var(--txt3); margin-left:8px;">fotoğraf seçildi</span>
+            </div>
+            <button class="save-selection-btn" onclick="saveSelectedPhotos()" id="saveBtn" disabled>
+                Seçimi Kaydet
+            </button>
+        </div>
+
+        <div id="photosContainer">
+            <div class="loading-spinner">Fotoğraflar yükleniyor...</div>
+        </div>
     </div>
 </div>
 
@@ -281,6 +436,12 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+
+    // YENİ: FOTOĞRAF SEÇİMİ DEĞİŞKENLERİ
+    let currentClientData = null;
+    let currentClientDocId = null;
+    let selectedPhotos = [];
+    const MAX_PHOTOS = 35;
 
     window.onload = function() {
         const savedDocId = localStorage.getItem('pasovart_client_id');
@@ -317,6 +478,7 @@
                   localStorage.setItem('pasovart_client_id', docId);
                   document.getElementById('loginScreen').style.display = 'none';
                   document.getElementById('mainApp').style.display = 'flex';
+                  currentClientDocId = docId;
                   renderDashboard(foundUser);
               } else {
                   throw new Error("Şifre hatalı.");
@@ -331,6 +493,7 @@
     }
 
     function fetchDataByDocId(docId) {
+        currentClientDocId = docId;
         db.collection("clients").doc(docId).get().then((doc) => {
             if (doc.exists) renderDashboard(doc.data());
             else doLogout();
@@ -339,6 +502,8 @@
 
     // --- ANA RENDER FONKSİYONU ---
     function renderDashboard(data) {
+        currentClientData = data;
+        
         document.getElementById('welcomeTxt').innerText = `Hoş Geldin, ${data.name || 'Misafir'} 👋`;
         
         const total = data.total || 0;
@@ -403,11 +568,17 @@
             </tr>
         `;
 
-        // ÖDEME GEÇMİŞİ (Telefon ile Eşleşme)
+        // ÖDEME GEÇMİŞİ
         fetchPayments(data);
         
-        // SÖZLEŞME HAZIRLA
+        // SÖZLEŞME
         prepareContract(data);
+
+        // YENİ: SEÇİLİ FOTOĞRAFLARI GÖSTER
+        if (data.selectedPhotos && data.selectedPhotos.length > 0) {
+            selectedPhotos = data.selectedPhotos;
+            displaySelectedPhotosInfo();
+        }
     }
 
     function fetchPayments(clientData) {
@@ -425,7 +596,6 @@
                 const pay = doc.data();
                 const desc = (pay.desc || "").toLowerCase();
                 
-                // Telefon numarasını açıklamada ara
                 if (desc.includes(rawPhone) || desc.includes(cleanPhone)) {
                     payments.push(pay);
                 }
@@ -455,7 +625,6 @@
         });
     }
     
-    // SÖZLEŞME VERİSİNİ ÇEK VE HAZIRLA
     function prepareContract(clientData) {
         db.collection("contracts").where("cid", "==", clientData.id).get()
         .then((querySnapshot) => {
@@ -497,9 +666,7 @@
                         </div>
                     `;
 
-                    // Butonu görünür yap
                     document.getElementById('contractCard').style.display = 'block';
-                    // Modal içini doldur
                     document.getElementById('printableContract').innerHTML = htmlContent;
                 }
             } else {
@@ -511,7 +678,168 @@
         });
     }
 
-    // MODAL İŞLEMLERİ
+    // ═══════════════════════════════════════════════════════
+    // YENİ: FOTOĞRAF MODAL FONKSİYONLARI
+    // ═══════════════════════════════════════════════════════
+
+    function openPhotosModal() {
+        if (!currentClientData || !currentClientData.driveFolder) {
+            alert('Fotoğraf klasörü henüz tanımlanmamış. Lütfen yöneticiyle iletişime geçin.');
+            return;
+        }
+
+        document.getElementById('photosModal').style.display = 'block';
+        document.getElementById('photosContainer').innerHTML = '<div class="loading-spinner">Fotoğraflar yükleniyor...</div>';
+        
+        loadPhotosFromDrive(currentClientData.driveFolder);
+    }
+
+    function closePhotosModal() {
+        document.getElementById('photosModal').style.display = 'none';
+    }
+
+    async function loadPhotosFromDrive(driveLink) {
+        try {
+            const folderId = extractFolderId(driveLink);
+            if (!folderId) {
+                throw new Error('Geçersiz Drive klasör linki');
+            }
+
+            const photos = await fetchDrivePhotos(folderId);
+            
+            if (photos.length === 0) {
+                document.getElementById('photosContainer').innerHTML = '<div class="loading-spinner">Bu klasörde henüz fotoğraf bulunmuyor.</div>';
+                return;
+            }
+
+            let html = '<div class="photo-grid">';
+            photos.forEach(photo => {
+                const isSelected = selectedPhotos.includes(photo.name);
+                const selectedIndex = isSelected ? selectedPhotos.indexOf(photo.name) + 1 : '';
+                
+                html += `
+                    <div class="photo-item ${isSelected ? 'selected' : ''}" onclick="togglePhotoSelection('${photo.name.replace(/'/g, "\\'")}')">
+                        <img src="${photo.thumbnailUrl}" alt="${photo.name}" loading="lazy"/>
+                        <div class="photo-select-badge">${selectedIndex || '✓'}</div>
+                        <div class="photo-name">${photo.name}</div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            document.getElementById('photosContainer').innerHTML = html;
+            updateSelectionCount();
+        } catch (error) {
+            document.getElementById('photosContainer').innerHTML = '<div class="loading-spinner" style="color:var(--red)">Fotoğraflar yüklenirken hata oluştu. Lütfen tekrar deneyin.</div>';
+            console.error(error);
+        }
+    }
+
+    function extractFolderId(driveLink) {
+        const match = driveLink.match(/folders\/([a-zA-Z0-9-_]+)/);
+        return match ? match[1] : null;
+    }
+
+    async function fetchDrivePhotos(folderId) {
+        // Google Drive API Key - BURAYA KENDİ API ANAHTARINIZI EKLEYIN
+        const apiKey = 'AIzaSyDiFhYIRjFUtIAScAk5MNKgOMWtqEQY-JI';
+        
+        const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType+contains+'image'&key=${apiKey}&fields=files(id,name,thumbnailLink,webContentLink)&pageSize=1000`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!data.files) {
+            return [];
+        }
+
+        return data.files.map(file => ({
+            id: file.id,
+            name: file.name,
+            thumbnailUrl: file.thumbnailLink || `https://drive.google.com/thumbnail?id=${file.id}&sz=w400`,
+            downloadUrl: file.webContentLink
+        }));
+    }
+
+    function togglePhotoSelection(photoName) {
+        const index = selectedPhotos.indexOf(photoName);
+        
+        if (index > -1) {
+            selectedPhotos.splice(index, 1);
+        } else {
+            if (selectedPhotos.length >= MAX_PHOTOS) {
+                alert(`Maksimum ${MAX_PHOTOS} fotoğraf seçebilirsiniz!`);
+                return;
+            }
+            selectedPhotos.push(photoName);
+        }
+
+        const items = document.querySelectorAll('.photo-item');
+        items.forEach(item => {
+            const name = item.querySelector('.photo-name').textContent;
+            if (name === photoName) {
+                item.classList.toggle('selected');
+                const badge = item.querySelector('.photo-select-badge');
+                const idx = selectedPhotos.indexOf(photoName);
+                badge.textContent = idx > -1 ? (idx + 1) : '✓';
+            } else {
+                // Diğer seçili itemların numaralarını güncelle
+                const itemName = item.querySelector('.photo-name').textContent;
+                const itemIdx = selectedPhotos.indexOf(itemName);
+                if (itemIdx > -1) {
+                    item.querySelector('.photo-select-badge').textContent = itemIdx + 1;
+                }
+            }
+        });
+
+        updateSelectionCount();
+    }
+
+    function updateSelectionCount() {
+        document.getElementById('selectionCount').textContent = `${selectedPhotos.length}/${MAX_PHOTOS}`;
+        document.getElementById('saveBtn').disabled = selectedPhotos.length === 0;
+    }
+
+    async function saveSelectedPhotos() {
+        if (!currentClientDocId || selectedPhotos.length === 0) return;
+
+        try {
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Kaydediliyor...';
+
+            await db.collection('clients').doc(currentClientDocId).update({
+                selectedPhotos: selectedPhotos
+            });
+
+            currentClientData.selectedPhotos = selectedPhotos;
+            displaySelectedPhotosInfo();
+            closePhotosModal();
+            alert('Seçiminiz başarıyla kaydedildi! ✓');
+            
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Seçimi Kaydet';
+        } catch (error) {
+            console.error('Kayıt hatası:', error);
+            alert('Kayıt sırasında hata oluştu. Lütfen tekrar deneyin.');
+            document.getElementById('saveBtn').disabled = false;
+            document.getElementById('saveBtn').textContent = 'Seçimi Kaydet';
+        }
+    }
+
+    function displaySelectedPhotosInfo() {
+        if (selectedPhotos.length > 0) {
+            document.getElementById('selectedPhotosInfo').style.display = 'block';
+            document.getElementById('selectedPhotosList').textContent = selectedPhotos.join(', ');
+        } else {
+            document.getElementById('selectedPhotosInfo').style.display = 'none';
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // SÖZLEŞME MODAL
+    // ═══════════════════════════════════════════════════════
+
     function openContractModal() {
         document.getElementById('contractModal').style.display = 'block';
     }
@@ -520,11 +848,15 @@
         document.getElementById('contractModal').style.display = 'none';
     }
 
-    // Modal dışına tıklayınca kapatma
     window.onclick = function(event) {
-        const modal = document.getElementById('contractModal');
-        if (event.target == modal) {
-            modal.style.display = "none";
+        const contractModal = document.getElementById('contractModal');
+        const photosModal = document.getElementById('photosModal');
+        
+        if (event.target == contractModal) {
+            contractModal.style.display = "none";
+        }
+        if (event.target == photosModal) {
+            photosModal.style.display = "none";
         }
     }
 
