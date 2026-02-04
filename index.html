@@ -37,7 +37,7 @@
         .fg label { display: block; font-size: 12px; font-weight: 700; color: var(--txt2); margin-bottom: 5px; }
         .fg input {
             width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px;
-            outline: none; font-family: var(--fn); transition: 0.2s; font-size: 16px; /* Mobilde zoom engelleme */
+            outline: none; font-family: var(--fn); transition: 0.2s; font-size: 16px;
         }
         .fg input:focus { border-color: var(--acc); }
         .btn-p {
@@ -72,7 +72,10 @@
             width: 0%; transition: width 1s ease-in-out;
         }
         .steps { position: relative; z-index: 2; display: flex; justify-content: space-between; }
-        .step-item { display: flex; flex-direction: column; align-items: center; width: 20%; }
+        
+        /* Değişiklik: Genişliği flex:1 yaptık ki adım sayısı değişince otomatik sığsın */
+        .step-item { display: flex; flex: 1; flex-direction: column; align-items: center; position: relative; }
+        
         .step-dot {
             width: 34px; height: 34px; border-radius: 50%; background: #fff;
             border: 3px solid #e2e8f0; display: flex; align-items: center; justify-content: center;
@@ -87,6 +90,7 @@
         .status-msg {
             background: #f8fafc; padding: 15px; border-radius: 12px;
             text-align: center; font-size: 14px; font-weight: 500; color: var(--txt2);
+            margin-top: 20px;
         }
 
         /* TABLE */
@@ -96,46 +100,31 @@
         .badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
         .b-wait { background: #fffbeb; color: var(--amb); }
 
-        /* ─── RESPONSIVE / MOBİL UYUM ─── */
+        /* ─── RESPONSIVE ─── */
         @media (max-width: 768px) {
             .main { padding: 15px; }
-            
-            /* Header Mobil */
-            .hdr {
-                flex-direction: column; gap: 15px; text-align: center;
-                padding: 20px; margin-bottom: 20px; align-items: stretch;
-            }
+            .hdr { flex-direction: column; gap: 15px; text-align: center; padding: 20px; align-items: stretch; }
             .hdr button { width: 100%; }
-
-            /* Grid Mobil: Alt alta sırala */
             .stat-grid { grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px; }
             .card { padding: 20px; margin-bottom: 15px; }
-
+            
             /* Workflow Mobil */
             .step-dot { width: 28px; height: 28px; font-size: 11px; border-width: 2px; }
             .progress-track { top: 31px; }
             .step-label { font-size: 9px; margin-top: 8px; }
             
-            /* Tablo -> Kart Görünümü (Responsive Table) */
+            /* Table Responsive */
             table, thead, tbody, th, td, tr { display: block; }
-            thead { display: none; } /* Başlıkları gizle */
-            tr { 
-                margin-bottom: 15px; border: 1px solid var(--bdr); 
-                border-radius: 12px; padding: 10px; background: #fafafa;
-            }
-            td { 
-                display: flex; justify-content: space-between; align-items: center; 
-                padding: 10px 0; border-bottom: 1px solid #eee; text-align: right;
-            }
+            thead { display: none; }
+            tr { margin-bottom: 15px; border: 1px solid var(--bdr); border-radius: 12px; padding: 10px; background: #fafafa; }
+            td { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; text-align: right; }
             td:last-child { border-bottom: none; }
-            /* data-label özelliği ile sol tarafa başlık ekleme */
             td::before {
                 content: attr(data-label);
                 font-weight: 700; color: var(--txt3); font-size: 11px; text-transform: uppercase;
                 text-align: left; margin-right: 15px;
             }
         }
-
     </style>
 </head>
 <body>
@@ -159,7 +148,6 @@
             </div>
             <button type="submit" class="btn-p" id="loginBtn">Sisteme Giriş Yap</button>
         </form>
-
         <div id="loginError" style="color:var(--red); font-size:12px; margin-top:15px; display:none;"></div>
     </div>
 </div>
@@ -190,13 +178,7 @@
             <h3 style="font-size:16px; margin-bottom:20px;">🎬 İş Akış Süreciniz</h3>
             <div class="workflow-box">
                 <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-                <div class="steps">
-                    <div class="step-item" id="s1"><div class="step-dot">1</div><div class="step-label">Çekim</div></div>
-                    <div class="step-item" id="s2"><div class="step-dot">2</div><div class="step-label">Yedekleme</div></div>
-                    <div class="step-item" id="s3"><div class="step-dot">3</div><div class="step-label">Düzenleme</div></div>
-                    <div class="step-item" id="s4"><div class="step-dot">4</div><div class="step-label">Baskı</div></div>
-                    <div class="step-item" id="s5"><div class="step-dot">5</div><div class="step-label">Teslimat</div></div>
-                </div>
+                <div class="steps" id="stepsContainer"></div>
             </div>
             <div class="status-msg" id="statusMsg">Durum bilgisi bekleniyor...</div>
         </div>
@@ -228,7 +210,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Oturum Kontrolü
     window.onload = function() {
         const savedDocId = localStorage.getItem('pasovart_client_id');
         if(savedDocId) {
@@ -238,10 +219,8 @@
         }
     };
 
-    // --- MANUEL GİRİŞ ---
     function handleCustomLogin(e) {
         e.preventDefault();
-        
         const username = document.getElementById('userInput').value.trim();
         const pass = document.getElementById('passInput').value.trim();
         const btn = document.getElementById('loginBtn');
@@ -251,25 +230,17 @@
         btn.disabled = true;
         err.style.display = 'none';
 
-        db.collection("clients")
-          .where("username", "==", username)
-          .get()
+        db.collection("clients").where("username", "==", username).get()
           .then((querySnapshot) => {
-              if (querySnapshot.empty) {
-                  throw new Error("Kullanıcı bulunamadı.");
-              }
-
+              if (querySnapshot.empty) throw new Error("Kullanıcı bulunamadı.");
               let foundUser = null;
               let docId = null;
-
               querySnapshot.forEach((doc) => {
-                  const data = doc.data();
-                  if (data.password === pass) {
-                      foundUser = data;
+                  if (doc.data().password === pass) {
+                      foundUser = doc.data();
                       docId = doc.id;
                   }
               });
-
               if (foundUser) {
                   localStorage.setItem('pasovart_client_id', docId);
                   document.getElementById('loginScreen').style.display = 'none';
@@ -280,7 +251,6 @@
               }
           })
           .catch((error) => {
-              console.error(error);
               btn.innerText = "Sisteme Giriş Yap";
               btn.disabled = false;
               err.style.display = 'block';
@@ -290,39 +260,81 @@
 
     function fetchDataByDocId(docId) {
         db.collection("clients").doc(docId).get().then((doc) => {
-            if (doc.exists) {
-                renderDashboard(doc.data());
-            } else {
-                doLogout();
-            }
+            if (doc.exists) renderDashboard(doc.data());
+            else doLogout();
         });
     }
 
+    // --- ANA RENDER FONKSİYONU ---
     function renderDashboard(data) {
         document.getElementById('welcomeTxt').innerText = `Hoş Geldin, ${data.name || 'Misafir'} 👋`;
         
         const total = data.total || 0;
-        const paid = data.paid || 0;   
-        const debt = total - paid;
-
+        const paid = data.paid || 0;
         document.getElementById('totalPrice').innerText = `₺${total.toLocaleString('tr-TR')}`;
         document.getElementById('paidPrice').innerText = `₺${paid.toLocaleString('tr-TR')}`;
-        document.getElementById('debtPrice').innerText = `₺${debt.toLocaleString('tr-TR')}`;
+        document.getElementById('debtPrice').innerText = `₺${(total - paid).toLocaleString('tr-TR')}`;
 
-        // İş Akışı
-        const stage = data.stage || 1; 
-        document.getElementById('progressFill').style.width = (stage * 20) + "%";
+        // 1. Paket ismini al
+        const sessionPkg = (data.session && data.session.pkg) ? data.session.pkg : "";
         
-        for(let i=1; i<=5; i++) {
-            const stepEl = document.getElementById('s' + i);
-            if(i <= stage) stepEl.classList.add('active');
-            else stepEl.classList.remove('active');
+        // 2. Paket ismine göre adımları belirle
+        let stepsArray = [];
+        
+        // Eğer paket isminde "Düğün" geçiyorsa (Büyük/küçük harf duyarsız)
+        if (sessionPkg.toLowerCase().includes("düğün")) {
+            stepsArray = ["Çekim", "Yedekleme", "Montaj", "Teslimata Hazır", "Teslim Edildi"];
+        } else {
+            // Dış Çekim veya diğerleri
+            stepsArray = ["Çekim", "Yedekleme", "Düzenleme", "Baskı", "Teslimata Hazır", "Teslim Edildi"];
         }
 
-        const msgs = ["", "Hazırlık yapılıyor.", "Yedeklendi.", "Düzenleniyor.", "Baskıda.", "Teslim Edildi."];
-        document.getElementById('statusMsg').innerText = msgs[stage] || "Veri bekleniyor...";
+        // 3. Mevcut Stage bilgisini al
+        let currentStage = data.stage || 1;
+        // Güvenlik: Eğer stage, adım sayısından büyükse son adıma sabitle
+        if(currentStage > stepsArray.length) currentStage = stepsArray.length;
 
-        // Tablo Detayları (Mobile Uyumlu data-label eklendi)
+        // 4. HTML'i oluştur
+        const stepsContainer = document.getElementById('stepsContainer');
+        stepsContainer.innerHTML = ""; // Önce temizle
+
+        stepsArray.forEach((stepName, index) => {
+            const stepNum = index + 1;
+            const isActive = stepNum <= currentStage ? "active" : "";
+            
+            const stepHtml = `
+                <div class="step-item ${isActive}">
+                    <div class="step-dot">${stepNum}</div>
+                    <div class="step-label">${stepName}</div>
+                </div>
+            `;
+            stepsContainer.innerHTML += stepHtml;
+        });
+
+        // 5. İlerleme Çubuğunu (Progress Bar) Hesapla
+        // Matematik: (MevcutAdım - 1) / (ToplamAdım - 1) * 100
+        const totalSteps = stepsArray.length;
+        let progressPercent = 0;
+        
+        if (totalSteps > 1) {
+            progressPercent = ((currentStage - 1) / (totalSteps - 1)) * 100;
+        } else {
+            progressPercent = currentStage === 1 ? 100 : 0;
+        }
+        
+        document.getElementById('progressFill').style.width = progressPercent + "%";
+
+        // 6. Durum Mesajını Güncelle
+        // Son aşama ise özel mesaj, değilse "Tamamlandı" vs.
+        if (currentStage === totalSteps) {
+            document.getElementById('statusMsg').innerText = "🎉 Süreç başarıyla tamamlandı, iyi günlerde kullanın!";
+        } else {
+            // Şuan hangi aşamadaysak onun ismini göster
+            const currentStepName = stepsArray[currentStage - 1]; 
+            document.getElementById('statusMsg').innerText = `Şu anki durum: ${currentStepName}`;
+        }
+
+        // Tabloyu Doldur
         const ses = data.session || {};
         const displayDate = ses.date ? ses.date + (ses.time ? ' ' + ses.time : '') : '-';
 
