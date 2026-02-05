@@ -44,6 +44,26 @@
             width: 100%; padding: 12px; border: none; border-radius: 10px;
             background: var(--acc); color: #fff; font-weight: 700; cursor: pointer; font-size: 14px;
         }
+        .change-pass-link {
+            margin-top: 15px; font-size: 12px; color: var(--acc); cursor: pointer; 
+            text-decoration: underline; display: inline-block;
+        }
+        .change-pass-link:hover { color: #2563eb; }
+        .pass-change-box {
+            display: none; margin-top: 20px; padding-top: 20px; 
+            border-top: 1px solid #e2e8f0;
+        }
+        .pass-change-box h3 {
+            font-size: 14px; font-weight: 700; margin-bottom: 15px; color: var(--txt);
+        }
+        .success-msg {
+            background: #ecfdf5; color: var(--grn); padding: 10px; 
+            border-radius: 8px; font-size: 12px; margin-top: 10px; display: none;
+        }
+        .error-msg {
+            background: #fef2f2; color: var(--red); padding: 10px; 
+            border-radius: 8px; font-size: 12px; margin-top: 10px; display: none;
+        }
 
         /* ANA EKRAN */
         .app { display: flex; min-height: 100vh; flex-direction: column; }
@@ -375,6 +395,36 @@
             <button type="submit" class="btn-p" id="loginBtn">Sisteme Giriş Yap</button>
         </form>
         <div id="loginError" style="color:var(--red); font-size:12px; margin-top:15px; display:none;"></div>
+        
+        <div style="text-align:center;">
+            <span class="change-pass-link" onclick="togglePasswordChange()">🔐 Şifremi Değiştir</span>
+        </div>
+
+        <!-- ŞİFRE DEĞİŞTİRME BÖLÜMÜ -->
+        <div class="pass-change-box" id="passChangeBox">
+            <h3>Şifre Değiştir</h3>
+            <form onsubmit="handlePasswordChange(event)">
+                <div class="fg">
+                    <label>Kullanıcı Adı</label>
+                    <input type="text" id="changeUsername" placeholder="Kullanıcı adınız" required>
+                </div>
+                <div class="fg">
+                    <label>Şu Anki Şifre</label>
+                    <input type="password" id="currentPass" placeholder="Mevcut şifreniz" required>
+                </div>
+                <div class="fg">
+                    <label>Yeni Şifre</label>
+                    <input type="password" id="newPass" placeholder="Yeni şifreniz (min. 6 karakter)" minlength="6" required>
+                </div>
+                <div class="fg">
+                    <label>Yeni Şifre Tekrar</label>
+                    <input type="password" id="newPassConfirm" placeholder="Yeni şifrenizi tekrar girin" required>
+                </div>
+                <button type="submit" class="btn-p" id="changePassBtn" style="background:var(--grn)">Şifreyi Güncelle</button>
+            </form>
+            <div class="success-msg" id="passSuccessMsg"></div>
+            <div class="error-msg" id="passErrorMsg"></div>
+        </div>
     </div>
 </div>
 
@@ -964,6 +1014,140 @@
     function doLogout() {
         localStorage.removeItem('pasovart_client_id');
         location.reload();
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // ŞİFRE DEĞİŞTİRME FONKSİYONLARI
+    // ═══════════════════════════════════════════════════════
+
+    function togglePasswordChange() {
+        const box = document.getElementById('passChangeBox');
+        if (box.style.display === 'none' || box.style.display === '') {
+            box.style.display = 'block';
+            // Formu temizle
+            document.getElementById('changeUsername').value = '';
+            document.getElementById('currentPass').value = '';
+            document.getElementById('newPass').value = '';
+            document.getElementById('newPassConfirm').value = '';
+            document.getElementById('passSuccessMsg').style.display = 'none';
+            document.getElementById('passErrorMsg').style.display = 'none';
+        } else {
+            box.style.display = 'none';
+        }
+    }
+
+    function handlePasswordChange(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('changeUsername').value.trim();
+        const currentPass = document.getElementById('currentPass').value.trim();
+        const newPass = document.getElementById('newPass').value.trim();
+        const newPassConfirm = document.getElementById('newPassConfirm').value.trim();
+        
+        const btn = document.getElementById('changePassBtn');
+        const successMsg = document.getElementById('passSuccessMsg');
+        const errorMsg = document.getElementById('passErrorMsg');
+        
+        // Mesajları gizle
+        successMsg.style.display = 'none';
+        errorMsg.style.display = 'none';
+        
+        // Debug - konsola yazdır
+        console.log('Username:', username, 'Length:', username.length);
+        console.log('Current Pass:', currentPass ? '***' : 'boş');
+        console.log('New Pass:', newPass ? '***' : 'boş');
+        
+        // Kullanıcı adı kontrolü
+        if (!username || username.length === 0) {
+            errorMsg.innerText = 'Lütfen kullanıcı adınızı girin.';
+            errorMsg.style.display = 'block';
+            console.log('Kullanıcı adı boş!');
+            return;
+        }
+        
+        // Yeni şifre kontrolü
+        if (newPass.length < 6) {
+            errorMsg.innerText = 'Yeni şifre en az 6 karakter olmalıdır.';
+            errorMsg.style.display = 'block';
+            return;
+        }
+        
+        // Şifre eşleşme kontrolü
+        if (newPass !== newPassConfirm) {
+            errorMsg.innerText = 'Yeni şifreler eşleşmiyor. Lütfen kontrol edin.';
+            errorMsg.style.display = 'block';
+            return;
+        }
+        
+        // Aynı şifre kontrolü
+        if (currentPass === newPass) {
+            errorMsg.innerText = 'Yeni şifre eskisiyle aynı olamaz.';
+            errorMsg.style.display = 'block';
+            return;
+        }
+        
+        btn.innerText = "Güncelleniyor...";
+        btn.disabled = true;
+        
+        console.log('Kullanıcı aranıyor:', username);
+        
+        // Kullanıcıyı bul ve şifreyi kontrol et
+        db.collection("clients").where("username", "==", username).get()
+          .then((querySnapshot) => {
+              console.log('Sorgu sonucu:', querySnapshot.empty ? 'Boş' : 'Bulundu');
+              
+              if (querySnapshot.empty) {
+                  throw new Error("Kullanıcı bulunamadı.");
+              }
+              
+              let userDoc = null;
+              let docId = null;
+              
+              querySnapshot.forEach((doc) => {
+                  console.log('Kullanıcı bulundu:', doc.data().username);
+                  if (doc.data().password === currentPass) {
+                      userDoc = doc.data();
+                      docId = doc.id;
+                      console.log('Şifre eşleşti!');
+                  }
+              });
+              
+              if (!userDoc) {
+                  throw new Error("Mevcut şifre hatalı.");
+              }
+              
+              // Şifreyi güncelle
+              console.log('Şifre güncelleniyor...');
+              return db.collection("clients").doc(docId).update({
+                  password: newPass
+              });
+          })
+          .then(() => {
+              console.log('Şifre başarıyla güncellendi!');
+              successMsg.innerText = '✓ Şifreniz başarıyla güncellendi!';
+              successMsg.style.display = 'block';
+              
+              // Formu temizle
+              document.getElementById('changeUsername').value = '';
+              document.getElementById('currentPass').value = '';
+              document.getElementById('newPass').value = '';
+              document.getElementById('newPassConfirm').value = '';
+              
+              btn.innerText = "Şifreyi Güncelle";
+              btn.disabled = false;
+              
+              // 2 saniye sonra bölümü kapat
+              setTimeout(() => {
+                  togglePasswordChange();
+              }, 2000);
+          })
+          .catch((error) => {
+              console.log('Hata:', error.message);
+              btn.innerText = "Şifreyi Güncelle";
+              btn.disabled = false;
+              errorMsg.innerText = error.message || "Bir hata oluştu. Lütfen tekrar deneyin.";
+              errorMsg.style.display = 'block';
+          });
     }
 </script>
 </body>
