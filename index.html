@@ -663,6 +663,25 @@
                 }
             });
 
+            // İlk kapora ödemesini ekle (eğer varsa ve incomes'da yoksa)
+            if (clientData.paid && clientData.paid > 0) {
+                const initialPaymentDate = clientData.session?.date || clientData.date || new Date().toISOString().split('T')[0];
+                
+                // Aynı miktarda ve tarihte ödeme var mı kontrol et
+                const alreadyExists = payments.some(p => 
+                    Number(p.amt) === Number(clientData.paid) && 
+                    p.date === initialPaymentDate
+                );
+                
+                if (!alreadyExists) {
+                    payments.push({
+                        date: initialPaymentDate,
+                        desc: `${clientData.name} - İlk Kapora`,
+                        amt: clientData.paid
+                    });
+                }
+            }
+
             payments.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             const tbody = document.getElementById('paymentHistoryRow');
