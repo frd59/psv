@@ -536,24 +536,14 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyC82ZVx7sf6evT4zs3b5qoQ6H7eXTrf4Ng",
-        authDomain: "pasovartpanel.firebaseapp.com",
-        projectId: "pasovartpanel",
-        storageBucket: "pasovartpanel.firebasestorage.app",
-        messagingSenderId: "1031606727169",
-        appId: "1:1031606727169:web:bde71345525d0ec7c90600",
-        measurementId: "G-GTR6KPH1CL"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    // YENİ: FOTOĞRAF SEÇİMİ DEĞİŞKENLERİ
+    // PASOVART Müşteri Paneli - PHP/MySQL Entegrasyonu
     let currentClientData = null;
     let currentClientDocId = null;
     let selectedPhotos = [];
     const MAX_PHOTOS = 35;
+
+    // Kendi domainindeki API dosyasının yolu. Aynı klasördeyse böyle kalabilir.
+    const API_URL = 'client_api.php'; 
 
     window.onload = function() {
         const savedDocId = localStorage.getItem('pasovart_client_id');
@@ -575,57 +565,65 @@
         btn.disabled = true;
         err.style.display = 'none';
 
-        db.collection("clients").where("username", "==", username).get()
-          .then((querySnapshot) => {
-              if (querySnapshot.empty) throw new Error("Kullanıcı bulunamadı.");
-              let foundUser = null;
-              let docId = null;
-              querySnapshot.forEach((doc) => {
-                  if (doc.data().password === pass) {
-                      foundUser = doc.data();
-                      docId = doc.id;
-                  }
-              });
-              if (foundUser) {
-                  localStorage.setItem('pasovart_client_id', docId);
-                  document.getElementById('loginScreen').style.display = 'none';
-                  document.getElementById('mainApp').style.display = 'flex';
-                  currentClientDocId = docId;
-                  renderDashboard(foundUser);
-              } else {
-                  throw new Error("Şifre hatalı.");
-              }
-          })
-          .catch((error) => {
-              btn.innerText = "Sisteme Giriş Yap";
-              btn.disabled = false;
-              err.style.display = 'block';
-              err.innerText = "Bilgiler hatalı. Lütfen kontrol edin.";
-          });
+        const formData = new FormData();
+        formData.append('username', username);
+        formData.append('password', pass);
+
+        fetch(`${API_URL}?action=login`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                localStorage.setItem('pasovart_client_id', data.clientId);
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'flex';
+                fetchDataByDocId(data.clientId);
+            } else {
+                throw new Error(data.message || "Şifre hatalı.");
+            }
+        })
+        .catch((error) => {
+            btn.innerText = "Sisteme Giriş Yap";
+            btn.disabled = false;
+            err.style.display = 'block';
+            err.innerText = error.message || "Bilgiler hatalı. Lütfen kontrol edin.";
+        });
     }
 
     function fetchDataByDocId(docId) {
         currentClientDocId = docId;
-        db.collection("clients").doc(docId).get().then((doc) => {
-            if (doc.exists) renderDashboard(doc.data());
-            else doLogout();
+        
+        fetch(`${API_URL}?action=get_dashboard&id=${docId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.client) {
+                renderDashboard(data.client, data.payments, data.contract);
+            } else {
+                doLogout();
+            }
+        })
+        .catch(err => {
+            console.error("Veri çekme hatası:", err);
+            doLogout();
         });
     }
 
     // --- ANA RENDER FONKSİYONU ---
-    function renderDashboard(data) {
-        currentClientData = data;
+    function renderDashboard(clientData, paymentsData, contractData) {
+        currentClientData = clientData;
         
-        document.getElementById('welcomeTxt').innerText = `Hoş Geldin, ${data.name || 'Misafir'} 👋`;
+        document.getElementById('welcomeTxt').innerText = `Hoş Geldin, ${clientData.name || 'Misafir'} 👋`;
         
-        const total = data.total || 0;
-        const paid = data.paid || 0;
+        const total = clientData.total || 0;
+        const paid = clientData.paid || 0;
         document.getElementById('totalPrice').innerText = `₺${total.toLocaleString('tr-TR')}`;
         document.getElementById('paidPrice').innerText = `₺${paid.toLocaleString('tr-TR')}`;
         document.getElementById('debtPrice').innerText = `₺${(total - paid).toLocaleString('tr-TR')}`;
 
         // İŞ AKIŞI MANTIĞI
-        const sessionPkg = (data.session && data.session.pkg) ? data.session.pkg : "";
+        const sessionPkg = (clientData.session && clientData.session.pkg) ? clientData.session.pkg : "";
         let stepsArray = [];
         if (sessionPkg.toLowerCase().includes("düğün")) {
             stepsArray = ["Çekim", "Yedekleme", "Montaj", "Teslimata Hazır", "Teslim Edildi"];
@@ -633,7 +631,7 @@
             stepsArray = ["Çekim", "Yedekleme", "Düzenleme", "Baskı", "Teslimata Hazır", "Teslim Edildi"];
         }
 
-        let currentStage = data.stage || 1;
+        let currentStage = clientData.stage || 1;
         if(currentStage > stepsArray.length) currentStage = stepsArray.length;
 
         const stepsContainer = document.getElementById('stepsContainer');
@@ -668,7 +666,7 @@
         }
 
         // ÇEKİM DETAYLARI
-        const ses = data.session || {};
+        const ses = clientData.session || {};
         const displayDate = ses.date ? ses.date + (ses.time ? ' ' + ses.time : '') : '-';
 
         document.getElementById('sessionRow').innerHTML = `
@@ -680,137 +678,101 @@
             </tr>
         `;
 
-        // ÖDEME GEÇMİŞİ
-        fetchPayments(data);
-        
-        // SÖZLEŞME
-        prepareContract(data);
+        // ÖDEME GEÇMİŞİ ve SÖZLEŞME render işlemleri
+        renderPayments(clientData, paymentsData);
+        renderContract(clientData, contractData);
 
-        // YENİ: SEÇİLİ FOTOĞRAFLARI GÖSTER
-        if (data.selectedPhotos && data.selectedPhotos.length > 0) {
-            selectedPhotos = data.selectedPhotos;
+        // SEÇİLİ FOTOĞRAFLARI GÖSTER
+        if (clientData.selectedPhotos && clientData.selectedPhotos.length > 0) {
+            selectedPhotos = clientData.selectedPhotos;
             displaySelectedPhotosInfo();
         }
     }
 
-    function fetchPayments(clientData) {
-        const rawPhone = clientData.phone || "";
-        const cleanPhone = rawPhone.replace(/\s/g, ''); 
-
-        if(!cleanPhone || cleanPhone.length < 5) {
-             document.getElementById('paymentHistoryRow').innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--txt3)">Telefon numarası kayıtlı değil.</td></tr>';
-             return;
+    function renderPayments(clientData, payments) {
+        // İlk kapora ödemesini ekle (eğer incomes içinde yoksa)
+        if (clientData.paid && clientData.paid > 0) {
+            const initialPaymentDate = clientData.session?.date || new Date().toISOString().split('T')[0];
+            
+            const alreadyExists = payments.some(p => 
+                Number(p.amt) === Number(clientData.paid) && 
+                p.date === initialPaymentDate
+            );
+            
+            if (!alreadyExists) {
+                payments.push({
+                    date: initialPaymentDate,
+                    desc: `${clientData.name} - İlk Kapora`,
+                    amt: clientData.paid
+                });
+            }
         }
 
-        db.collection("incomes").get().then((querySnapshot) => {
-            let payments = [];
-            querySnapshot.forEach((doc) => {
-                const pay = doc.data();
-                const desc = (pay.desc || "").toLowerCase();
-                
-                if (desc.includes(rawPhone) || desc.includes(cleanPhone)) {
-                    payments.push(pay);
-                }
-            });
+        payments.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            // İlk kapora ödemesini ekle (eğer varsa ve incomes'da yoksa)
-            if (clientData.paid && clientData.paid > 0) {
-                const initialPaymentDate = clientData.session?.date || clientData.date || new Date().toISOString().split('T')[0];
-                
-                // Aynı miktarda ve tarihte ödeme var mı kontrol et
-                const alreadyExists = payments.some(p => 
-                    Number(p.amt) === Number(clientData.paid) && 
-                    p.date === initialPaymentDate
-                );
-                
-                if (!alreadyExists) {
-                    payments.push({
-                        date: initialPaymentDate,
-                        desc: `${clientData.name} - İlk Kapora`,
-                        amt: clientData.paid
-                    });
-                }
-            }
+        const tbody = document.getElementById('paymentHistoryRow');
+        if (payments.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--txt3)">Henüz ödeme kaydı bulunamadı.</td></tr>';
+            return;
+        }
 
-            payments.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            const tbody = document.getElementById('paymentHistoryRow');
-            if (payments.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--txt3)">Henüz ödeme kaydı bulunamadı.</td></tr>';
-                return;
-            }
-
-            let html = "";
-            payments.forEach(p => {
-                const d = new Date(p.date);
-                const dateStr = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-                html += `
-                    <tr>
-                        <td data-label="Tarih"><strong>${dateStr}</strong></td>
-                        <td data-label="Açıklama">${p.desc}</td>
-                        <td data-label="Tutar" style="color:var(--grn); font-weight:700">₺${Number(p.amt).toLocaleString('tr-TR')}</td>
-                    </tr>
-                `;
-            });
-            tbody.innerHTML = html;
+        let html = "";
+        payments.forEach(p => {
+            const d = new Date(p.date);
+            const dateStr = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+            html += `
+                <tr>
+                    <td data-label="Tarih"><strong>${dateStr}</strong></td>
+                    <td data-label="Açıklama">${p.desc}</td>
+                    <td data-label="Tutar" style="color:var(--grn); font-weight:700">₺${Number(p.amt).toLocaleString('tr-TR')}</td>
+                </tr>
+            `;
         });
+        tbody.innerHTML = html;
     }
     
-    function prepareContract(clientData) {
-        db.collection("contracts").where("cid", "==", clientData.id).get()
-        .then((querySnapshot) => {
-            if (!querySnapshot.empty) {
-                const contracts = [];
-                querySnapshot.forEach(doc => contracts.push(doc.data()));
-                contracts.sort((a, b) => new Date(b.date) - new Date(a.date));
-                const c = contracts[0];
+    function renderContract(clientData, contractData) {
+        if (contractData) {
+            const remaining = contractData.total - contractData.paid;
+            const dateStr = new Date(contractData.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 
-                if(c) {
-                    const remaining = c.total - c.paid;
-                    const dateStr = new Date(c.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+            const htmlContent = `
+                <div class="ct-header">
+                    <div class="ct-logo">PASOVART<span>Prodüksiyon</span></div>
+                    <div style="font-size:12px; color:#555">${dateStr}</div>
+                </div>
 
-                    const htmlContent = `
-                        <div class="ct-header">
-                            <div class="ct-logo">PASOVART<span>Prodüksiyon</span></div>
-                            <div style="font-size:12px; color:#555">${dateStr}</div>
-                        </div>
+                <div class="ct-row"><span class="ct-lbl">Müşteri Adı:</span><span class="ct-val">${clientData.name}</span></div>
+                <div class="ct-row"><span class="ct-lbl">Telefon:</span><span class="ct-val">${clientData.phone || '-'}</span></div>
 
-                        <div class="ct-row"><span class="ct-lbl">Müşteri Adı:</span><span class="ct-val">${clientData.name}</span></div>
-                        <div class="ct-row"><span class="ct-lbl">Telefon:</span><span class="ct-val">${clientData.phone || '-'}</span></div>
+                <div class="ct-box">
+                    <div class="ct-title">Hizmet Detayları</div>
+                    <div class="ct-text">${(contractData.terms || '').replace(/\n/g, '<br>')}</div>
+                </div>
 
-                        <div class="ct-box">
-                            <div class="ct-title">Hizmet Detayları</div>
-                            <div class="ct-text">${(c.terms || '').replace(/\n/g, '<br>')}</div>
-                        </div>
+                <div class="ct-box">
+                    <div class="ct-title">Ödeme Tablosu</div>
+                    <div class="ct-row"><span class="ct-lbl">Toplam Tutar:</span><span class="ct-val">₺${Number(contractData.total).toLocaleString('tr-TR')}</span></div>
+                    <div class="ct-row"><span class="ct-lbl">Alınan Kapora:</span><span class="ct-val">₺${Number(contractData.paid).toLocaleString('tr-TR')}</span></div>
+                    <div class="ct-row"><span class="ct-lbl">Kalan Bakiye:</span><span class="ct-val" style="font-weight:800">₺${Number(remaining).toLocaleString('tr-TR')}</span></div>
+                </div>
 
-                        <div class="ct-box">
-                            <div class="ct-title">Ödeme Tablosu</div>
-                            <div class="ct-row"><span class="ct-lbl">Toplam Tutar:</span><span class="ct-val">₺${Number(c.total).toLocaleString('tr-TR')}</span></div>
-                            <div class="ct-row"><span class="ct-lbl">Alınan Kapora:</span><span class="ct-val">₺${Number(c.paid).toLocaleString('tr-TR')}</span></div>
-                            <div class="ct-row"><span class="ct-lbl">Kalan Bakiye:</span><span class="ct-val" style="font-weight:800">₺${Number(remaining).toLocaleString('tr-TR')}</span></div>
-                        </div>
+                <div style="font-size:11px; color:#555; margin-top:20px; text-align:justify; line-height:1.4">
+                    İşbu sözleşme taraflar arasında yukarıda belirtilen şartlar dahilinde düzenlenmiştir.
+                    Hizmet alan kişi, çekim tarihinden en geç 3 gün öncesine kadar iptal hakkına sahiptir. 
+                    Kapora iadesi mücbir sebepler dışında yapılmamaktadır.
+                </div>
+            `;
 
-                        <div style="font-size:11px; color:#555; margin-top:20px; text-align:justify; line-height:1.4">
-                            İşbu sözleşme taraflar arasında yukarıda belirtilen şartlar dahilinde düzenlenmiştir.
-                            Hizmet alan kişi, çekim tarihinden en geç 3 gün öncesine kadar iptal hakkına sahiptir. 
-                            Kapora iadesi mücbir sebepler dışında yapılmamaktadır.
-                        </div>
-                    `;
-
-                    document.getElementById('contractCard').style.display = 'block';
-                    document.getElementById('printableContract').innerHTML = htmlContent;
-                }
-            } else {
-                document.getElementById('contractCard').style.display = 'none';
-            }
-        })
-        .catch((error) => {
-            console.log("Sözleşme çekilemedi:", error);
-        });
+            document.getElementById('contractCard').style.display = 'block';
+            document.getElementById('printableContract').innerHTML = htmlContent;
+        } else {
+            document.getElementById('contractCard').style.display = 'none';
+        }
     }
 
     // ═══════════════════════════════════════════════════════
-    // FOTOĞRAF MODAL & VIEWER FONKSİYONLARI
+    // FOTOĞRAF MODAL & VIEWER FONKSİYONLARI (Google Drive API Değişmedi)
     // ═══════════════════════════════════════════════════════
 
     function openPhotosModal() {
@@ -829,7 +791,6 @@
         document.getElementById('photosModal').style.display = 'none';
     }
 
-    // FOTOĞRAF GÖRÜNTÜLEYİCİ (VIEWER) FONKSİYONLARI
     function viewPhoto(url) {
         const viewer = document.getElementById('photoViewer');
         const img = document.getElementById('viewerImg');
@@ -845,9 +806,7 @@
     async function loadPhotosFromDrive(driveLink) {
         try {
             const folderId = extractFolderId(driveLink);
-            if (!folderId) {
-                throw new Error('Geçersiz Drive klasör linki');
-            }
+            if (!folderId) throw new Error('Geçersiz Drive klasör linki');
 
             const photos = await fetchDrivePhotos(folderId);
             
@@ -860,8 +819,6 @@
             photos.forEach(photo => {
                 const isSelected = selectedPhotos.includes(photo.name);
                 const selectedIndex = isSelected ? selectedPhotos.indexOf(photo.name) + 1 : '';
-                
-                // Büyük fotoğraf için url
                 const largeUrl = photo.thumbnailUrl.replace(/=w400/, '=w1920-h1080');
 
                 html += `
@@ -892,17 +849,13 @@
     }
 
     async function fetchDrivePhotos(folderId) {
-        // Google Drive API Key
-        const apiKey = 'AIzaSyDiFhYIRjFUtIAScAk5MNKgOMWtqEQY-JI';
-        
+        const apiKey = 'AIzaSyDiFhYIRjFUtIAScAk5MNKgOMWtqEQY-JI'; // Drive API Key
         const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType+contains+'image'&key=${apiKey}&fields=files(id,name,thumbnailLink,webContentLink)&pageSize=1000`;
 
         const response = await fetch(url);
         const data = await response.json();
 
-        if (!data.files) {
-            return [];
-        }
+        if (!data.files) return [];
 
         return data.files.map(file => ({
             id: file.id,
@@ -951,31 +904,43 @@
         document.getElementById('saveBtn').disabled = selectedPhotos.length === 0;
     }
 
-    async function saveSelectedPhotos() {
+    // FOTOĞRAF SEÇİMİNİ MYSQL'E KAYDETME (API ISTEĞI)
+    function saveSelectedPhotos() {
         if (!currentClientDocId || selectedPhotos.length === 0) return;
 
-        try {
-            const saveBtn = document.getElementById('saveBtn');
-            saveBtn.disabled = true;
-            saveBtn.textContent = 'Kaydediliyor...';
+        const saveBtn = document.getElementById('saveBtn');
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Kaydediliyor...';
 
-            await db.collection('clients').doc(currentClientDocId).update({
-                selectedPhotos: selectedPhotos
-            });
-
-            currentClientData.selectedPhotos = selectedPhotos;
-            displaySelectedPhotosInfo();
-            closePhotosModal();
-            alert('Seçiminiz başarıyla kaydedildi! ✓');
-            
-            saveBtn.disabled = false;
-            saveBtn.textContent = 'Seçimi Kaydet';
-        } catch (error) {
+        fetch(`${API_URL}?action=save_photos`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: currentClientDocId,
+                photos: selectedPhotos
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                currentClientData.selectedPhotos = selectedPhotos;
+                displaySelectedPhotosInfo();
+                closePhotosModal();
+                alert('Seçiminiz başarıyla kaydedildi! ✓');
+            } else {
+                throw new Error(data.message);
+            }
+        })
+        .catch(error => {
             console.error('Kayıt hatası:', error);
             alert('Kayıt sırasında hata oluştu. Lütfen tekrar deneyin.');
-            document.getElementById('saveBtn').disabled = false;
-            document.getElementById('saveBtn').textContent = 'Seçimi Kaydet';
-        }
+        })
+        .finally(() => {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Seçimi Kaydet';
+        });
     }
 
     function displaySelectedPhotosInfo() {
@@ -988,7 +953,7 @@
     }
 
     // ═══════════════════════════════════════════════════════
-    // SÖZLEŞME MODAL
+    // SÖZLEŞME & ÇIKIŞ
     // ═══════════════════════════════════════════════════════
 
     function openContractModal() {
@@ -1003,12 +968,8 @@
         const contractModal = document.getElementById('contractModal');
         const photosModal = document.getElementById('photosModal');
         
-        if (event.target == contractModal) {
-            contractModal.style.display = "none";
-        }
-        if (event.target == photosModal) {
-            photosModal.style.display = "none";
-        }
+        if (event.target == contractModal) contractModal.style.display = "none";
+        if (event.target == photosModal) photosModal.style.display = "none";
     }
 
     function doLogout() {
@@ -1017,14 +978,13 @@
     }
 
     // ═══════════════════════════════════════════════════════
-    // ŞİFRE DEĞİŞTİRME FONKSİYONLARI
+    // ŞİFRE DEĞİŞTİRME (MYSQL API İLE)
     // ═══════════════════════════════════════════════════════
 
     function togglePasswordChange() {
         const box = document.getElementById('passChangeBox');
         if (box.style.display === 'none' || box.style.display === '') {
             box.style.display = 'block';
-            // Formu temizle
             document.getElementById('changeUsername').value = '';
             document.getElementById('currentPass').value = '';
             document.getElementById('newPass').value = '';
@@ -1048,38 +1008,24 @@
         const successMsg = document.getElementById('passSuccessMsg');
         const errorMsg = document.getElementById('passErrorMsg');
         
-        // Mesajları gizle
         successMsg.style.display = 'none';
         errorMsg.style.display = 'none';
         
-        // Debug - konsola yazdır
-        console.log('Username:', username, 'Length:', username.length);
-        console.log('Current Pass:', currentPass ? '***' : 'boş');
-        console.log('New Pass:', newPass ? '***' : 'boş');
-        
-        // Kullanıcı adı kontrolü
-        if (!username || username.length === 0) {
+        if (!username) {
             errorMsg.innerText = 'Lütfen kullanıcı adınızı girin.';
             errorMsg.style.display = 'block';
-            console.log('Kullanıcı adı boş!');
             return;
         }
-        
-        // Yeni şifre kontrolü
         if (newPass.length < 6) {
             errorMsg.innerText = 'Yeni şifre en az 6 karakter olmalıdır.';
             errorMsg.style.display = 'block';
             return;
         }
-        
-        // Şifre eşleşme kontrolü
         if (newPass !== newPassConfirm) {
             errorMsg.innerText = 'Yeni şifreler eşleşmiyor. Lütfen kontrol edin.';
             errorMsg.style.display = 'block';
             return;
         }
-        
-        // Aynı şifre kontrolü
         if (currentPass === newPass) {
             errorMsg.innerText = 'Yeni şifre eskisiyle aynı olamaz.';
             errorMsg.style.display = 'block';
@@ -1089,65 +1035,39 @@
         btn.innerText = "Güncelleniyor...";
         btn.disabled = true;
         
-        console.log('Kullanıcı aranıyor:', username);
-        
-        // Kullanıcıyı bul ve şifreyi kontrol et
-        db.collection("clients").where("username", "==", username).get()
-          .then((querySnapshot) => {
-              console.log('Sorgu sonucu:', querySnapshot.empty ? 'Boş' : 'Bulundu');
-              
-              if (querySnapshot.empty) {
-                  throw new Error("Kullanıcı bulunamadı.");
-              }
-              
-              let userDoc = null;
-              let docId = null;
-              
-              querySnapshot.forEach((doc) => {
-                  console.log('Kullanıcı bulundu:', doc.data().username);
-                  if (doc.data().password === currentPass) {
-                      userDoc = doc.data();
-                      docId = doc.id;
-                      console.log('Şifre eşleşti!');
-                  }
-              });
-              
-              if (!userDoc) {
-                  throw new Error("Mevcut şifre hatalı.");
-              }
-              
-              // Şifreyi güncelle
-              console.log('Şifre güncelleniyor...');
-              return db.collection("clients").doc(docId).update({
-                  password: newPass
-              });
-          })
-          .then(() => {
-              console.log('Şifre başarıyla güncellendi!');
-              successMsg.innerText = '✓ Şifreniz başarıyla güncellendi!';
-              successMsg.style.display = 'block';
-              
-              // Formu temizle
-              document.getElementById('changeUsername').value = '';
-              document.getElementById('currentPass').value = '';
-              document.getElementById('newPass').value = '';
-              document.getElementById('newPassConfirm').value = '';
-              
-              btn.innerText = "Şifreyi Güncelle";
-              btn.disabled = false;
-              
-              // 2 saniye sonra bölümü kapat
-              setTimeout(() => {
-                  togglePasswordChange();
-              }, 2000);
-          })
-          .catch((error) => {
-              console.log('Hata:', error.message);
-              btn.innerText = "Şifreyi Güncelle";
-              btn.disabled = false;
-              errorMsg.innerText = error.message || "Bir hata oluştu. Lütfen tekrar deneyin.";
-              errorMsg.style.display = 'block';
-          });
+        const formData = new FormData();
+        formData.append('username', username);
+        formData.append('currentPass', currentPass);
+        formData.append('newPass', newPass);
+
+        fetch(`${API_URL}?action=change_password`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                successMsg.innerText = '✓ Şifreniz başarıyla güncellendi!';
+                successMsg.style.display = 'block';
+                
+                document.getElementById('changeUsername').value = '';
+                document.getElementById('currentPass').value = '';
+                document.getElementById('newPass').value = '';
+                document.getElementById('newPassConfirm').value = '';
+                
+                setTimeout(() => { togglePasswordChange(); }, 2000);
+            } else {
+                throw new Error(data.message || "Bir hata oluştu.");
+            }
+        })
+        .catch(err => {
+            errorMsg.innerText = err.message || "Bir hata oluştu. Lütfen tekrar deneyin.";
+            errorMsg.style.display = 'block';
+        })
+        .finally(() => {
+            btn.innerText = "Şifreyi Güncelle";
+            btn.disabled = false;
+        });
     }
 </script>
 </body>
