@@ -710,25 +710,11 @@
         }
     }
 
-    function renderPayments(clientData, payments, sessionData) {
-        // İlk kapora ödemesini ekle (eğer incomes içinde yoksa)
-        if (clientData.paid && clientData.paid > 0) {
-            const initialPaymentDate = sessionData.date || new Date().toISOString().split('T')[0];
-            
-            const alreadyExists = payments.some(p => 
-                Number(p.amt) === Number(clientData.paid) && 
-                p.date === initialPaymentDate
-            );
-            
-            if (!alreadyExists) {
-                payments.push({
-                    date: initialPaymentDate,
-                    desc: `${clientData.name} - İlk Kapora`,
-                    amt: clientData.paid
-                });
-            }
-        }
+function renderPayments(clientData, payments, sessionData) {
+        // Hatalı "İlk Kapora" ekleme mantığı tamamen kaldırıldı.
+        // Artık sadece veritabanından (incomes) gelen gerçek ödemeler listelenecek.
 
+        // Ödemeleri tarihe göre en yeniden eskiye sırala
         payments.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         const tbody = document.getElementById('paymentHistoryRow');
