@@ -536,25 +536,26 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <script>
-    // PASOVART Müşteri Paneli - PHP/MySQL Entegrasyonu
+    // PASOVART Müşteri Paneli - Merkezi API (https://pasov.art/api.php) Entegrasyonu
     let currentClientData = null;
     let currentClientDocId = null;
     let selectedPhotos = [];
     const MAX_PHOTOS = 35;
 
-    // Kendi domainindeki API dosyasının yolu. Aynı klasördeyse böyle kalabilir.
-    const API_URL = 'client_api.php'; 
+    // Yönetici paneliyle AYNI veritabanı API'si
+    const API_URL = 'https://pasov.art/api.php'; 
 
     window.onload = function() {
         const savedDocId = localStorage.getItem('pasovart_client_id');
         if(savedDocId) {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainApp').style.display = 'flex';
-            fetchDataByDocId(savedDocId);
+            loadAllData(savedDocId);
         }
     };
 
-    function handleCustomLogin(e) {
+    // ─── VERİ ÇEKME & GİRİŞ İŞLEMLERİ ───
+    async function handleCustomLogin(e) {
         e.preventDefault();
         const username = document.getElementById('userInput').value.trim();
         const pass = document.getElementById('passInput').value.trim();
@@ -565,65 +566,87 @@
         btn.disabled = true;
         err.style.display = 'none';
 
-        const formData = new FormData();
-        formData.append('username', username);
-        formData.append('password', pass);
-
-        fetch(`${API_URL}?action=login`, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                localStorage.setItem('pasovart_client_id', data.clientId);
+        try {
+            // Müşterileri çek ve giriş bilgilerini doğrula
+            const res = await fetch(`${API_URL}?collection=clients&t=${Date.now()}`);
+            if(!res.ok) throw new Error("Sunucuya ulaşılamadı.");
+            const clients = await res.json();
+            
+            const user = clients.find(c => c.username === username && c.password === pass);
+            
+            if (user) {
+                localStorage.setItem('pasovart_client_id', user.id);
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'flex';
-                fetchDataByDocId(data.clientId);
+                loadAllData(user.id);
             } else {
-                throw new Error(data.message || "Şifre hatalı.");
+                throw new Error("Kullanıcı adı veya şifre hatalı.");
             }
-        })
-        .catch((error) => {
+        } catch (error) {
             btn.innerText = "Sisteme Giriş Yap";
             btn.disabled = false;
             err.style.display = 'block';
             err.innerText = error.message || "Bilgiler hatalı. Lütfen kontrol edin.";
-        });
+        }
     }
 
-    function fetchDataByDocId(docId) {
-        currentClientDocId = docId;
+    async function loadAllData(clientId) {
+        currentClientDocId = clientId;
         
-        fetch(`${API_URL}?action=get_dashboard&id=${docId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.client) {
-                renderDashboard(data.client, data.payments, data.contract);
-            } else {
+        try {
+            // Yönetici panelindeki gibi tüm ilgili koleksiyonları çek
+            const [clientsRes, sessionsRes, incomesRes, contractsRes] = await Promise.all([
+                fetch(`${API_URL}?collection=clients&t=${Date.now()}`),
+                fetch(`${API_URL}?collection=sessions&t=${Date.now()}`),
+                fetch(`${API_URL}?collection=incomes&t=${Date.now()}`),
+                fetch(`${API_URL}?collection=contracts&t=${Date.now()}`)
+            ]);
+
+            const clients = await clientsRes.json();
+            const sessions = await sessionsRes.json();
+            const incomes = await incomesRes.json();
+            const contracts = await contractsRes.json();
+
+            // Müşteriyi bul
+            const client = clients.find(c => String(c.id) === String(clientId));
+            if (!client) {
                 doLogout();
+                return;
             }
-        })
-        .catch(err => {
+
+            // İlgili verileri eşleştir
+            const session = sessions.find(s => String(s.cid) === String(clientId)) || {};
+            const contract = contracts.find(c => String(c.cid) === String(clientId)) || null;
+            
+            // Ödemeleri eşleştir (Yönetici paneli isme veya telefona göre ödeme kaydediyor)
+            const cleanPhone = (client.phone || "").replace(/\s/g, '');
+            const payments = incomes.filter(inc => {
+                const desc = (inc.desc || "").toLowerCase();
+                return (cleanPhone && desc.includes(cleanPhone)) || desc.includes((client.name || "").toLowerCase());
+            });
+
+            renderDashboard(client, session, payments, contract);
+
+        } catch(err) {
             console.error("Veri çekme hatası:", err);
             doLogout();
-        });
+        }
     }
 
-    // --- ANA RENDER FONKSİYONU ---
-    function renderDashboard(clientData, paymentsData, contractData) {
+    // ─── ANA RENDER FONKSİYONU ───
+    function renderDashboard(clientData, sessionData, paymentsData, contractData) {
         currentClientData = clientData;
         
         document.getElementById('welcomeTxt').innerText = `Hoş Geldin, ${clientData.name || 'Misafir'} 👋`;
         
-        const total = clientData.total || 0;
-        const paid = clientData.paid || 0;
+        const total = Number(clientData.total) || 0;
+        const paid = Number(clientData.paid) || 0;
         document.getElementById('totalPrice').innerText = `₺${total.toLocaleString('tr-TR')}`;
         document.getElementById('paidPrice').innerText = `₺${paid.toLocaleString('tr-TR')}`;
         document.getElementById('debtPrice').innerText = `₺${(total - paid).toLocaleString('tr-TR')}`;
 
         // İŞ AKIŞI MANTIĞI
-        const sessionPkg = (clientData.session && clientData.session.pkg) ? clientData.session.pkg : "";
+        const sessionPkg = sessionData.pkg || "";
         let stepsArray = [];
         if (sessionPkg.toLowerCase().includes("düğün")) {
             stepsArray = ["Çekim", "Yedekleme", "Montaj", "Teslimata Hazır", "Teslim Edildi"];
@@ -631,7 +654,7 @@
             stepsArray = ["Çekim", "Yedekleme", "Düzenleme", "Baskı", "Teslimata Hazır", "Teslim Edildi"];
         }
 
-        let currentStage = clientData.stage || 1;
+        let currentStage = Number(clientData.stage) || 1;
         if(currentStage > stepsArray.length) currentStage = stepsArray.length;
 
         const stepsContainer = document.getElementById('stepsContainer');
@@ -666,21 +689,19 @@
         }
 
         // ÇEKİM DETAYLARI
-        const ses = clientData.session || {};
-        const displayDate = ses.date ? ses.date + (ses.time ? ' ' + ses.time : '') : '-';
-
+        const displayDate = sessionData.date ? sessionData.date + (sessionData.time ? ' ' + sessionData.time : '') : '-';
         document.getElementById('sessionRow').innerHTML = `
             <tr>
                 <td data-label="Tarih / Saat"><strong>${displayDate}</strong></td>
-                <td data-label="Paket">${ses.pkg || '-'}</td>
-                <td data-label="Konum">${ses.loc || '-'}</td>
-                <td data-label="Durum"><span class="badge b-wait">${ses.status || 'Planlanıyor'}</span></td>
+                <td data-label="Paket">${sessionData.pkg || '-'}</td>
+                <td data-label="Konum">${sessionData.loc || '-'}</td>
+                <td data-label="Durum"><span class="badge b-wait">${sessionData.status || 'Planlanıyor'}</span></td>
             </tr>
         `;
 
         // ÖDEME GEÇMİŞİ ve SÖZLEŞME render işlemleri
-        renderPayments(clientData, paymentsData);
-        renderContract(clientData, contractData);
+        renderPayments(clientData, paymentsData, sessionData);
+        renderContract(clientData, contractData, sessionData);
 
         // SEÇİLİ FOTOĞRAFLARI GÖSTER
         if (clientData.selectedPhotos && clientData.selectedPhotos.length > 0) {
@@ -689,10 +710,10 @@
         }
     }
 
-    function renderPayments(clientData, payments) {
+    function renderPayments(clientData, payments, sessionData) {
         // İlk kapora ödemesini ekle (eğer incomes içinde yoksa)
         if (clientData.paid && clientData.paid > 0) {
-            const initialPaymentDate = clientData.session?.date || new Date().toISOString().split('T')[0];
+            const initialPaymentDate = sessionData.date || new Date().toISOString().split('T')[0];
             
             const alreadyExists = payments.some(p => 
                 Number(p.amt) === Number(clientData.paid) && 
@@ -731,10 +752,12 @@
         tbody.innerHTML = html;
     }
     
-    function renderContract(clientData, contractData) {
+    function renderContract(clientData, contractData, sessionData) {
         if (contractData) {
-            const remaining = contractData.total - contractData.paid;
-            const dateStr = new Date(contractData.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+            const total = Number(contractData.total) || 0;
+            const paid = Number(contractData.paid) || 0;
+            const remaining = total - paid;
+            const dateStr = contractData.date ? new Date(contractData.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }) : '-';
 
             const htmlContent = `
                 <div class="ct-header">
@@ -747,14 +770,14 @@
 
                 <div class="ct-box">
                     <div class="ct-title">Hizmet Detayları</div>
-                    <div class="ct-text">${(contractData.terms || '').replace(/\n/g, '<br>')}</div>
+                    <div class="ct-text">${(contractData.terms || `Hizmet: ${sessionData.pkg || '-'}\nLokasyon: ${sessionData.loc || '-'}`).replace(/\n/g, '<br>')}</div>
                 </div>
 
                 <div class="ct-box">
                     <div class="ct-title">Ödeme Tablosu</div>
-                    <div class="ct-row"><span class="ct-lbl">Toplam Tutar:</span><span class="ct-val">₺${Number(contractData.total).toLocaleString('tr-TR')}</span></div>
-                    <div class="ct-row"><span class="ct-lbl">Alınan Kapora:</span><span class="ct-val">₺${Number(contractData.paid).toLocaleString('tr-TR')}</span></div>
-                    <div class="ct-row"><span class="ct-lbl">Kalan Bakiye:</span><span class="ct-val" style="font-weight:800">₺${Number(remaining).toLocaleString('tr-TR')}</span></div>
+                    <div class="ct-row"><span class="ct-lbl">Toplam Tutar:</span><span class="ct-val">₺${total.toLocaleString('tr-TR')}</span></div>
+                    <div class="ct-row"><span class="ct-lbl">Alınan Kapora:</span><span class="ct-val">₺${paid.toLocaleString('tr-TR')}</span></div>
+                    <div class="ct-row"><span class="ct-lbl">Kalan Bakiye:</span><span class="ct-val" style="font-weight:800">₺${remaining.toLocaleString('tr-TR')}</span></div>
                 </div>
 
                 <div style="font-size:11px; color:#555; margin-top:20px; text-align:justify; line-height:1.4">
@@ -772,7 +795,7 @@
     }
 
     // ═══════════════════════════════════════════════════════
-    // FOTOĞRAF MODAL & VIEWER FONKSİYONLARI (Google Drive API Değişmedi)
+    // FOTOĞRAF MODAL & VIEWER FONKSİYONLARI
     // ═══════════════════════════════════════════════════════
 
     function openPhotosModal() {
@@ -904,7 +927,7 @@
         document.getElementById('saveBtn').disabled = selectedPhotos.length === 0;
     }
 
-    // FOTOĞRAF SEÇİMİNİ MYSQL'E KAYDETME (API ISTEĞI)
+    // FOTOĞRAF SEÇİMİNİ KAYDETME (Yönetici Paneli API'sine Gönderim)
     function saveSelectedPhotos() {
         if (!currentClientDocId || selectedPhotos.length === 0) return;
 
@@ -912,26 +935,25 @@
         saveBtn.disabled = true;
         saveBtn.textContent = 'Kaydediliyor...';
 
-        fetch(`${API_URL}?action=save_photos`, {
+        currentClientData.selectedPhotos = selectedPhotos;
+
+        fetch(API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+                action: 'save',
+                collection: 'clients',
                 id: currentClientDocId,
-                photos: selectedPhotos
+                data: currentClientData
             })
         })
         .then(response => response.json())
         .then(data => {
-            if(data.success) {
-                currentClientData.selectedPhotos = selectedPhotos;
-                displaySelectedPhotosInfo();
-                closePhotosModal();
-                alert('Seçiminiz başarıyla kaydedildi! ✓');
-            } else {
-                throw new Error(data.message);
-            }
+            displaySelectedPhotosInfo();
+            closePhotosModal();
+            alert('Seçiminiz başarıyla kaydedildi! ✓');
         })
         .catch(error => {
             console.error('Kayıt hatası:', error);
@@ -978,7 +1000,7 @@
     }
 
     // ═══════════════════════════════════════════════════════
-    // ŞİFRE DEĞİŞTİRME (MYSQL API İLE)
+    // ŞİFRE DEĞİŞTİRME 
     // ═══════════════════════════════════════════════════════
 
     function togglePasswordChange() {
@@ -996,7 +1018,7 @@
         }
     }
 
-    function handlePasswordChange(e) {
+    async function handlePasswordChange(e) {
         e.preventDefault();
         
         const username = document.getElementById('changeUsername').value.trim();
@@ -1035,39 +1057,51 @@
         btn.innerText = "Güncelleniyor...";
         btn.disabled = true;
         
-        const formData = new FormData();
-        formData.append('username', username);
-        formData.append('currentPass', currentPass);
-        formData.append('newPass', newPass);
-
-        fetch(`${API_URL}?action=change_password`, {
-            method: 'POST',
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                successMsg.innerText = '✓ Şifreniz başarıyla güncellendi!';
-                successMsg.style.display = 'block';
-                
-                document.getElementById('changeUsername').value = '';
-                document.getElementById('currentPass').value = '';
-                document.getElementById('newPass').value = '';
-                document.getElementById('newPassConfirm').value = '';
-                
-                setTimeout(() => { togglePasswordChange(); }, 2000);
-            } else {
-                throw new Error(data.message || "Bir hata oluştu.");
+        try {
+            // Müşteriyi bul ve doğrula
+            const res = await fetch(`${API_URL}?collection=clients&t=${Date.now()}`);
+            if(!res.ok) throw new Error("Sunucuya ulaşılamıyor.");
+            const clients = await res.json();
+            
+            const user = clients.find(c => c.username === username && c.password === currentPass);
+            
+            if (!user) {
+                throw new Error("Mevcut şifre veya kullanıcı adı hatalı.");
             }
-        })
-        .catch(err => {
+
+            // Şifreyi objede güncelle ve API'ye gönder
+            user.password = newPass;
+            
+            const updateRes = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'save',
+                    collection: 'clients',
+                    id: user.id,
+                    data: user
+                })
+            });
+
+            if (!updateRes.ok) throw new Error("Kayıt sırasında hata oluştu.");
+
+            successMsg.innerText = '✓ Şifreniz başarıyla güncellendi!';
+            successMsg.style.display = 'block';
+            
+            document.getElementById('changeUsername').value = '';
+            document.getElementById('currentPass').value = '';
+            document.getElementById('newPass').value = '';
+            document.getElementById('newPassConfirm').value = '';
+            
+            setTimeout(() => { togglePasswordChange(); }, 2000);
+
+        } catch (err) {
             errorMsg.innerText = err.message || "Bir hata oluştu. Lütfen tekrar deneyin.";
             errorMsg.style.display = 'block';
-        })
-        .finally(() => {
+        } finally {
             btn.innerText = "Şifreyi Güncelle";
             btn.disabled = false;
-        });
+        }
     }
 </script>
 </body>
